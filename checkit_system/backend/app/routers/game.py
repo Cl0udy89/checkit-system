@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session
 from app.services.content_service import content_service
 from app.services.game_service import game_service
-from app.schemas import GameResult, GameScore # Need to ensure GameScore schema is distinct from model or used carefully
+from app.schemas import GameResult
 from app.models import GameScore as GameScoreModel
 from pydantic import BaseModel
 from typing import List, Dict, Any
