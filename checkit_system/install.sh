@@ -8,14 +8,24 @@ echo ">>> Starting CheckIT System Installation..."
 
 # 1. System Updates & Dependencies
 echo ">>> Updating system and installing dependencies..."
-sudo apt-get update
-sudo apt-get install -y python3-pip python3-venv git libgpiod2 libopenjp2-7 libtiff5 libatlas-base-dev
+
+# Detect sudo
+if command -v sudo &> /dev/null; then
+    SUDO="sudo"
+    SUDO_E="sudo -E"
+else
+    SUDO=""
+    SUDO_E=""
+fi
+
+$SUDO apt-get update
+$SUDO apt-get install -y python3-pip python3-venv git libgpiod2 libopenjp2-7 libtiff5 libatlas-base-dev build-essential python3-dev
 
 # 2. Node.js Setup (using nvm or simpler method for RPi)
 echo ">>> Installing Node.js (Latest LTS)..."
 if ! command -v node &> /dev/null; then
-    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-    sudo apt-get install -y nodejs
+    curl -fsSL https://deb.nodesource.com/setup_20.x | $SUDO_E bash -
+    $SUDO apt-get install -y nodejs
 else
     echo "Node.js already installed: $(node -v)"
 fi
