@@ -9,10 +9,12 @@ interface User {
 
 interface GameState {
     user: User | null
+    score: number
     setUser: (user: User) => void
-    resetGame: () => void
     login: (user: User) => void
     logout: () => void
+    setScore: (score: number) => void
+    resetGame: () => void
 }
 
 export const useGameStore = create<GameState>()(
@@ -20,6 +22,7 @@ export const useGameStore = create<GameState>()(
         (set) => ({
             user: null,
             score: 0,
+            setUser: (user) => set({ user }),
             login: (user) => set({ user }),
             logout: () => set({ user: null, score: 0 }),
             setScore: (score) => set({ score }),
