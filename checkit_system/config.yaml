@@ -10,23 +10,12 @@ api:
 game:
   initial_points: 10000
   # Points lost per millisecond
-  decay_rate_per_ms: 0.1
-  # Minimum score to trigger hardware (Binary Brain)
-  binary_brain_trigger_threshold: 0.8
-  
-hardware:
-  solenoid:
-    gpio_pin: 26  # Default, can be changed
-    active_duration_seconds: 5
-  patch_panel:
-    # Logic is hardcoded as per wiring, but input pins can be overridden here if needed
-    scan_interval_ms: 50
+  points_decay_ms: 0.1
 
-security:
-  profanity_list_url: "https://raw.githubusercontent.com/ani-iz/polskie-wulgaryzmy/master/wulgaryzmy.txt"
-  domain_blocklist:
-    - "temp-mail.org"
-    - "10minutemail.com"
-    - "guerrillamail.com"
-    - "sharklasers.com"
-    - "yopmail.com"
+hardware:
+  solenoid_pin: 26 # BCM
+  solenoid_open_time_sec: 5
+
+auth:
+  admin_user: "admin"
+  admin_pass: "checkit2024"

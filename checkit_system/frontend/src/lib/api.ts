@@ -1,11 +1,25 @@
 import axios from 'axios'
 
 export const api = axios.create({
-    baseURL: 'http://localhost:8000/api/v1', // TODO: Make configurable via env
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    baseURL: 'http://localhost:8000/api/v1'
 })
+
+// Auth Interceptor
+api.interceptors.request.use(config => {
+    const token = localStorage.getItem('admin_token')
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+})
+
+export const loginAdmin = async (formData: FormData) => {
+    const res = await api.post('/auth/token', formData)
+    return res.data
+}
+
+export const fetchAdminUsers = async () => (await api.get('/admin/users')).data
+export const fetchAdminScores = async () => (await api.get('/admin/scores')).data
 
 export const fetchLeaderboard = async () => {
     const { data } = await api.get('/leaderboard/')
