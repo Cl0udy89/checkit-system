@@ -9,13 +9,16 @@ api:
 
 game:
   initial_points: 10000
-  # Points lost per millisecond
   points_decay_ms: 0.1
 
 hardware:
-  solenoid_pin: 26 # BCM
+  solenoid_pin: 26
   solenoid_open_time_sec: 5
 
 auth:
   admin_user: "admin"
   admin_pass: "checkit2024"
+
+security:
+  profanity_list_url: "https://raw.githubusercontent.com/zacanger/profane-words/master/words.txt"
+  domain_blocklist: ["tempmail.com", "10minutemail.com"]
