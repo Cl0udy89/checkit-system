@@ -2,14 +2,45 @@
 
 System obsługi stoiska na wydarzenie IT "CheckIT". Aplikacja typu Kiosk/Server obsługująca 3 gry edukacyjne, sterująca fizycznym hardwarem (Patch Panel, Solenoid, LED) i wyświetlająca rankingi.
 
-## Instalacja
+## Instalacja i Architektura
 
-### Wymagania
-- Raspberry Pi 4 (Raspberry Pi OS Bookworm)
-- Python 3.10+
-- Node.js 20+
+System działa w architekturze Klient-Serwer:
+1. **Serwer (Proxmox/x86):** Baza danych, API, Leaderboard.
+2. **Klient (Raspberry Pi/ARM):** Gry, Hardware (Patch Panel, Solenoid).
+
+### 1. Instalacja SERWERA (Proxmox/Docker/PC)
+Serwer uruchamiamy na maszynie, która będzie zbierać wyniki. Nie wymaga GPIO.
+
+```bash
+# Uruchom skrypt instalacyjny dla SERWERA
+chmod +x install_server.sh
+./install_server.sh
+```
+
+**Uruchomienie:**
+- Backend: `cd backend && source venv/bin/activate && uvicorn main:app --host 0.0.0.0 --port 8000`
+- Frontend: `cd frontend && npm run dev` (lub build)
+
+### 2. Instalacja KLIENTA (Raspberry Pi 4)
+Klient (Kiosk) łączy się z hardwarem i wysyła wyniki do Serwera.
+
+```bash
+# Uruchom skrypt instalacyjny dla KLIENTA (wymaga RPi)
+chmod +x install_client.sh
+./install_client.sh
+```
+
+**Konfiguracja Połączenia:**
+1. Sprawdź IP Serwera (np. `192.168.1.100`).
+2. Edytuj `config.yaml` na Kliencie:
+   ```yaml
+   api:
+     sync_endpoint: "http://192.168.1.100:8000/api/v1/games/submit" # Dostosuj IP
+   ```
+3. Uruchomienie jak wyżej (Backend + Frontend).
 
 ### Szybki Start (Raspberry Pi)
+Poniższa sekcja dotyczy starej wersji (Standalone), zachowana dla kompatybilności wstecznej jeśli używasz 1 urządzenia:
 1. Sklonuj repozytorium:
    ```bash
    git clone <repo_url>
@@ -17,24 +48,10 @@ System obsługi stoiska na wydarzenie IT "CheckIT". Aplikacja typu Kiosk/Server 
    ```
 2. Uruchom skrypt instalacyjny:
    ```bash
-   chmod +x install.sh
-   ./install.sh
+   chmod +x install_client.sh # Traktuj RPi jako Klienta z lokalną bazą
+   ./install_client.sh
    ```
 3. Skonfiguruj `config.yaml` (opcjonalnie).
-
-### Uruchomienie (Dev/Production)
-1. **Backend**:
-   ```bash
-   cd backend
-   source venv/bin/activate
-   uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-   ```
-2. **Frontend**:
-   ```bash
-   cd frontend
-   npm run dev 
-   # Lub build: npm run build && npm run preview
-   ```
 
 ## Hardware Wiring (Patch Master)
 
