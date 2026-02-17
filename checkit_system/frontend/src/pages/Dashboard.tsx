@@ -7,9 +7,9 @@ export default function Dashboard() {
     const navigate = useNavigate()
     const user = useGameStore(state => state.user)
 
-    // useEffect(() => {
-    //   if (!user) navigate('/')
-    // }, [user, navigate])
+    useEffect(() => {
+        if (!user) navigate('/')
+    }, [user, navigate])
 
     const games = [
         {
