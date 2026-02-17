@@ -1,0 +1,61 @@
+import logging
+from typing import List, Dict
+from app.hardware.gpio_manager import gpio_manager, GPIO
+from app.config_loader import settings
+
+logger = logging.getLogger(__name__)
+
+class PatchPanel:
+    def __init__(self):
+        # Mapping: Port Number (Physical Label) -> GPIO Pin (BCM)
+        # As per prompt:
+        # Pair 1: Port 1 (GND) <-> Port 14 (GPIO_17)
+        # Pair 2: Port 2 (GND) <-> Port 19 (GPIO_27)
+        # Pair 3: Port 4 (GND) <-> Port 17 (GPIO_22)
+        # Pair 4: Port 5 (GND) <-> Port 24 (GPIO_10)
+        # Pair 5: Port 6 (GND) <-> Port 18 (GPIO_09)
+        # Pair 6: Port 7 (GND) <-> Port 21 (GPIO_11)
+        # Pair 7: Port 9 (GND) <-> Port 22 (GPIO_05)
+        # Pair 8: Port 11 (GND) <-> Port 23 (GPIO_06)
+        
+        self.pin_mapping = [
+            {"label": "Pair 1", "gpio": 17},
+            {"label": "Pair 2", "gpio": 27},
+            {"label": "Pair 3", "gpio": 22},
+            {"label": "Pair 4", "gpio": 10},
+            {"label": "Pair 5", "gpio": 9},
+            {"label": "Pair 6", "gpio": 11},
+            {"label": "Pair 7", "gpio": 5},
+            {"label": "Pair 8", "gpio": 6},
+        ]
+        
+        # Initialize Pins
+        for pair in self.pin_mapping:
+            # Setup as Input with Pull Up. 
+            # If connected to END (Ground), it will read LOW.
+            gpio_manager.setup_input(pair["gpio"], GPIO.PUD_UP)
+
+    def get_state(self) -> List[Dict[str, any]]:
+        """
+        Returns the state of all pairs.
+        Connected (LOW) = True
+        Disconnected (HIGH) = False
+        """
+        results = []
+        for pair in self.pin_mapping:
+            state = gpio_manager.read(pair["gpio"])
+            # LOW (0) means connected to GND -> True
+            is_connected = (state == GPIO.LOW)
+            results.append({
+                "label": pair["label"],
+                "gpio": pair["gpio"],
+                "connected": is_connected
+            })
+        return results
+
+    def is_solved(self) -> bool:
+        """Returns True if ALL pairs are connected."""
+        state = self.get_state()
+        return all(pair["connected"] for pair in state)
+
+patch_panel = PatchPanel()

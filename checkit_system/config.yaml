@@ -1,0 +1,32 @@
+system:
+  node_id: "checkit-rpi-01"
+  log_level: "INFO"
+
+api:
+  sync_endpoint: "https://api.checkit.event/v1/logs"
+  sync_interval_seconds: 60
+  retry_interval_seconds: 10
+
+game:
+  initial_points: 10000
+  # Points lost per millisecond
+  decay_rate_per_ms: 0.1
+  # Minimum score to trigger hardware (Binary Brain)
+  binary_brain_trigger_threshold: 0.8
+  
+hardware:
+  solenoid:
+    gpio_pin: 26  # Default, can be changed
+    active_duration_seconds: 5
+  patch_panel:
+    # Logic is hardcoded as per wiring, but input pins can be overridden here if needed
+    scan_interval_ms: 50
+
+security:
+  profanity_list_url: "https://raw.githubusercontent.com/ani-iz/polskie-wulgaryzmy/master/wulgaryzmy.txt"
+  domain_blocklist:
+    - "temp-mail.org"
+    - "10minutemail.com"
+    - "guerrillamail.com"
+    - "sharklasers.com"
+    - "yopmail.com"
