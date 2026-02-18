@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { api, fetchAdminUsers, fetchAdminScores, deleteUser } from '../lib/api'
+import { api, fetchAdminUsers, fetchAdminScores, deleteUser, fetchSystemConfig, setSystemConfig, fetchEmailTemplates, updateEmailTemplate, sendAllEmails } from '../lib/api'
 import { useNavigate } from 'react-router-dom'
-import { Shield, Zap, RefreshCw, Lock, LogOut } from 'lucide-react'
+import { Shield, Zap, RefreshCw, Lock, LogOut, Settings, Mail } from 'lucide-react'
 import AdminLogin from './AdminLogin'
 import { useState } from 'react'
 
@@ -9,11 +9,13 @@ import { useState } from 'react'
 const triggerSolenoid = async () => api.post('/admin/solenoid/trigger')
 const fetchHardwareStatus = async () => (await api.get('/admin/hardware/status')).data
 const fetchAdminLogs = async () => (await api.get('/admin/logs')).data
+const fetchConfig = async () => (await api.get('/admin/config')).data
 
 export default function Admin() {
     const navigate = useNavigate()
     const token = localStorage.getItem('admin_token')
-    const [activeTab, setActiveTab] = useState<'hardware' | 'users' | 'scores' | 'logs'>('hardware')
+    const [activeTab, setActiveTab] = useState<'hardware' | 'users' | 'scores' | 'logs' | 'settings' | 'email'>('hardware')
+    const [emailSuccess, setEmailSuccess] = useState('')
 
     if (!token) return <AdminLogin />
 
@@ -43,6 +45,43 @@ export default function Admin() {
         enabled: activeTab === 'logs'
     })
 
+    const { data: config, refetch: refetchConfig } = useQuery({
+        queryKey: ['admin_config'],
+        queryFn: fetchSystemConfig,
+        enabled: activeTab === 'settings'
+    })
+
+    const { data: templates, refetch: refetchTemplates } = useQuery({
+        queryKey: ['admin_templates'],
+        queryFn: fetchEmailTemplates,
+        enabled: activeTab === 'email'
+    })
+
+    // Mutations
+    const configMutation = useMutation({
+        mutationFn: ({ key, value }: { key: string, value: string }) => setSystemConfig(key, value),
+        onSuccess: () => refetchConfig()
+    })
+
+    // We can use local state for editing templates, simplistic approach here
+    const [editingTemplate, setEditingTemplate] = useState<{ slug: string, subject: string, body: string } | null>(null)
+
+    const updateTemplateMutation = useMutation({
+        mutationFn: () => updateEmailTemplate(editingTemplate!.slug, editingTemplate!.subject, editingTemplate!.body),
+        onSuccess: () => {
+            setEditingTemplate(null)
+            refetchTemplates()
+        }
+    })
+
+    const sendEmailsMutation = useMutation({
+        mutationFn: sendAllEmails,
+        onSuccess: (data: any) => {
+            setEmailSuccess(`Emails Queued: ${data.count} (Winners: ${data.winner_count})`)
+            setTimeout(() => setEmailSuccess(''), 5000)
+        }
+    })
+
     const solenoidMutation = useMutation({
         mutationFn: triggerSolenoid,
         onSuccess: () => alert("Solenoid Triggered")
@@ -66,7 +105,10 @@ export default function Admin() {
                 <button onClick={() => setActiveTab('users')} className={`px-4 py-2 border ${activeTab === 'users' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>UŻYTKOWNICY</button>
 
                 <button onClick={() => setActiveTab('scores')} className={`px-4 py-2 border ${activeTab === 'scores' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>WYNIKI</button>
+                <button onClick={() => setActiveTab('scores')} className={`px-4 py-2 border ${activeTab === 'scores' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>WYNIKI</button>
                 <button onClick={() => setActiveTab('logs')} className={`px-4 py-2 border ${activeTab === 'logs' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>LOGI SYSTEMOWE</button>
+                <button onClick={() => setActiveTab('settings')} className={`px-4 py-2 border ${activeTab === 'settings' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>USTAWIENIA</button>
+                <button onClick={() => setActiveTab('email')} className={`px-4 py-2 border ${activeTab === 'email' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>EMAIL</button>
             </div>
 
             {activeTab === 'hardware' && (

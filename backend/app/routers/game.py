@@ -21,8 +21,16 @@ class GameSubmit(BaseModel):
 
 @router.get("/status")
 async def get_user_game_status(user=Depends(get_current_user), session: AsyncSession = Depends(get_session)):
+    from app.models import SystemConfig
+    from sqlmodel import select
+    
+    # Check competition state
+    conf_res = await session.execute(select(SystemConfig).where(SystemConfig.key == "competition_active"))
+    conf = conf_res.scalar_one_or_none()
+    competition_active = conf.value == "true" if conf else True # Default true if not set
+    
     """
-    Returns the user's best score for each game type.
+    Returns the user's best score for each game type and system status.
     """
     from sqlmodel import select
     from app.models import GameScore
@@ -43,6 +51,11 @@ async def get_user_game_status(user=Depends(get_current_user), session: AsyncSes
             if s.score > status[s.game_type]["score"] or not status[s.game_type]["played"]:
                 status[s.game_type]["played"] = True
                 status[s.game_type]["score"] = s.score
+                
+                status[s.game_type]["score"] = s.score
+    
+    # Append system state
+    status["competition_active"] = competition_active
                 
     return status
 
@@ -84,6 +97,14 @@ async def get_content(game_type: str):
 
 @router.post("/submit", response_model=GameResult)
 async def submit_game(submission: GameSubmit, session: AsyncSession = Depends(get_session)):
+    from app.models import SystemConfig
+    from sqlmodel import select
+    # Check competition state
+    conf_res = await session.execute(select(SystemConfig).where(SystemConfig.key == "competition_active"))
+    conf = conf_res.scalar_one_or_none()
+    if conf and conf.value == "false":
+        raise HTTPException(status_code=403, detail="Competition has ended.")
+
     result = await game_service.finish_game(
         game_type=submission.game_type,
         user_id=submission.user_id,

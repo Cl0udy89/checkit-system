@@ -8,6 +8,7 @@ from typing import List, Dict
 
 router = APIRouter(tags=["Leaderboard"])
 
+@router.get("")
 @router.get("/")
 async def get_leaderboard(session: AsyncSession = Depends(get_session)):
     # 1. Top Scores per Game

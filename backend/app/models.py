@@ -24,3 +24,13 @@ class GameLog(SQLModel, table=True):
     details: str
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     synced: bool = Field(default=False)
+
+class SystemConfig(SQLModel, table=True):
+    key: str = Field(primary_key=True)
+    value: str
+
+class EmailTemplate(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    slug: str = Field(unique=True, index=True) # e.g. "winner_grandmaster"
+    subject: str
+    body_template: str # Jinja2 format or simple f-string placeholders
