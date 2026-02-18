@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { api, fetchAdminUsers, fetchAdminScores } from '../lib/api'
+import { api, fetchAdminUsers, fetchAdminScores, deleteUser } from '../lib/api'
 import { useNavigate } from 'react-router-dom'
 import { Shield, Zap, RefreshCw, Lock, LogOut } from 'lucide-react'
 import AdminLogin from './AdminLogin'

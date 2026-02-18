@@ -1,128 +1,181 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { fetchGameContent, submitGameScore } from '../lib/api'
+import { fetchITMatchQuestions, api } from '../lib/api'
+import { useNavigate } from 'react-router-dom'
+import { Check, X, Info } from 'lucide-react'
 import { useGameStore } from '../hooks/useGameStore'
-import { Search, Check, X } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
+
+interface Question {
+    id: number
+    question: string
+    image: string
+    is_correct: boolean // true = RIGHT (Safe), false = LEFT (Danger)
+}
 
 export default function ITMatch() {
     const navigate = useNavigate()
-    const user = useGameStore(state => state.user)
-    const [currentQIndex, setCurrentQIndex] = useState(0)
-    const [answers, setAnswers] = useState<Record<string, string>>({})
+    const { user } = useGameStore()
+    const [questions, setQuestions] = useState<Question[]>([])
+    const [currentIndex, setCurrentIndex] = useState(0)
+    const [score, setScore] = useState(0)
+    const [gameOver, setGameOver] = useState(false)
     const [startTime] = useState(Date.now())
-    const [currentPotentialScore, setCurrentPotentialScore] = useState(10000)
 
-    // Polling Hardware State
-    const { data: questions, isLoading } = useQuery({
-        queryKey: ['questions', 'it_match'],
-        queryFn: () => fetchGameContent('it_match'),
-        staleTime: Infinity
+    // Fetch questions
+    const { data, isLoading } = useQuery({
+        queryKey: ['it_match_questions'],
+        queryFn: fetchITMatchQuestions,
+        refetchOnWindowFocus: false
     })
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            const elapsed = Date.now() - startTime
-            const score = Math.max(0, 10000 - (elapsed * 0.1))
-            setCurrentPotentialScore(Math.floor(score))
-        }, 100)
-        return () => clearInterval(interval)
-    }, [startTime])
+        if (data) setQuestions(data)
+    }, [data])
 
-    const submitMutation = useMutation({
-        mutationFn: submitGameScore,
-        onSuccess: (data) => {
-            alert(`IT Match Finished! Score: ${data.score}`)
-            navigate('/dashboard')
-        }
-    })
+    const handleSwipe = (direction: 'left' | 'right') => {
+        const currentQ = questions[currentIndex]
+        // logic: right = accept/safe (is_correct=true), left = reject/danger (is_correct=false)
+        const isSafe = currentQ.is_correct
+        const userChoiceSafe = direction === 'right'
 
-    const handleAnswer = (choice: string) => {
-        if (!questions) return
-        const currentQ = questions[currentQIndex]
-        setAnswers(prev => ({ ...prev, [currentQ.ID]: choice }))
-
-        if (currentQIndex < questions.length - 1) {
-            setCurrentQIndex(prev => prev + 1)
+        if (userChoiceSafe === isSafe) {
+            setScore(prev => prev + 100)
         } else {
-            const duration = Date.now() - startTime
-            submitMutation.mutate({
-                user_id: user?.id || 0,
-                game_type: 'it_match',
-                answers: { ...answers, [currentQ.ID]: choice },
-                duration_ms: duration
-            })
+            setScore(prev => Math.max(0, prev - 50)) // Penalty
+        }
+
+        if (currentIndex < questions.length - 1) {
+            setCurrentIndex(prev => prev + 1)
+        } else {
+            finishGame()
         }
     }
 
-    if (isLoading) return <div className="p-10 text-center animate-pulse">LOADING_DATA_STREAM...</div>
-    if (!questions || questions.length === 0) return <div className="p-10 text-center text-red-500">NO_DATA_FOUND</div>
+    const finishGame = async () => {
+        setGameOver(true)
+        const endTime = Date.now()
+        const duration = endTime - startTime
 
-    const q = questions[currentQIndex]
+        // Final Score Calculation (Simple for now)
+        // Bonus for speed if perfect score? Or just raw score.
+        // Let's just save raw score + duration.
+
+        if (user) {
+            try {
+                await api.post('/game/submit', {
+                    game_type: 'IT_MATCH',
+                    score: score,
+                    duration_ms: duration
+                })
+            } catch (e) {
+                console.error("Failed to submit score", e)
+            }
+        }
+    }
+
+    if (isLoading) return <div className="text-white text-center mt-20 font-mono">LOADING_ASSETS...</div>
+
+    if (gameOver) {
+        return (
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center font-mono text-white p-4">
+                <h1 className="text-4xl font-bold text-primary mb-4">LICZENIE PUNKTÓW...</h1>
+                <div className="text-2xl mb-8">TWÓJ WYNIK: {score}</div>
+                <button onClick={() => navigate('/dashboard')} className="bg-primary text-black px-8 py-3 rounded font-bold hover:bg-green-400">
+                    POWRÓT DO BAZY
+                </button>
+            </div>
+        )
+    }
 
     return (
-        <div className="min-h-screen bg-background p-6 flex flex-col relative overflow-hidden">
-            {/* HUD */}
-            <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
-                <h1 className="text-2xl font-mono text-primary flex items-center gap-2">
-                    <Search size={24} /> IT_MATCH
-                </h1>
-                <div className="text-right">
-                    <div className="text-xs text-gray-500 font-mono">POTENTIAL SCORE</div>
-                    <div className="text-4xl font-mono font-bold text-white tracking-widest text-shadow-neon">
-                        {currentPotentialScore.toString().padStart(5, '0')}
-                    </div>
-                </div>
+        <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-between p-4 overflow-hidden relative">
+            <div className="absolute top-4 left-4 text-white font-mono z-10">
+                SCORE: {score} | PROG: {currentIndex + 1}/{questions.length}
             </div>
 
-            {/* Card */}
-            <div className="flex-1 flex flex-col justify-center items-center max-w-md mx-auto w-full relative">
-                <AnimatePresence mode='wait'>
-                    <motion.div
-                        key={currentQIndex}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8, x: 200 }} // Swipe effect
-                        className="bg-surface border border-gray-700 rounded-xl overflow-hidden shadow-2xl w-full"
-                    >
-                        {/* Image Area */}
-                        <div className="h-64 bg-gray-900 flex items-center justify-center relative">
-                            {/* Placeholder or Real Image */}
-                            {/* TODO: Use real image path: http://localhost:8000/content/it_match/images/{q.SCIEZKA_FOTO} */}
-                            {q.SCIEZKA_FOTO ? (
-                                <img
-                                    src={`http://localhost:8000/content/it_match/images/${q.ID}.jpg`}
-                                    alt="Question"
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                <div className="text-gray-600 font-mono">NO_IMAGE_DATA</div>
-                            )}
-                            <div className="absolute font-mono top-4 right-4 bg-black/50 px-2 rounded text-xs">{currentQIndex + 1}/{questions.length}</div>
-                        </div>
-
-                        <div className="p-6">
-                            <h2 className="text-xl font-bold mb-6 text-center">{q.PYTANIE}</h2>
-
-                            <div className="flex gap-4">
-                                <button
-                                    onClick={() => handleAnswer('NO')}
-                                    className="flex-1 bg-red-900/50 hover:bg-red-600 border border-red-500 text-white py-4 rounded-lg flex justify-center gap-2 transition-all"
-                                >
-                                    <X /> NO
-                                </button>
-                                <button
-                                    onClick={() => handleAnswer('YES')}
-                                    className="flex-1 bg-green-900/50 hover:bg-green-600 border border-green-500 text-white py-4 rounded-lg flex justify-center gap-2 transition-all"
-                                >
-                                    <Check /> YES
-                                </button>
-                            </div>
-                        </div>
-                    </motion.div>
+            <div className="w-full max-w-md h-[70vh] relative flex items-center justify-center mt-10">
+                <AnimatePresence>
+                    {questions.length > 0 && currentIndex < questions.length && (
+                        <Card
+                            key={questions[currentIndex].id}
+                            question={questions[currentIndex]}
+                            onSwipe={handleSwipe}
+                        />
+                    )}
                 </AnimatePresence>
             </div>
+
+            <div className="flex gap-4 w-full max-w-md mb-8 z-10">
+                <button
+                    onClick={() => document.dispatchEvent(new CustomEvent('manual-swipe', { detail: 'left' }))}
+                    className="flex-1 bg-red-600/80 hover:bg-red-500 py-4 rounded-full flex justify-center items-center"
+                >
+                    <X size={32} color="white" />
+                </button>
+                <div className="flex items-center text-gray-500 text-xs font-mono uppercase tracking-widest">
+                    <span className="mr-2">Danger</span>
+                    <Info size={16} />
+                    <span className="ml-2">Safe</span>
+                </div>
+                <button
+                    onClick={() => document.dispatchEvent(new CustomEvent('manual-swipe', { detail: 'right' }))}
+                    className="flex-1 bg-green-600/80 hover:bg-green-500 py-4 rounded-full flex justify-center items-center"
+                >
+                    <Check size={32} color="white" />
+                </button>
+            </div>
         </div>
+    )
+}
+
+function Card({ question, onSwipe }: { question: Question, onSwipe: (dir: 'left' | 'right') => void }) {
+    const x = useMotionValue(0)
+    const rotate = useTransform(x, [-200, 200], [-30, 30])
+    const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0])
+    const bg = useTransform(x, [-100, 0, 100], ['rgba(255, 0, 0, 0.3)', 'rgba(0,0,0,0)', 'rgba(0, 255, 0, 0.3)'])
+
+    useEffect(() => {
+        const handler = (e: any) => {
+            const dir = e.detail
+            if (dir === 'left') x.set(-250) // Animate out
+            if (dir === 'right') x.set(250)
+            setTimeout(() => onSwipe(dir), 200)
+        }
+        document.addEventListener('manual-swipe', handler)
+        return () => document.removeEventListener('manual-swipe', handler)
+    }, [onSwipe, x])
+
+    return (
+        <motion.div
+            style={{ x, rotate, opacity }}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            onDragEnd={(e, info) => {
+                if (info.offset.x > 100) onSwipe('right')
+                else if (info.offset.x < -100) onSwipe('left')
+            }}
+            className="absolute w-full h-full bg-black border border-gray-700 rounded-2xl shadow-2xl p-6 flex flex-col items-center text-center cursor-grab active:cursor-grabbing select-none"
+        >
+            <motion.div className="absolute inset-0 rounded-2xl pointer-events-none z-0" style={{ backgroundColor: bg }} />
+
+            <div className="w-full h-48 bg-gray-800 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative z-10">
+                {question.image && question.image !== 'none' ? (
+                    // Placeholder image logic - in real app, fetch from assets
+                    <img src={`/assets/it_match/${question.image}`} alt="Quiz" className="object-cover w-full h-full" onError={(e) => e.currentTarget.style.display = 'none'} />
+                ) : (
+                    <span className="text-gray-600 font-mono">NO IMAGE</span>
+                )}
+                {/* Safe fallback text if image fails or is missing */}
+                <span className="absolute text-gray-700 font-mono text-xs bottom-2 right-2">{question.image}</span>
+            </div>
+
+            <h3 className="text-xl md:text-2xl font-bold text-white mb-4 z-10">{question.question}</h3>
+
+            <div className="mt-auto text-gray-400 text-sm font-mono z-10">
+                Swipe RIGHT if SAFE<br />
+                Swipe LEFT if DANGER
+            </div>
+        </motion.div>
     )
 }

@@ -1,0 +1,11 @@
+id,question,image,is_correct
+1,"Czy to hasło jest bezpieczne: 'M@rch2024!' ?","password_strength.jpg",1
+2,"Czy ten e-mail wygląda na phishing?","phishing_email.jpg",0
+3,"Czy powinieneś wpuścić osobę bez identyfikatora?","tailgating.jpg",0
+4,"Czy znalezienie USB na parkingu to okazja?","usb_drive.jpg",0
+5,"Czy aktualizacje systemu są ważne?","update_screen.jpg",1
+6,"Czy szyfrowanie dysku jest potrzebne w biurze?","laptop_office.jpg",1
+7,"Czy można podać hasło adminowi przez telefon?","phone_call.jpg",0
+8,"Czy dwuskładnikowe uwierzytelnianie (2FA) jest warto włączyć?","2fa_screen.jpg",1
+9,"Czy publiczne Wi-Fi jest bezpieczne do bankowości?","wifi_cafe.jpg",0
+10,"Czy zablokowanie komputera przed wyjściem na kawę jest konieczne?","locked_pc.jpg",1

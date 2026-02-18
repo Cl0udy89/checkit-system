@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.database import init_db
-from app.routers import auth, game, leaderboard, admin
+from app.routers import auth, game, leaderboard, admin, it_match
 from app.services.sync_service import sync_service
 from app.simple_config import settings
 import logging
@@ -46,10 +46,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router, prefix="/api/v1/auth")
-app.include_router(game.router, prefix="/api/v1")
-app.include_router(leaderboard.router, prefix="/api/v1")
-app.include_router(admin.router, prefix="/api/v1")
+API_V1_STR = "/api/v1"
+
+app.include_router(auth.router, prefix=f"{API_V1_STR}/auth", tags=["auth"])
+app.include_router(game.router, prefix=f"{API_V1_STR}/game", tags=["game"])
+app.include_router(it_match.router, prefix=f"{API_V1_STR}/game/it-match", tags=["it-match"])
+app.include_router(leaderboard.router, prefix=f"{API_V1_STR}/leaderboard", tags=["leaderboard"])
+app.include_router(admin.router, prefix=f"{API_V1_STR}/admin", tags=["admin"])
 
 # Mount content directory for images
 from pathlib import Path

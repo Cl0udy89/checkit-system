@@ -26,6 +26,8 @@ export const deleteUser = async (userId: number) => {
 export const fetchAdminUsers = async () => (await api.get('/admin/users')).data
 export const fetchAdminScores = async () => (await api.get('/admin/scores')).data
 
+export const fetchITMatchQuestions = async () => (await api.get('/game/it-match/questions')).data
+
 export const fetchLeaderboard = async () => {
     const { data } = await api.get('/leaderboard/')
     return data
