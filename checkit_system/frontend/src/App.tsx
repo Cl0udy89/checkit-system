@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Welcome from './pages/Welcome'
-// Placeholder imports for now
-const Dashboard = () => <div className="p-10 text-primary">Dashboard (TODO)</div>
+import Dashboard from './pages/Dashboard'
 import BinaryBrain from './pages/BinaryBrain'
 import PatchMaster from './pages/PatchMaster'
 import ITMatch from './pages/ITMatch'
