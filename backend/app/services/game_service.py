@@ -18,47 +18,50 @@ class GameService:
                           session: AsyncSession,
                           score: int = None) -> GameScore:
         
-        score = 0
+        # score argument is passed from controller. If None, we calculate it.
+        final_score = score if score is not None else 0
         passed = False
         
         # 1. Calculate Score
         if game_type == "binary_brain":
             if score is not None:
                 # Trust client score for Kiosk mode
-                pass
+                final_score = score
             else:
-                score, _ = await self._calculate_binary_brain(answers, duration_ms)
+                final_score, _ = await self._calculate_binary_brain(answers, duration_ms)
             
             # Solenoid Trigger: Score >= 5000
-            if score >= 5000:
-                logger.info(f"Binary Brain passed! Score: {score}. Triggering Solenoid.")
+            if final_score >= 5000:
+                logger.info(f"Binary Brain passed! Score: {final_score}. Triggering Solenoid.")
                 import asyncio
                 asyncio.create_task(solenoid.open_box())
                 
                 # Log Event
-                session.add(GameLog(event_type="SOLENOID", details=f"Open Triggered by User {user_id} (Score: {score})"))
+                session.add(GameLog(event_type="SOLENOID", details=f"Open Triggered by User {user_id} (Score: {final_score})"))
             else:
-                logger.info(f"Binary Brain finished but score {score} < 5000. No box.")
+                logger.info(f"Binary Brain finished but score {final_score} < 5000. No box.")
 
         elif game_type == "patch_master":
-            score = await self._calculate_patch_master(duration_ms)
+            final_score = await self._calculate_patch_master(duration_ms)
             # Patch Master validation is checking hardware state
             # Assuming client calls finish when it Thinks it's done.
             # Double check hardware:
             if not patch_panel.is_solved():
                 logger.warning("Patch Master finish requested but hardware not solved.")
-                score = 0 # Penalty?
+                final_score = 0 # Penalty?
             else:
                 logger.info("Patch Master solved verified.")
 
         elif game_type == "it_match":
-            score = await self._calculate_it_match(answers, duration_ms)
+            # If client provides score, maybe trust it too? 
+            # But let's fix calculation first.
+            final_score = await self._calculate_it_match(answers, duration_ms)
 
         # 2. Save Score
         game_score = GameScore(
             user_id=user_id,
             game_type=game_type,
-            score=max(0, int(score)), # Ensure non-negative
+            score=max(0, int(final_score)), # Ensure non-negative
             duration_ms=duration_ms,
             synced=False
         )
@@ -66,7 +69,7 @@ class GameService:
             session.add(game_score)
             
             # Add Log
-            session.add(GameLog(event_type="GAME_FINISHED", details=f"User {user_id} finished {game_type} with {score} pts"))
+            session.add(GameLog(event_type="GAME_FINISHED", details=f"User {user_id} finished {game_type} with {final_score} pts"))
             
             await session.commit()
             await session.refresh(game_score)
@@ -117,7 +120,20 @@ class GameService:
         for q_id, ans in answers.items():
             correct = content_service.get_correct_answer("it_match", q_id)
             # IT Match usually is YES/NO.
-            if correct and str(ans).lower() == str(correct).lower():
+            # IT Match usually is YES/NO.
+            # Convert both to string and lower. 
+            # Handle user boolean (True/False) vs '1'/'0' or 'true'/'false'
+            
+            user_ans = str(ans).lower()
+            corr_ans = str(correct).lower()
+            
+            # Normalization
+            if user_ans == 'true': user_ans = '1'
+            if user_ans == 'false': user_ans = '0'
+            if corr_ans == 'true': corr_ans = '1'
+            if corr_ans == 'false': corr_ans = '0'
+            
+            if correct and user_ans == corr_ans:
                 correct_count += 1
         
         accuracy = correct_count / max(1, len(answers))
