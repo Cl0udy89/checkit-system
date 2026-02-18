@@ -18,6 +18,11 @@ export const loginAdmin = async (formData: FormData) => {
     return res.data
 }
 
+export const deleteUser = async (userId: number) => {
+    const res = await api.delete(`/admin/users/${userId}`)
+    return res.data
+}
+
 export const fetchAdminUsers = async () => (await api.get('/admin/users')).data
 export const fetchAdminScores = async () => (await api.get('/admin/scores')).data
 
