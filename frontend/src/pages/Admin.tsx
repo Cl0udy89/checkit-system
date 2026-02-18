@@ -81,6 +81,22 @@ export default function Admin() {
         }
     })
 
+    const clearLogsMutation = useMutation({
+        mutationFn: clearLogs,
+        onSuccess: () => {
+            alert("Logi wyczyszczone")
+            window.location.reload()
+        }
+    })
+
+    const resetDbMutation = useMutation({
+        mutationFn: resetDatabase,
+        onSuccess: () => {
+            alert("BAZA DANYCH ZRESETOWANA.")
+            window.location.reload()
+        }
+    })
+
     const solenoidMutation = useMutation({
         mutationFn: triggerSolenoid,
         onSuccess: () => alert("Solenoid Triggered")
@@ -267,16 +283,56 @@ export default function Admin() {
                     </div>
 
                     <div className="mb-4 p-4 border border-green-800 bg-black">
-                        <label className="block text-white font-bold mb-2">ADRES EMAIL NADAWCY</label>
-                        <div className="flex gap-2">
-                            <input
-                                type="email"
-                                placeholder="noreply@checkit.com"
-                                defaultValue={config?.email_sender || ""}
-                                onBlur={(e) => configMutation.mutate({ key: 'email_sender', value: e.target.value })}
-                                className="bg-gray-900 border border-green-800 p-2 text-white flex-1"
-                            />
-                            <button className="bg-green-900 px-4 py-2 text-white">ZAPISZ</button>
+                        <label className="block text-white font-bold mb-4 border-b border-gray-800 pb-2">KONFIGURACJA EMAIL (SMTP)</label>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label className="text-xs text-gray-500 block mb-1">NADAWCA (FROM)</label>
+                                <input
+                                    type="email"
+                                    placeholder="noreply@checkit.com"
+                                    defaultValue={config?.email_sender || ""}
+                                    onBlur={(e) => configMutation.mutate({ key: 'email_sender', value: e.target.value })}
+                                    className="bg-gray-900 border border-green-800 p-2 text-white w-full"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs text-gray-500 block mb-1">SMTP HOST</label>
+                                <input
+                                    placeholder="smtp.gmail.com"
+                                    defaultValue={config?.smtp_host || ""}
+                                    onBlur={(e) => configMutation.mutate({ key: 'smtp_host', value: e.target.value })}
+                                    className="bg-gray-900 border border-green-800 p-2 text-white w-full"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs text-gray-500 block mb-1">SMTP PORT</label>
+                                <input
+                                    placeholder="587"
+                                    defaultValue={config?.smtp_port || "587"}
+                                    onBlur={(e) => configMutation.mutate({ key: 'smtp_port', value: e.target.value })}
+                                    className="bg-gray-900 border border-green-800 p-2 text-white w-full"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs text-gray-500 block mb-1">SMTP USER</label>
+                                <input
+                                    placeholder="user@example.com"
+                                    defaultValue={config?.smtp_user || ""}
+                                    onBlur={(e) => configMutation.mutate({ key: 'smtp_user', value: e.target.value })}
+                                    className="bg-gray-900 border border-green-800 p-2 text-white w-full"
+                                />
+                            </div>
+                            <div>
+                                <label className="text-xs text-gray-500 block mb-1">SMTP PASSWORD</label>
+                                <input
+                                    type="password"
+                                    placeholder="******"
+                                    defaultValue={config?.smtp_password || ""}
+                                    onBlur={(e) => configMutation.mutate({ key: 'smtp_password', value: e.target.value })}
+                                    className="bg-gray-900 border border-green-800 p-2 text-white w-full"
+                                />
+                            </div>
                         </div>
                     </div>
 
