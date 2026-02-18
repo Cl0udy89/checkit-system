@@ -19,16 +19,19 @@ export default function BinaryBrain() {
     const [currentQIndex, setCurrentQIndex] = useState(0)
     const [answers, setAnswers] = useState<Record<string, string>>({})
     const [shuffledOptions, setShuffledOptions] = useState<any[]>([])
-    const [startTime] = useState(Date.now())
-    const [timeLeft, setTimeLeft] = useState(100) // Percentage for visual bar
 
-    // Game config
-    const MAX_TIME_MS = 60000 // 60s total for quiz? Or just linear decay based on speed.
-    // Prompt says "Punkty spadają liniowo... Licznik musi wizualnie uciekać". 
-    // Let's show a "Points" counter descending from 10000.
-    const START_POINTS = 10000
+    // Scoring State
+    const [totalScore, setTotalScore] = useState(0)
+    const [currentPotentialScore, setCurrentPotentialScore] = useState(1000)
+    const [questionStartTime, setQuestionStartTime] = useState(Date.now())
+
+    // UI State
+    const [gameState, setGameState] = useState<'playing' | 'feedback' | 'finished'>('playing')
+    const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | null>(null)
+    const [finalResult, setFinalResult] = useState<{ score: number, boxOpened: boolean } | null>(null)
+
     const DECAY_PER_MS = 0.05 // 50 points per second
-    const [currentPotentialScore, setCurrentPotentialScore] = useState(START_POINTS)
+    const MAX_Q_POINTS = 1000
 
     const { data: questions, isLoading } = useQuery({
         queryKey: ['questions', 'binary_brain'],
@@ -47,64 +50,81 @@ export default function BinaryBrain() {
                 { text: q.answer_wrong3, isCorrect: false },
             ]
             setShuffledOptions(shuffle(options))
+            // Reset timer for new question
+            setQuestionStartTime(Date.now())
+            setCurrentPotentialScore(MAX_Q_POINTS)
         }
     }, [questions, currentQIndex])
 
-    // Timer Effect
+    // Timer Effect (Per Question)
     useEffect(() => {
-        const interval = setInterval(() => {
-            const elapsed = Date.now() - startTime
-            const score = Math.max(0, START_POINTS - (elapsed * DECAY_PER_MS))
-            setCurrentPotentialScore(Math.floor(score))
+        if (gameState !== 'playing') return
 
-            if (score <= 0) {
-                // Time over? Or just 0 points?
-                // Let's just keep it at 0.
-            }
+        const interval = setInterval(() => {
+            const elapsed = Date.now() - questionStartTime
+            const score = Math.max(0, MAX_Q_POINTS - (elapsed * DECAY_PER_MS))
+            setCurrentPotentialScore(Math.floor(score))
         }, 50)
         return () => clearInterval(interval)
-    }, [startTime])
+    }, [questionStartTime, gameState])
 
     const submitMutation = useMutation({
         mutationFn: submitGameScore,
         onSuccess: (data) => {
-            // Show result modal or navigate
-            alert(`Game Over! Score: ${data.score}. Triggered: ${data.score > 8000 ? 'YES' : 'NO'}`) // Simple alert for now
-            navigate('/dashboard')
+            // Already handled by local state, this is just to confirm save
+            console.log("Score saved:", data)
+        },
+        onError: (err) => {
+            console.error("Failed to save score:", err)
+            alert("Błąd zapisu wyniku! Sprawdź terminal.")
         }
     })
 
     const handleAnswer = (option: any) => {
-        if (!questions) return
+        if (!questions || gameState !== 'playing') return
         const currentQ = questions[currentQIndex]
 
-        // Save answer (we could save the text or isCorrect status)
-        // Backend expects { question_id: answer_text }
-        // Although for validation, strict matching is harder if text changes.
-        // Let's assume backend validates by text match
+        // Stop timer visually
+        setGameState('feedback')
 
-        // For UI feedback, we can flash red/green here if we wanted.
+        const isCorrect = option.isCorrect
+        setLastAnswerCorrect(isCorrect)
 
+        // Calculate points for this question
+        let pointsEarned = 0
+        if (isCorrect) {
+            pointsEarned = currentPotentialScore
+            setTotalScore(prev => prev + pointsEarned)
+        }
+
+        // Record Answer
         setAnswers(prev => ({ ...prev, [currentQ.id]: option.text }))
 
-        if (currentQIndex < questions.length - 1) {
-            setCurrentQIndex(prev => prev + 1)
-        } else {
-            // Finish
-            const duration = Date.now() - startTime
-            // Calculate score locally for "fun" display, but backend does real calc usually.
-            // Here we just submit.
-            if (user) {
-                submitMutation.mutate({
-                    user_id: user.id,
-                    game_type: 'binary_brain',
-                    answers: { ...answers, [currentQ.id]: option.text },
-                    duration_ms: duration
-                })
+        // Wait a bit then move on
+        setTimeout(() => {
+            if (currentQIndex < questions.length - 1) {
+                setCurrentQIndex(prev => prev + 1)
+                setGameState('playing')
+                setLastAnswerCorrect(null)
             } else {
-                alert("Game Finished! (Score not saved: No User logged in)")
-                navigate('/dashboard')
+                finishGame(totalScore + pointsEarned) // Pass final updated score
             }
+        }, 1500)
+    }
+
+    const finishGame = (finalScore: number) => {
+        setGameState('finished')
+        const boxOpened = finalScore >= 5000
+        setFinalResult({ score: finalScore, boxOpened })
+
+        if (user) {
+            submitMutation.mutate({
+                user_id: user.id,
+                game_type: 'binary_brain',
+                answers: answers, // Note: this might miss the last one if updated in state async, but for saving score explicitly we use 'score' param
+                duration_ms: 0, // Not tracking total duration anymore, irrelevant
+                score: finalScore
+            })
         }
     }
 
@@ -112,8 +132,36 @@ export default function BinaryBrain() {
     if (!questions || questions.length === 0) return <div className="p-10 text-center text-red-500">NO_DATA_FOUND</div>
 
     const q = questions ? questions[currentQIndex] : null
+    if (!q && gameState !== 'finished') return <div className="p-10 text-center text-red-500">ERROR_LOADING_QUESTION</div>
 
-    if (!q) return <div className="p-10 text-center text-red-500">ERROR_LOADING_QUESTION</div>
+    // GAME OVER SCREEN
+    if (gameState === 'finished' && finalResult) {
+        return (
+            <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 text-center">
+                <h1 className="text-5xl font-mono font-bold text-primary mb-8 glow-text">SYSTEM UPDATE COMPLETE</h1>
+
+                <div className="mb-12">
+                    <div className="text-gray-400 text-xl font-mono mb-2">FINAL SCORE</div>
+                    <div className="text-7xl font-bold text-white mb-8">{finalResult.score}</div>
+
+                    <div className={`text-3xl font-bold p-4 border-2 rounded-xl ${finalResult.boxOpened ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-red-500 text-red-400 bg-red-500/10'}`}>
+                        {finalResult.boxOpened ? "ACCESS GRANTED - BOX OPENING..." : "ACCESS DENIED - SCORE TOO LOW"}
+                    </div>
+                    {!finalResult.boxOpened && <div className="text-gray-500 mt-2 font-mono text-sm">Target: 5000 pts</div>}
+                </div>
+
+                <div className="flex gap-4">
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="bg-gray-800 hover:bg-gray-700 text-white px-8 py-4 rounded-lg font-bold font-mono text-xl transition-colors"
+                    >
+                        RETURN TO DASHBOARD
+                    </button>
+                    {!user && <div className="text-red-500 mt-4">Warning: User not logged in. Score not saved.</div>}
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className="min-h-screen bg-background flex flex-col p-6 relative overflow-hidden">
@@ -122,32 +170,38 @@ export default function BinaryBrain() {
                 <h1 className="text-2xl font-mono text-primary flex items-center gap-2">
                     <Zap size={24} /> BINARY_BRAIN
                 </h1>
-                <div className="text-right">
-                    <div className="text-xs text-gray-500 font-mono">POTENTIAL SCORE</div>
-                    <div className="text-4xl font-mono font-bold text-white tracking-widest text-shadow-neon">
-                        {currentPotentialScore.toString().padStart(5, '0')}
+                <div className="flex gap-8 text-right">
+                    <div>
+                        <div className="text-xs text-gray-500 font-mono">TOTAL SCORE</div>
+                        <div className="text-3xl font-mono font-bold text-accent">{totalScore}</div>
+                    </div>
+                    <div>
+                        <div className="text-xs text-gray-500 font-mono">POTENTIAL</div>
+                        <div className={`text-4xl font-mono font-bold tracking-widest text-shadow-neon ${gameState === 'feedback' ? (lastAnswerCorrect ? 'text-green-500' : 'text-red-500') : 'text-white'}`}>
+                            {currentPotentialScore.toString().padStart(4, '0')}
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Question Card */}
-            <div className="flex-1 flex flex-col justify-center max-w-4xl mx-auto w-full">
+            <div className="flex-1 flex flex-col justify-center max-w-4xl mx-auto w-full relative">
                 <AnimatePresence mode='wait'>
                     <motion.div
                         key={currentQIndex}
                         initial={{ opacity: 0, x: 50 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -50 }}
-                        className="bg-surface border border-gray-700 p-8 rounded-lg shadow-2xl relative"
+                        className={`bg-surface border p-8 rounded-lg shadow-2xl relative transition-colors duration-300 ${gameState === 'feedback' ? (lastAnswerCorrect ? 'border-green-500/50 bg-green-900/10' : 'border-red-500/50 bg-red-900/10') : 'border-gray-700'}`}
                     >
                         <div className="absolute top-0 right-0 bg-gray-800 px-3 py-1 text-xs font-mono rounded-bl-lg">
                             Q: {currentQIndex + 1} / {questions.length}
                         </div>
 
-                        <h2 className="text-2xl font-bold mb-8 text-white">{q.question}</h2>
+                        <h2 className="text-2xl font-bold mb-8 text-white">{q?.question}</h2>
 
                         {/* Image Logic */}
-                        {q.image && (
+                        {q?.image && (
                             <div className="mb-6 rounded-lg overflow-hidden border border-gray-700 bg-black/50 mx-auto max-w-lg">
                                 <img
                                     src={`/content/binary_brain/images/${q.image}`}
@@ -163,15 +217,34 @@ export default function BinaryBrain() {
                                 <button
                                     key={idx}
                                     onClick={() => handleAnswer(opt)}
-                                    className="p-4 border border-gray-600 hover:border-primary hover:bg-primary/10 text-left transition-all font-mono group rounded relative overflow-hidden"
+                                    disabled={gameState !== 'playing'}
+                                    className={`p-4 border text-left transition-all font-mono group rounded relative overflow-hidden
+                                        ${gameState === 'feedback'
+                                            ? (opt.isCorrect
+                                                ? 'border-green-500 bg-green-500/20 text-white'
+                                                : 'border-gray-800 opacity-50')
+                                            : 'border-gray-600 hover:border-primary hover:bg-primary/10 text-gray-300 hover:text-white'
+                                        }
+                                    `}
                                 >
-                                    <span className="text-primary font-bold mr-2 group-hover:text-white">[{idx + 1}]</span>
+                                    <span className={`font-bold mr-2 ${gameState === 'feedback' && opt.isCorrect ? 'text-green-400' : 'text-primary'}`}>[{idx + 1}]</span>
                                     {opt.text}
                                 </button>
                             ))}
                         </div>
                     </motion.div>
                 </AnimatePresence>
+
+                {/* Feedback Overlay Message */}
+                {gameState === 'feedback' && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`absolute top-[-50px] left-0 w-full text-center text-2xl font-bold font-mono ${lastAnswerCorrect ? 'text-green-500' : 'text-red-500'}`}
+                    >
+                        {lastAnswerCorrect ? "CORRECT (+POINTS)" : "INCORRECT (0 POINTS)"}
+                    </motion.div>
+                )}
             </div>
 
             {/* Progress Bar */}

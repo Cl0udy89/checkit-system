@@ -17,6 +17,7 @@ class GameSubmit(BaseModel):
     game_type: str
     answers: Dict[str, Any] # question_id: answer
     duration_ms: int
+    score: int | None = None # Optional client-side calculated score
 
 @router.get("/status")
 async def get_user_game_status(user=Depends(get_current_user), session: AsyncSession = Depends(get_session)):
@@ -81,7 +82,8 @@ async def submit_game(submission: GameSubmit, session: AsyncSession = Depends(ge
         user_id=submission.user_id,
         answers=submission.answers,
         duration_ms=submission.duration_ms,
-        session=session
+        session=session,
+        score=submission.score
     )
     
     # We need to fetch nick or just return what we have? 

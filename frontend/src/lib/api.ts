@@ -38,7 +38,7 @@ export const fetchGameContent = async (gameType: string) => {
     return data
 }
 
-export const submitGameScore = async (payload: { user_id: number, game_type: string, answers: any, duration_ms: number }) => {
+export const submitGameScore = async (payload: { user_id: number, game_type: string, answers: any, duration_ms: number, score?: number }) => {
     const { data } = await api.post('/games/submit', payload)
     return data
 }

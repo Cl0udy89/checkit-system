@@ -15,22 +15,27 @@ class GameService:
                           user_id: int, 
                           answers: dict, 
                           duration_ms: int,
-                          session: AsyncSession) -> GameScore:
+                          session: AsyncSession,
+                          score: int = None) -> GameScore:
         
         score = 0
         passed = False
         
         # 1. Calculate Score
         if game_type == "binary_brain":
-            score, passed = await self._calculate_binary_brain(answers, duration_ms)
-            if passed:
+            if score is not None:
+                # Trust client score for Kiosk mode
+                pass
+            else:
+                score, _ = await self._calculate_binary_brain(answers, duration_ms)
+            
+            # Solenoid Trigger: Score >= 5000
+            if score >= 5000:
                 logger.info(f"Binary Brain passed! Score: {score}. Triggering Solenoid.")
-                # Async trigger solenoid (fire and forget or await?)
-                # Best to await or create task. Since solenoid.open_box has logic, we can await it.
-                # However, we don't want to block the response too long. 
-                # Solenoid.open_box waits 5s. We should spawn a task.
                 import asyncio
                 asyncio.create_task(solenoid.open_box())
+            else:
+                logger.info(f"Binary Brain finished but score {score} < 5000. No box.")
 
         elif game_type == "patch_master":
             score = await self._calculate_patch_master(duration_ms)
