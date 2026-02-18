@@ -17,7 +17,10 @@ class AuthService:
     def _load_profanity_list(self) -> set:
         try:
             # Fallback/Default small list if download fails or for offline start
-            bad_words = {"chuj", "kurwa", "dupa", "pizda", "jebac", "pierdolic", "cipa"} 
+            bad_words = {
+                "chuj", "kurwa", "dupa", "pizda", "jebac", "pierdolic", "cipa", "kutas", "fiut",
+                "szmata", "dziwka", "pedal", "zjeb", "debil", "idiota", "frajer", "szwinia", "ruchanie"
+            } 
             if settings.security.profanity_list_url:
                 try:
                     response = requests.get(settings.security.profanity_list_url, timeout=5)
@@ -51,11 +54,11 @@ class AuthService:
 
         # 1. Validate Profanity
         if self.is_profane(user_in.nick):
-            raise HTTPException(status_code=400, detail="Nick contains inappropriate language.")
+            raise HTTPException(status_code=400, detail="Nick zawiera wulgaryzmy. Wybierz inny.")
 
         # 2. Validate Email Domain
         if self.is_domain_blocked(user_in.email):
-            raise HTTPException(status_code=400, detail="Email domain is blocked.")
+            raise HTTPException(status_code=400, detail="Domena email zablokowana.")
 
         # 3. Check if user exists (Get or Create Logic)
         # Check by Nick
@@ -70,7 +73,7 @@ class AuthService:
                 return existing_user_nick
             else:
                 # Nick taken by someone else
-                raise HTTPException(status_code=409, detail="Nick already taken by another user.")
+                raise HTTPException(status_code=409, detail="Nick zajęty przez innego użytkownika.")
 
         # Check by Email (to prevent one email having multiple nicks if desired, or allow it?)
         # User said: "useerr moze sie zalogowac tlyko raz na jendego maila" -> One account per email?
@@ -87,7 +90,7 @@ class AuthService:
              # imply unique email -> unique user.
              # If I register with new nick but old email, I should probably get the old user or error?
              # Let's return error to be safe and consistent.
-             raise HTTPException(status_code=409, detail="Email already registered with different nick.")
+             raise HTTPException(status_code=409, detail="Email już zarejestrowany z innym nickiem.")
 
         # 4. Create User
         user = User(nick=user_in.nick, email=user_in.email)

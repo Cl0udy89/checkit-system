@@ -19,7 +19,7 @@ export default function AdminLogin() {
             localStorage.setItem('admin_token', data.access_token)
             window.location.reload() // Reload to trigger admin view in parent
         } catch (err) {
-            setError('Invalid Credentials')
+            setError('Nieprawidłowe dane')
         }
     }
 
@@ -27,13 +27,13 @@ export default function AdminLogin() {
         <div className="min-h-screen bg-black flex items-center justify-center p-4">
             <form onSubmit={handleLogin} className="bg-gray-900 double-border p-8 rounded-xl w-full max-w-md border border-green-800 shadow-[0_0_20px_rgba(0,255,0,0.1)]">
                 <h1 className="text-2xl font-mono font-bold text-green-500 mb-6 flex items-center gap-2">
-                    <Lock /> ADMIN_ACCESS
+                    <Lock /> DOSTĘP ADMINA
                 </h1>
                 {error && <div className="bg-red-900/30 text-red-500 p-2 mb-4 text-sm font-mono border border-red-900">{error}</div>}
 
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-green-700 font-mono text-xs mb-1">IDENTIFIER</label>
+                        <label className="block text-green-700 font-mono text-xs mb-1">IDENTYFIKATOR</label>
                         <input
                             type="text"
                             value={username}
@@ -42,7 +42,7 @@ export default function AdminLogin() {
                         />
                     </div>
                     <div>
-                        <label className="block text-green-700 font-mono text-xs mb-1">KEY</label>
+                        <label className="block text-green-700 font-mono text-xs mb-1">HASŁO</label>
                         <input
                             type="password"
                             value={password}
@@ -51,7 +51,7 @@ export default function AdminLogin() {
                         />
                     </div>
                     <button type="submit" className="w-full bg-green-900/20 hover:bg-green-900/40 text-green-500 border border-green-700 py-3 font-mono font-bold transition-all">
-                        AUTHENTICATE
+                        ZALOGUJ
                     </button>
                 </div>
             </form>

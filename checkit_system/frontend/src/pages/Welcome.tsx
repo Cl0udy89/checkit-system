@@ -27,9 +27,9 @@ export default function Welcome() {
         onError: (err: any) => {
             console.error("Registration Error:", err)
             if (err.message === "Network Error") {
-                setError("Connection failure. Is Backend running?")
+                setError("Błąd połączenia. Czy serwer działa?")
             } else {
-                setError(err.response?.data?.detail || 'Registration failed. Try different nick.')
+                setError(err.response?.data?.detail || 'Rejestracja nieudana. Spróbuj innego nicku.')
             }
         }
     })
@@ -55,7 +55,7 @@ export default function Welcome() {
                     <h1 className="text-5xl font-mono font-bold text-white mb-2 tracking-tighter">
                         CHECK<span className="text-primary">IT</span>
                     </h1>
-                    <p className="text-gray-400 font-mono text-sm tracking-widest">SYSTEM_READY // WAITING_FOR_USER</p>
+                    <p className="text-gray-400 font-mono text-sm tracking-widest">SYSTEM GOTOWY // OCZEKIWANIE NA UŻYTKOWNIKA</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="bg-surface border border-gray-800 p-8 rounded-xl shadow-2xl backdrop-blur-sm relative group">
@@ -72,7 +72,7 @@ export default function Welcome() {
                         )}
 
                         <div className="space-y-2">
-                            <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">Codename (Nick)</label>
+                            <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">Nick</label>
                             <div className="relative">
                                 <User className="absolute left-3 top-3 text-gray-600" size={20} />
                                 <input
@@ -80,13 +80,13 @@ export default function Welcome() {
                                     value={nick}
                                     onChange={e => setNick(e.target.value)}
                                     className="w-full bg-black/50 border border-gray-700 text-white pl-10 pr-4 py-3 rounded focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-mono"
-                                    placeholder="ENTER_NICK"
+                                    placeholder="WPISZ NICK"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">Secure Comms (Email)</label>
+                            <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">Email</label>
                             <div className="relative">
                                 <Mail className="absolute left-3 top-3 text-gray-600" size={20} />
                                 <input
@@ -94,7 +94,7 @@ export default function Welcome() {
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
                                     className="w-full bg-black/50 border border-gray-700 text-white pl-10 pr-4 py-3 rounded focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-mono"
-                                    placeholder="ENTER_EMAIL"
+                                    placeholder="WPISZ EMAIL"
                                 />
                             </div>
                         </div>
@@ -104,7 +104,7 @@ export default function Welcome() {
                             disabled={mutation.isPending}
                             className="w-full bg-primary hover:bg-green-400 text-black font-bold py-4 rounded transition-all flex justify-center items-center gap-2 group/btn"
                         >
-                            {mutation.isPending ? 'INITIALIZING...' : 'INITIALIZE_SESSION'}
+                            {mutation.isPending ? 'ŁADOWANIE...' : 'ROZPOCZNIJ SESJĘ'}
                             <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
                         </button>
                     </div>

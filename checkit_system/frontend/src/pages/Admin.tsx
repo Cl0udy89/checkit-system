@@ -47,16 +47,16 @@ export default function Admin() {
                     <Shield /> ADMIN_CONSOLE // ROOT_ACCESS
                 </h1>
                 <div className="flex gap-4">
-                    <button onClick={() => { localStorage.removeItem('admin_token'); window.location.reload() }} className="hover:text-red-500 flex items-center gap-2"><LogOut size={16} /> LOGOUT</button>
-                    <button onClick={() => navigate('/dashboard')} className="hover:text-white">EXIT</button>
+                    <button onClick={() => { localStorage.removeItem('admin_token'); window.location.reload() }} className="hover:text-red-500 flex items-center gap-2"><LogOut size={16} /> WYLOGUJ</button>
+                    <button onClick={() => navigate('/dashboard')} className="hover:text-white">WYJŚCIE</button>
                 </div>
             </header>
 
             {/* Tabs */}
             <div className="flex gap-4 mb-8">
-                <button onClick={() => setActiveTab('hardware')} className={`px-4 py-2 border ${activeTab === 'hardware' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>HARDWARE</button>
-                <button onClick={() => setActiveTab('users')} className={`px-4 py-2 border ${activeTab === 'users' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>USERS</button>
-                <button onClick={() => setActiveTab('scores')} className={`px-4 py-2 border ${activeTab === 'scores' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>SCORES</button>
+                <button onClick={() => setActiveTab('hardware')} className={`px-4 py-2 border ${activeTab === 'hardware' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>SPRZĘT</button>
+                <button onClick={() => setActiveTab('users')} className={`px-4 py-2 border ${activeTab === 'users' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>UŻYTKOWNICY</button>
+                <button onClick={() => setActiveTab('scores')} className={`px-4 py-2 border ${activeTab === 'scores' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>WYNIKI</button>
             </div>
 
             {activeTab === 'hardware' && (
@@ -105,7 +105,8 @@ export default function Admin() {
                                 <th className="p-3">ID</th>
                                 <th className="p-3">NICK</th>
                                 <th className="p-3">EMAIL</th>
-                                <th className="p-3">CREATED_AT</th>
+                                <th className="p-3">UTWORZONO</th>
+                                <th className="p-3">AKCJA</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -115,6 +116,24 @@ export default function Admin() {
                                     <td className="p-3 font-bold text-white">{u.nick}</td>
                                     <td className="p-3 text-gray-400">{u.email}</td>
                                     <td className="p-3">{u.created_at}</td>
+                                    <td className="p-3">
+                                        <button
+                                            onClick={async () => {
+                                                if (confirm(`Czy na pewno chcesz usunąć użytkownika ${u.nick}? To usunie również jego wyniki.`)) {
+                                                    try {
+                                                        await deleteUser(u.id)
+                                                        alert("Użytkownik usunięty")
+                                                        window.location.reload()
+                                                    } catch (e) {
+                                                        alert("Błąd usuwania")
+                                                    }
+                                                }
+                                            }}
+                                            className="bg-red-900/50 hover:bg-red-600 text-red-200 hover:text-white px-2 py-1 rounded text-xs border border-red-800 transition-colors"
+                                        >
+                                            USUŃ
+                                        </button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -128,11 +147,11 @@ export default function Admin() {
                         <thead className="bg-green-900/20 text-green-400">
                             <tr>
                                 <th className="p-3">ID</th>
-                                <th className="p-3">USER</th>
-                                <th className="p-3">GAME</th>
-                                <th className="p-3">SCORE</th>
-                                <th className="p-3">TIME (ms)</th>
-                                <th className="p-3">DATE</th>
+                                <th className="p-3">GRACZ</th>
+                                <th className="p-3">GRA</th>
+                                <th className="p-3">WYNIK</th>
+                                <th className="p-3">CZAS (ms)</th>
+                                <th className="p-3">DATA</th>
                             </tr>
                         </thead>
                         <tbody>
