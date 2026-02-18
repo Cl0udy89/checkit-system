@@ -69,7 +69,7 @@ class GameService:
             session.add(game_score)
             
             # Add Log
-            session.add(GameLog(event_type="GAME_FINISHED", details=f"User {user_id} finished {game_type} with {final_score} pts"))
+            session.add(GameLog(event_type="GAME_FINISHED", details=f"User {user_id} finished {game_type} with {int(final_score)} pts"))
             
             await session.commit()
             await session.refresh(game_score)
