@@ -106,6 +106,8 @@ export default function BinaryBrain() {
     if (isLoading) return <div className="p-10 text-center animate-pulse">LOADING_NEURAL_LINK...</div>
     if (!questions || questions.length === 0) return <div className="p-10 text-center text-red-500">NO_DATA_FOUND</div>
 
+    const q = questions ? questions[currentQIndex] : null
+
     if (!q) return <div className="p-10 text-center text-red-500">ERROR_LOADING_QUESTION</div>
 
     return (
