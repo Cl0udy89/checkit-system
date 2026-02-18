@@ -65,8 +65,8 @@ if [ -d "frontend" ]; then
         fi
         
         # Run in background, logging to file
-        echo ">>> Launching Frontend (npm run dev)..."
-        npm run dev > ../frontend_startup.log 2>&1 &
+        echo ">>> Launching Frontend (npm run dev -- --host)..."
+        npm run dev -- --host 0.0.0.0 > ../frontend_startup.log 2>&1 &
         FRONTEND_PID=$!
         echo ">>> Frontend PID: $FRONTEND_PID. Logs at frontend_startup.log"
         echo ">>> Access at http://localhost:5173 (or Server IP)"
