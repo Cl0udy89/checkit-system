@@ -48,28 +48,50 @@ pip install -r requirements-core.txt
 if grep -q "Raspberry Pi" /proc/cpuinfo 2>/dev/null; then
     echo ">>> RPi detected. Installing hardware libs..."
     # pip install RPi.GPIO # Uncomment if needed, usually installed system-wide or handled via core
-else
-    echo ">>> Server/PC detected. Skipping hardware libs."
-fi
-
 # 5. Start Frontend (Background)
-if [ -d "../frontend" ]; then
-    echo ">>> Starting Frontend..."
-    cd ../frontend
-    if [ ! -d "node_modules" ]; then
-        echo ">>> Installing Frontend dependencies (first run)..."
-        npm install
+# Go back to root first to be safe
+cd ..
+if [ -d "frontend" ]; then
+    echo ">>> Checking Frontend..."
+    if ! command -v npm &> /dev/null; then
+        echo " WARN: 'npm' not found! Frontend cannot start."
+        echo "       Please install nodejs and npm (e.g. 'sudo apt install nodejs npm')."
+    else
+        echo ">>> Starting Frontend..."
+        cd frontend
+        if [ ! -d "node_modules" ]; then
+            echo ">>> Installing Frontend dependencies (first run)..."
+            npm install
+        fi
+        
+        # Run in background, logging to file
+        echo ">>> Launching Frontend (npm run dev)..."
+        npm run dev > ../frontend_startup.log 2>&1 &
+        FRONTEND_PID=$!
+        echo ">>> Frontend PID: $FRONTEND_PID. Logs at frontend_startup.log"
+        echo ">>> Access at http://localhost:5173 (or Server IP)"
+        cd ..
     fi
-    # Run in background, silence output to keep terminal clean for backend logs
-    npm run dev > frontend.log 2>&1 &
-    FRONTEND_PID=$!
-    echo ">>> Frontend running on http://localhost:5173 (PID: $FRONTEND_PID)"
-    cd ../backend
+else
+    echo " WARN: frontend directory not found."
 fi
 
 # 6. Start Backend
-echo ">>> Starting Backend..."
-# Trap Ctrl+C to kill frontend too
-trap "kill $FRONTEND_PID" EXIT
+cd backend
+echo ">>> Starting Backend (Uvicorn)..."
 
-exec uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+# Trap Ctrl+C (SIGINT) and SIGTERM to kill frontend when backend stops
+cleanup() {
+    echo ">>> Shutting down..."
+    if [ ! -z "$FRONTEND_PID" ]; then
+        echo ">>> Killing Frontend (PID $FRONTEND_PID)..."
+        kill $FRONTEND_PID 2>/dev/null || true
+    fi
+    exit 0
+}
+trap cleanup SIGINT SIGTERM
+
+# Run Uvicorn WITHOUT exec, so we can trap signals
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload &
+BACKEND_PID=$!
+wait $BACKEND_PID
