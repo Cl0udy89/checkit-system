@@ -26,8 +26,10 @@ async def register(user: UserCreate, session: AsyncSession = Depends(get_session
 @router.post("/token")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     # HARDCODED ADMIN FOR NOW (Simple Kiosk Mode)
+    print(f"DEBUG: Login attempt. Username='{form_data.username}', Password='{form_data.password}'")
+    
     # user = authenticate_user(fake_users_db, form_data.username, form_data.password)
-    if form_data.username == "admin" and form_data.password == "checkit2024":
+    if form_data.username.strip() == "admin" and form_data.password.strip() == "checkit2024":
         access_token_expires = timedelta(minutes=600)
         access_token = create_access_token(
             data={"sub": form_data.username, "role": "admin"}, expires_delta=access_token_expires

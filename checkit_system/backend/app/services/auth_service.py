@@ -43,6 +43,12 @@ class AuthService:
         return domain in self.blocked_domains
 
     async def register_user(self, user_in: UserCreate, session: AsyncSession) -> User:
+        print(f"DEBUG: Registering User: Nick='{user_in.nick}', Email='{user_in.email}'")
+        
+        # Normalize inputs
+        user_in.email = user_in.email.lower().strip()
+        user_in.nick = user_in.nick.strip()
+
         # 1. Validate Profanity
         if self.is_profane(user_in.nick):
             raise HTTPException(status_code=400, detail="Nick contains inappropriate language.")
