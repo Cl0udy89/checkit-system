@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, UniqueConstraint
 
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -17,6 +17,8 @@ class GameScore(SQLModel, table=True):
     duration_ms: int
     played_at: datetime = Field(default_factory=datetime.utcnow)
     synced: bool = Field(default=False)
+    
+    __table_args__ = (UniqueConstraint("user_id", "game_type", name="unique_user_game"),)
 
 class GameLog(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)

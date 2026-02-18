@@ -20,6 +20,23 @@ class GameService:
         
         # score argument is passed from controller. If None, we calculate it.
         final_score = score if score is not None else 0
+        
+        # 0. Check if user already played this game
+        from sqlmodel import select
+        existing_stmt = select(GameScore).where(GameScore.user_id == user_id, GameScore.game_type == game_type)
+        existing = (await session.execute(existing_stmt)).scalar_one_or_none()
+        
+        if existing:
+            logger.warning(f"User {user_id} already played {game_type}. Blocking duplicate score.")
+            # Option A: Raise error
+            # raise Exception("User already played this game")
+            # Option B: Return existing to be idempotent?
+            # User reported "2 spis w tabele" -> they want to prevent it.
+            # If we return existing, they might think they played again.
+            # Let's update if score is better? No, usually it's one attempt.
+            # Let's just return the existing record and NOT save a new one.
+            return existing
+
         passed = False
         
         # 1. Calculate Score

@@ -60,7 +60,15 @@ async def get_user_game_status(user=Depends(get_current_user), session: AsyncSes
     return status
 
 @router.get("/content/{game_type}")
-async def get_content(game_type: str):
+async def get_content(game_type: str, session: AsyncSession = Depends(get_session)):
+    from app.models import SystemConfig
+    from sqlmodel import select
+    # Check competition state
+    conf_res = await session.execute(select(SystemConfig).where(SystemConfig.key == "competition_active"))
+    conf = conf_res.scalar_one_or_none()
+    if conf and conf.value == "false":
+        raise HTTPException(status_code=403, detail="Competition has ended.")
+        
     limit = 50 # Default max
     if game_type == "binary_brain":
         limit = 30
