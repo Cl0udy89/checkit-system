@@ -88,6 +88,6 @@ export default function Leaderboard() {
                 <Section title="IT MATCH" list={data?.it_match} />
             </div>
         </div>
-        </div >
+
     )
 }
