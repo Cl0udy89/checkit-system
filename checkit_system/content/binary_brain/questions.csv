@@ -1,3 +1,11 @@
-ID,PYTANIE,ODP_A,ODP_B,ODP_C,ODP_D,POPRAWNA
-1,Co to jest CPU?,Central Processing Unit,Central Power Unit,Computer Personal Unit,Control Panel Unit,A
-2,Który port to HTTP?,21,22,80,443,C
+id,question,image,answer_correct,answer_wrong1,answer_wrong2,answer_wrong3
+1,"Co oznacza skrót CPU?","cpu.jpg","Central Processing Unit","Central Power Unit","Computer Personal Unit","Central Process Utility"
+2,"Który port jest standardem dla HTTP?","http_port.jpg","80","443","22","21"
+3,"Co to jest Phishing?","phishing.jpg","Wyłudzanie danych","Łowienie ryb","Wirus komputerowy","Atak DDoS"
+4,"Jaki kolor ma złącze USB 3.0?","usb3.jpg","Niebieski","Czarny","Biały","Czerwony"
+5,"Co oznacza skrót RAM?","ram.jpg","Random Access Memory","Read Access Memory","Run Access Memory","Real Amount Memory"
+6,"Które hasło jest najsilniejsze?","pass.jpg","Trudne!Haslo123","admin1","123456","qwerty"
+7,"Co chroni sieć przed atakami z zewnątrz?","firewall.jpg","Firewall","Antywirus","Myszka","Klawiatura"
+8,"Co to jest Linux?","linux_tux.jpg","System operacyjny","Przeglądarka","Gra","Marka laptopa"
+9,"Ile bitów ma bajt?","bits.jpg","8","4","16","32"
+10,"Co oznacza '404 Not Found'?","404.jpg","Strona nie znaleziona","Błąd serwera","Brak internetu","Sukces"

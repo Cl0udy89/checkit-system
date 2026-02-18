@@ -33,7 +33,9 @@ class ContentService:
             with open(path, mode='r', encoding='utf-8') as f:
                 reader = csv.DictReader(f)
                 for row in reader:
-                    items.append(row)
+                    # Clean up keys (strip BOM, external whitespace)
+                    clean_row = {k.strip(): v.strip() for k, v in row.items() if k}
+                    items.append(clean_row)
         except Exception as e:
             logger.error(f"Error reading CSV {path}: {e}")
         return items
@@ -54,11 +56,14 @@ class ContentService:
             questions = self.it_match_questions
             
         for q in questions:
-            if q.get("ID") == question_id:
+            # Case insensitive check for ID
+            if str(q.get("id", "")).lower() == str(question_id).lower():
                 if game_type == "binary_brain":
-                    return q.get("POPRAWNA")
+                    return q.get("answer_correct")
                 elif game_type == "it_match":
-                    return q.get("ODPOWIEDZ_TAK_NIE") # Assuming this column holds the correct answer/logic
+                    # IT Match CSV: id,question,image,is_correct
+                    # We expect '1' or '0'
+                    return q.get("is_correct")
         return None
 
 content_service = ContentService()

@@ -20,48 +20,30 @@ class ITMatchQuestion(BaseModel):
     # For simplicity in this kiosk app, we will send it.
     is_correct: bool 
 
-# Global cache
-QUESTIONS_CACHE = []
-
-def load_questions():
-    global QUESTIONS_CACHE
-    csv_path = "assets/it_match/questions.csv"
-    if not os.path.exists(csv_path):
-        # Fallback for dev/test if file missing
-        print(f"WARNING: {csv_path} not found.")
-        return []
-    
-    loaded = []
-    try:
-        with open(csv_path, 'r', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                # CSV: id,question,image,is_correct (1/0)
-                loaded.append(ITMatchQuestion(
-                    id=int(row['id']),
-                    question=row['question'],
-                    image=row['image'],
-                    is_correct=bool(int(row['is_correct']))
-                ))
-    except Exception as e:
-        print(f"Error loading questions: {e}")
-    
-    QUESTIONS_CACHE = loaded
-
-# Load on startup (module import)
-load_questions()
+from app.services.content_service import content_service
 
 @router.get("/questions", response_model=List[ITMatchQuestion])
 async def get_questions(count: int = 10):
     """
-    Returns a random set of questions.
+    Returns a random set of questions from ContentService.
     """
-    if not QUESTIONS_CACHE:
-        load_questions()
+    questions_data = content_service.get_questions("it_match", limit=50) # Get all avaliable
     
-    if not QUESTIONS_CACHE:
+    # Map to schema
+    mapped = []
+    for q in questions_data:
+        try:
+            mapped.append(ITMatchQuestion(
+                id=int(q.get('id', 0)),
+                question=q.get('question', ''),
+                image=q.get('image', ''),
+                is_correct=bool(int(q.get('is_correct', 0)))
+            ))
+        except ValueError:
+            continue
+            
+    if not mapped:
         return []
         
-    # sample handles checking if count > len
-    sample_size = min(count, len(QUESTIONS_CACHE))
-    return random.sample(QUESTIONS_CACHE, sample_size)
+    sample_size = min(count, len(mapped))
+    return random.sample(mapped, sample_size)

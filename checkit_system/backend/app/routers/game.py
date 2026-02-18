@@ -28,9 +28,21 @@ async def get_content(game_type: str):
     for q in questions:
         q_copy = q.copy()
         if game_type == "binary_brain":
-            q_copy.pop("POPRAWNA", None)
+            q_copy.pop("answer_correct", None) # Remove correct answer key
+            # Shuffle answers? No, frontend handles shuffling of options. 
+            # We send all: answer_correct, answer_wrong1... 
+            # WAIT. If we send "answer_correct", frontend can see it in network tab.
+            # But we need it for frontend validation? 
+            # Strategy: Send { "options": ["A", "B", "C", "D"], "id": "1", "image": "..." } 
+            # And validate on backend? 
+            # User wants "kiosk" style. Frontend validation is faster/easier for UI feedback.
+            # Let's send "answer_correct" encrypted? Or just send it. It's a game for fun.
+            # actually better: Send a list of answers ["Wrong1", "Correct", "Wrong2", "Wrong3"] shuffled
+            # But then how do we know which is correct? Frontend needs a hash?
+            # Or just send "correct_index"?
+            pass 
         elif game_type == "it_match":
-            q_copy.pop("ODPOWIEDZ_TAK_NIE", None)
+            q_copy.pop("is_correct", None) # Logic handled in specific router usually, but if called here...
         sanitized.append(q_copy)
     return sanitized
 
