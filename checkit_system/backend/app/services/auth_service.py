@@ -4,7 +4,7 @@ from sqlalchemy.future import select
 from fastapi import HTTPException, status
 from app.models import User
 from app.schemas import UserCreate
-from app.config_loader import settings
+from app.simple_config import settings
 import logging
 
 logger = logging.getLogger(__name__)

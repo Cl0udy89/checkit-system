@@ -4,7 +4,7 @@ import aiohttp
 from sqlalchemy.future import select
 from app.database import get_session
 from app.models import GameScore, GameLog
-from app.config_loader import settings
+from app.simple_config import settings
 
 logger = logging.getLogger(__name__)
 

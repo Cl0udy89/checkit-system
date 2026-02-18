@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from app.hardware.solenoid import solenoid
 from app.hardware.patch_panel import patch_panel
-from app.config_loader import settings
+from app.simple_config import settings
 from app.database import get_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.security import get_current_admin

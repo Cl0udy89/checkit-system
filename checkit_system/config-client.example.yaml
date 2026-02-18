@@ -1,0 +1,18 @@
+system:
+  node_id: "checkit-rpi-client-01"
+  log_level: "INFO"
+  platform_role: "client"
+
+api:
+  # CHANGE THIS TO YOUR SERVER IP
+  sync_endpoint: "http://192.168.1.100:8000/api/v1/logs"
+  sync_interval_seconds: 60
+  retry_interval_seconds: 10
+
+game:
+  initial_points: 10000
+  points_decay_ms: 0.1
+
+hardware:
+  solenoid_pin: 26
+  solenoid_open_time_sec: 5

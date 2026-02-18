@@ -1,0 +1,12 @@
+system:
+  node_id: "checkit-server-01"
+  log_level: "INFO"
+  platform_role: "server"
+
+auth:
+  admin_user: "admin"
+  admin_pass: "checkit2024"
+
+security:
+  profanity_list_url: "https://raw.githubusercontent.com/zacanger/profane-words/master/words.txt"
+  domain_blocklist: ["tempmail.com", "10minutemail.com"]

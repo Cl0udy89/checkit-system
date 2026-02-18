@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from app.hardware.gpio_manager import gpio_manager, GPIO
-from app.config_loader import settings
+from app.simple_config import settings
 
 logger = logging.getLogger(__name__)
 

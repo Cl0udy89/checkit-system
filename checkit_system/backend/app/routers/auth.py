@@ -6,7 +6,7 @@ from app.schemas import UserCreate, UserRead
 from app.services.auth_service import auth_service
 from fastapi.security import OAuth2PasswordRequestForm
 from app.security import create_access_token, verify_password
-from app.config_loader import settings
+from app.simple_config import settings
 
 router = APIRouter(tags=["Auth"])
 

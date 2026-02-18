@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import GameScore
-from app.config_loader import settings
+from app.simple_config import settings
 from app.services.content_service import content_service
 from app.hardware.solenoid import solenoid
 from app.hardware.patch_panel import patch_panel
