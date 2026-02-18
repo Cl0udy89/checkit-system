@@ -10,7 +10,7 @@ System obsługi stoiska na wydarzenie IT "CheckIT". Aplikacja typu Kiosk/Server 
 2.  **PATCH MASTER** (Hardware)
     - Połącz poprawnie kable na patch panelu.
     - System wykrywa połączenia na żywo.
-3.  **IT MATCH** (Tinder-style Quiz) **[NOWOŚĆ]**
+3.  **IT MATCH** (Tinder-style Quiz)
     - Szybkie decyzje: Przesuń w PRAWO (Bezpieczne/Tak), w LEWO (Zagrożenie/Nie).
     - Zdjęcia i pytania ładowane z pliku CSV.
 
