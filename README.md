@@ -23,7 +23,7 @@ System posiada teraz **jeden skrypt startowy**, który automatycznie wykrywa śr
 Na **KAŻDYM** urządzeniu (Serwer PC lub Raspberry Pi) wykonaj:
 
 ```bash
-cd ~/checkit-system/checkit_system
+cd ~/checkit-system
 git pull
 chmod +x start.sh
 ./start.sh

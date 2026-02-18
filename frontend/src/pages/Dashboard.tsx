@@ -1,7 +1,9 @@
 import { fetchGameStatus } from '../lib/api'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
-import { Zap, Cpu, Search, Trophy, CheckCircle, Lock } from 'lucide-react'
+import { Zap, Cpu, Search, Trophy, CheckCircle } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useGameStore } from '../hooks/useGameStore'
 
 export default function Dashboard() {
     const navigate = useNavigate()
