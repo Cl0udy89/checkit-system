@@ -48,7 +48,13 @@ async def get_user_game_status(user=Depends(get_current_user), session: AsyncSes
 
 @router.get("/content/{game_type}")
 async def get_content(game_type: str):
-    questions = content_service.get_questions(game_type, limit=50)
+    limit = 50 # Default max
+    if game_type == "binary_brain":
+        limit = 30
+    elif game_type == "it_match":
+        limit = 50
+        
+    questions = content_service.get_questions(game_type, limit=limit)
     # Sanitize: remove correct answer if we want strict security, 
     # but for this kiosk app, simple is fine. 
     # Actually, CSVs have columns like "ODPOWIEDZ_TAK_NIE" or "POPRAWNA". 

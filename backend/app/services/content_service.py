@@ -2,6 +2,7 @@ import csv
 import logging
 from pathlib import Path
 from typing import List, Dict, Optional
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -42,10 +43,14 @@ class ContentService:
 
     def get_questions(self, game_type: str, limit: int = 10) -> List[Dict]:
         if game_type == "binary_brain":
-            # In a real app, maybe shuffle here
-            return self.binary_brain_questions[:limit]
+            # Shuffle and limit
+            full_list = self.binary_brain_questions
+            count = min(len(full_list), limit)
+            return random.sample(full_list, count)
         elif game_type == "it_match":
-            return self.it_match_questions[:limit]
+            full_list = self.it_match_questions
+            count = min(len(full_list), limit)
+            return random.sample(full_list, count)
         return []
 
     def get_correct_answer(self, game_type: str, question_id: str) -> Optional[str]:

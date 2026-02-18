@@ -24,6 +24,7 @@ export default function BinaryBrain() {
     const [totalScore, setTotalScore] = useState(0)
     const [currentPotentialScore, setCurrentPotentialScore] = useState(1000)
     const [questionStartTime, setQuestionStartTime] = useState(Date.now())
+    const [gameStartTime] = useState(Date.now())
 
     // UI State
     const [gameState, setGameState] = useState<'playing' | 'feedback' | 'finished'>('playing')
@@ -122,7 +123,7 @@ export default function BinaryBrain() {
                 user_id: user.id,
                 game_type: 'binary_brain',
                 answers: answers, // Note: this might miss the last one if updated in state async, but for saving score explicitly we use 'score' param
-                duration_ms: 0, // Not tracking total duration anymore, irrelevant
+                duration_ms: Date.now() - gameStartTime,
                 score: finalScore
             })
         }
