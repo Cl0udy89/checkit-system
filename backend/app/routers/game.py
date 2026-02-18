@@ -57,7 +57,8 @@ async def get_content(game_type: str):
     for q in questions:
         q_copy = q.copy()
         if game_type == "binary_brain":
-            q_copy.pop("answer_correct", None) # Remove correct answer key
+            # q_copy.pop("answer_correct", None) # Frontend needs this to render options!
+            pass
             # Shuffle answers? No, frontend handles shuffling of options. 
             # We send all: answer_correct, answer_wrong1... 
             # WAIT. If we send "answer_correct", frontend can see it in network tab.

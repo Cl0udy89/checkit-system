@@ -68,3 +68,11 @@ async def get_scores(session: AsyncSession = Depends(get_session)):
     result = await session.execute(stmt)
     # Return as list of dicts to make it JSON serializable easily
     return [{"score": s, "nick": n} for s, n in result.all()]
+
+@router.get("/logs")
+async def get_logs(limit: int = 50, session: AsyncSession = Depends(get_session)):
+    from app.models import GameLog
+    from sqlmodel import select, desc
+    stmt = select(GameLog).order_by(desc(GameLog.timestamp)).limit(limit)
+    result = await session.execute(stmt)
+    return result.scalars().all()

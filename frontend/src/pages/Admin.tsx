@@ -8,11 +8,12 @@ import { useState } from 'react'
 // Direct axios calls for admin to save time updating api.ts
 const triggerSolenoid = async () => api.post('/admin/solenoid/trigger')
 const fetchHardwareStatus = async () => (await api.get('/admin/hardware/status')).data
+const fetchAdminLogs = async () => (await api.get('/admin/logs')).data
 
 export default function Admin() {
     const navigate = useNavigate()
     const token = localStorage.getItem('admin_token')
-    const [activeTab, setActiveTab] = useState<'hardware' | 'users' | 'scores'>('hardware')
+    const [activeTab, setActiveTab] = useState<'hardware' | 'users' | 'scores' | 'logs'>('hardware')
 
     if (!token) return <AdminLogin />
 
@@ -33,6 +34,13 @@ export default function Admin() {
         queryKey: ['admin_scores'],
         queryFn: fetchAdminScores,
         enabled: activeTab === 'scores'
+    })
+
+    const { data: logs } = useQuery({
+        queryKey: ['admin_logs'],
+        queryFn: fetchAdminLogs,
+        refetchInterval: 3000,
+        enabled: activeTab === 'logs'
     })
 
     const solenoidMutation = useMutation({
@@ -56,7 +64,9 @@ export default function Admin() {
             <div className="flex gap-4 mb-8">
                 <button onClick={() => setActiveTab('hardware')} className={`px-4 py-2 border ${activeTab === 'hardware' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>SPRZĘT</button>
                 <button onClick={() => setActiveTab('users')} className={`px-4 py-2 border ${activeTab === 'users' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>UŻYTKOWNICY</button>
+                <button onClick={() => setActiveTab('users')} className={`px-4 py-2 border ${activeTab === 'users' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>UŻYTKOWNICY</button>
                 <button onClick={() => setActiveTab('scores')} className={`px-4 py-2 border ${activeTab === 'scores' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>WYNIKI</button>
+                <button onClick={() => setActiveTab('logs')} className={`px-4 py-2 border ${activeTab === 'logs' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>LOGI SYSTEMOWE</button>
             </div>
 
             {activeTab === 'hardware' && (
@@ -168,8 +178,37 @@ export default function Admin() {
                         </tbody>
                     </table>
                 </div>
-            )}
+                </div>
+    )
+}
 
+{
+    activeTab === 'logs' && (
+        <div className="overflow-x-auto border border-green-800 font-mono text-xs">
+            <table className="w-full text-left">
+                <thead className="bg-green-900/20 text-green-400">
+                    <tr>
+                        <th className="p-2">ID</th>
+                        <th className="p-2">CZAS</th>
+                        <th className="p-2">TYP</th>
+                        <th className="p-2">SZCZEGÓŁY</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {logs?.map((l: any) => (
+                        <tr key={l.id} className="border-b border-green-900 hover:bg-green-900/10">
+                            <td className="p-2 text-gray-500">{l.id}</td>
+                            <td className="p-2 text-gray-400">{new Date(l.timestamp).toLocaleTimeString()}</td>
+                            <td className={`p-2 font-bold ${l.event_type === 'SOLENOID' ? 'text-red-400' : 'text-green-400'}`}>{l.event_type}</td>
+                            <td className="p-2 text-white">{l.details}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
+    )
+}
+
+        </div >
     )
 }
