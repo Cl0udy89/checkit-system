@@ -9,7 +9,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/admin", tags=["Admin"], dependencies=[Depends(get_current_admin)])
+router = APIRouter(tags=["Admin"], dependencies=[Depends(get_current_admin)])
 
 @router.post("/solenoid/trigger")
 async def trigger_solenoid():
