@@ -20,7 +20,8 @@ DEFAULTS = {
     },
     "game": {
         "initial_points": 10000,
-        "points_decay_ms": 0.1,
+        "points_decay_ms": 0.1, # Keep for backward compat if needed
+        "decay_rate_per_ms": 0.05, # 50 points per second / 1000 ms
         "binary_brain_trigger_threshold": 0.8
     },
     "hardware": {

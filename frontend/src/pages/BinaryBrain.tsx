@@ -27,7 +27,7 @@ export default function BinaryBrain() {
     // Prompt says "Punkty spadają liniowo... Licznik musi wizualnie uciekać". 
     // Let's show a "Points" counter descending from 10000.
     const START_POINTS = 10000
-    const DECAY_PER_MS = 0.1
+    const DECAY_PER_MS = 0.05 // 50 points per second
     const [currentPotentialScore, setCurrentPotentialScore] = useState(START_POINTS)
 
     const { data: questions, isLoading } = useQuery({
@@ -106,7 +106,7 @@ export default function BinaryBrain() {
     if (isLoading) return <div className="p-10 text-center animate-pulse">LOADING_NEURAL_LINK...</div>
     if (!questions || questions.length === 0) return <div className="p-10 text-center text-red-500">NO_DATA_FOUND</div>
 
-    const q = questions[currentQIndex]
+    if (!q) return <div className="p-10 text-center text-red-500">ERROR_LOADING_QUESTION</div>
 
     return (
         <div className="min-h-screen bg-background flex flex-col p-6 relative overflow-hidden">
