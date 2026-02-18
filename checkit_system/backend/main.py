@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from app.database import init_db
 from app.routers import auth, game, leaderboard, admin
 from app.services.sync_service import sync_service
-from app.config_loader import settings
+from app.simple_config import settings
 import logging
 
 logging.basicConfig(level=settings.log_level)
