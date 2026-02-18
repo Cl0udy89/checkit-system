@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 class Solenoid:
     def __init__(self):
         self.pin = settings.hardware.solenoid_pin
-        self.duration = settings.hardware.solenoid_active_duration
+        self.duration = settings.hardware.solenoid_open_time_sec
         self._is_active = False
         
         # Setup GPIO
