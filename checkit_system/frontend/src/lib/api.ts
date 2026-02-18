@@ -43,6 +43,11 @@ export const submitGameScore = async (payload: { user_id: number, game_type: str
     return data
 }
 
+export const fetchGameStatus = async () => {
+    const { data } = await api.get('/games/status')
+    return data
+}
+
 export const fetchPatchPanelState = async () => {
     const { data } = await api.get('/games/patch_panel/state')
     return data

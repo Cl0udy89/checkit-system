@@ -1,3 +1,11 @@
-ID,PYTANIE,ODPOWIEDZ_TAK_NIE,SCIEZKA_FOTO
-1,Czy to jest kabel RJ45?,TAK,rj45.jpg
-2,Czy to jest myszka kulkowa?,NIE,mouse.jpg
+id,question,image,is_correct
+1,"Twoje hasło to: 'M4k0w13c!2024'. Czy jest bezpieczne?","password_strong.jpg",1
+2,"Dostałeś maila od 'PayPaI' z prośbą o hasło. Klikasz?","phishing_email.jpg",0
+3,"Znalazłeś pendrive na parkingu. Podłączasz go do służbowego PC?","usb_found.jpg",0
+4,"Masz włączone uwierzytelnianie dwuskładnikowe (2FA).","2fa_enable.jpg",1
+5,"Logujesz się do banku przez otwarte Wi-Fi w kawiarni.","public_wifi.jpg",0
+6,"System antywirusowy zaktualizował się dzisiaj rano.","antivirus.jpg",1
+7,"Strona banku ma kłódkę i zaczyna się od https://.","https_lock.jpg",1
+8,"Kolega prosi o Twoje hasło 'tylko na chwilę'. Podajesz?","share_pass.jpg",0
+9,"Odchodzisz od biurka i blokujesz ekran (Win+L).","screen_lock.jpg",1
+10,"Instalujesz 'Darmowy Minecraft' z nieznanego forum.","malware_download.jpg",0

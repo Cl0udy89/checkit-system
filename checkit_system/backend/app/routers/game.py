@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from app.security import get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session
 from app.services.content_service import content_service
@@ -16,6 +17,33 @@ class GameSubmit(BaseModel):
     game_type: str
     answers: Dict[str, Any] # question_id: answer
     duration_ms: int
+
+@router.get("/status")
+async def get_user_game_status(user=Depends(get_current_user), session: AsyncSession = Depends(get_session)):
+    """
+    Returns the user's best score for each game type.
+    """
+    from sqlmodel import select
+    from app.models import GameScore
+    
+    # Get all scores for user
+    stmt = select(GameScore).where(GameScore.user_id == user.id)
+    result = await session.execute(stmt)
+    scores = result.scalars().all()
+    
+    status = {
+        "binary_brain": {"played": False, "score": 0},
+        "patch_master": {"played": False, "score": 0},
+        "it_match": {"played": False, "score": 0}
+    }
+    
+    for s in scores:
+        if s.game_type in status:
+            if s.score > status[s.game_type]["score"] or not status[s.game_type]["played"]:
+                status[s.game_type]["played"] = True
+                status[s.game_type]["score"] = s.score
+                
+    return status
 
 @router.get("/content/{game_type}")
 async def get_content(game_type: str):
