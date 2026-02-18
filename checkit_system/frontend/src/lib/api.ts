@@ -29,7 +29,7 @@ export const fetchAdminScores = async () => (await api.get('/admin/scores')).dat
 export const fetchITMatchQuestions = async () => (await api.get('/game/it-match/questions')).data
 
 export const fetchLeaderboard = async () => {
-    const { data } = await api.get('/leaderboard/')
+    const { data } = await api.get('/leaderboard')
     return data
 }
 

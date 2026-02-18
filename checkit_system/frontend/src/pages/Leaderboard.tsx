@@ -57,27 +57,37 @@ export default function Leaderboard() {
                 <Trophy className="text-accent" size={56} /> GLOBALNY RANKING
             </h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <Section title="BINARY BRAIN" list={data?.binary_brain} />
-                <Section title="PATCH MASTER" list={data?.patch_master} />
-                <Section title="IT MATCH" list={data?.it_match} />
-
-                <div className="bg-surface border-4 border-accent rounded-xl p-6 shadow-[0_0_50px_rgba(243,234,95,0.2)] relative overflow-hidden transform scale-105">
-                    <div className="absolute top-0 right-0 p-16 bg-accent/10 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
-                    <h3 className="text-3xl font-mono font-bold text-accent mb-6 border-b-2 border-accent/30 pb-2 relative z-10">MISTRZOWIE</h3>
-                    <div className="space-y-4 relative z-10">
-                        {data?.grandmaster?.map((entry: any, idx: number) => (
-                            <div key={idx} className="flex justify-between items-center font-mono text-xl border-b border-accent/20 pb-2 last:border-0 hover:bg-accent/10 px-2 py-1 rounded transition-colors">
-                                <span className="text-gray-100 flex items-center gap-3">
-                                    <span className="text-accent font-black text-2xl">#{idx + 1}</span>
-                                    {entry.nick}
-                                </span>
-                                <span className="text-accent font-black text-2xl">{entry.score}</span>
-                            </div>
-                        ))}
+            {/* Grandmaster Section - Full Width on Top */}
+            <div className="mb-12">
+                <div className="bg-surface border-4 border-accent rounded-xl p-8 shadow-[0_0_50px_rgba(243,234,95,0.2)] relative overflow-hidden transform hover:scale-[1.01] transition-transform">
+                    <div className="absolute top-0 right-0 p-32 bg-accent/10 rounded-full blur-[100px] transform translate-x-1/2 -translate-y-1/2"></div>
+                    <div className="relative z-10">
+                        <h3 className="text-4xl font-mono font-bold text-accent mb-8 border-b-2 border-accent/30 pb-4 flex justify-between items-center">
+                            <span>MISTRZOWIE (SUMA PUNKTÓW)</span>
+                            <Trophy size={48} />
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                            {data?.grandmaster?.map((entry: any, idx: number) => (
+                                <div key={idx} className="flex justify-between items-center font-mono text-2xl border-b border-accent/20 pb-2 hover:bg-accent/5 px-4 py-2 rounded transition-colors">
+                                    <span className="text-gray-100 flex items-center gap-4">
+                                        <span className={`font-black text-3xl w-12 ${idx === 0 ? 'text-yellow-400' : idx === 1 ? 'text-gray-400' : idx === 2 ? 'text-amber-700' : 'text-accent'}`}>#{idx + 1}</span>
+                                        {entry.nick}
+                                    </span>
+                                    <span className="text-accent font-black text-3xl">{entry.score}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
+
+            {/* Game Sections - 3 Columns Below */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-20">
+                <Section title="BINARY BRAIN" list={data?.binary_brain} />
+                <Section title="PATCH MASTER" list={data?.patch_master} />
+                <Section title="IT MATCH" list={data?.it_match} />
+            </div>
         </div>
+        </div >
     )
 }
