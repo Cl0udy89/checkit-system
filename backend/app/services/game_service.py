@@ -54,9 +54,15 @@ class GameService:
             duration_ms=duration_ms,
             synced=False
         )
-        session.add(game_score)
-        await session.commit()
-        await session.refresh(game_score)
+        try:
+            session.add(game_score)
+            await session.commit()
+            await session.refresh(game_score)
+            logger.info(f"GameScore saved: {game_score}")
+        except Exception as e:
+            logger.error(f"Failed to save GameScore: {e}")
+            await session.rollback()
+            raise e
         
         return game_score
 

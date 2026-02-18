@@ -94,12 +94,17 @@ export default function BinaryBrain() {
             const duration = Date.now() - startTime
             // Calculate score locally for "fun" display, but backend does real calc usually.
             // Here we just submit.
-            submitMutation.mutate({
-                user_id: user?.id || 0,
-                game_type: 'binary_brain',
-                answers: { ...answers, [currentQ.id]: option.text },
-                duration_ms: duration
-            })
+            if (user) {
+                submitMutation.mutate({
+                    user_id: user.id,
+                    game_type: 'binary_brain',
+                    answers: { ...answers, [currentQ.id]: option.text },
+                    duration_ms: duration
+                })
+            } else {
+                alert("Game Finished! (Score not saved: No User logged in)")
+                navigate('/dashboard')
+            }
         }
     }
 
