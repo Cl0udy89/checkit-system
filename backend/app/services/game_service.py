@@ -114,12 +114,19 @@ class GameService:
         accuracy = correct_count / total_questions
         
         # Time Decay
-        # Max Score = 10000
-        # Decay = duration_ms * decay_rate
-        base_score = settings.game.initial_points
+        # Max Score = 1000 per question
+        base_score = total_questions * 1000
+        
+        # Decay logic: 
+        # Calculate max possible time penalty? Or just relative decay?
+        # User wants "points escape" (punkty uciekają).
+        # Let's use the configured decay rate.
         time_penalty = duration_ms * settings.game.decay_rate_per_ms
         
-        final_score = (base_score - time_penalty) * accuracy
+        # Final Score = (Base - Penalty) * Accuracy
+        # If penalty > base, score is 0.
+        score_potential = max(0, base_score - time_penalty)
+        final_score = score_potential * accuracy
         
         passed = accuracy >= settings.game.binary_brain_trigger_threshold
         
@@ -154,8 +161,12 @@ class GameService:
                 correct_count += 1
         
         accuracy = correct_count / max(1, len(answers))
-        base_score = settings.game.initial_points
+        
+        # New Logic: 1000 per question base
+        base_score = len(answers) * 1000
         time_penalty = duration_ms * settings.game.decay_rate_per_ms
-        return (base_score - time_penalty) * accuracy
+        
+        score_potential = max(0, base_score - time_penalty)
+        return score_potential * accuracy
 
 game_service = GameService()
