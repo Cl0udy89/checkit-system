@@ -24,7 +24,7 @@ DEFAULTS = {
         "binary_brain_trigger_threshold": 0.8
     },
     "hardware": {
-        "solenoid_pin": 26,
+        "solenoid_pin": 26, # BCM
         "solenoid_open_time_sec": 5,
         "patch_panel_scan_interval_ms": 50
     },
@@ -80,6 +80,12 @@ class SimpleConfig:
     def auth(self): return type("AuthConfig", (), self._config["auth"])
     @property
     def security(self): return type("SecurityConfig", (), self._config["security"])
+
+    # Root Level Shortcuts (Fixes AttributeError in main.py)
+    @property
+    def log_level(self): return self._config["system"]["log_level"]
+    @property
+    def node_id(self): return self._config["system"]["node_id"]
 
 # Singleton instance
 settings = SimpleConfig()
