@@ -17,9 +17,15 @@ class AuthService:
     def _load_profanity_list(self) -> set:
         try:
             # Fallback/Default small list if download fails or for offline start
+            # Custom Polish Profanity List
             bad_words = {
-                "chuj", "kurwa", "dupa", "pizda", "jebac", "pierdolic", "cipa", "kutas", "fiut",
-                "szmata", "dziwka", "pedal", "zjeb", "debil", "idiota", "frajer", "szwinia", "ruchanie"
+                "chuj", "kurwa", "jebac", "pierdolic", "cipa", "kutas", "fiut",
+                "szmata", "dziwka", "pedal", "zjeb", "debil", "idiota", "frajer", "szwinia", "ruchanie",
+                "jeb", "jebany", "jebana", "jebane", "kurwe", "kurwo", "kurwy", "chuju", "chuja", "chuje",
+                "cipy", "cipie", "pizdy", "pizdzie", "pizde", "kutasie", "fiucie", "dziwki", "dziwko", "dziwke",
+                "kurew", "skurwysyn", "skurwiel", "jebniety", "jebnieta", "zapierdalac", "wypierdalac", "odpierdalac",
+                "spierdalac", "opierdalac", "zajebac", "wyjebac", "odjebac", "zjebac", "ojebac", "dojebac", "podjebac",
+                "przypierdalac", "przypierdolic", "rozpierdalac", "rozpierdolic", "sukinsyn", "suka", "suki"
             } 
             if settings.security.profanity_list_url:
                 try:
