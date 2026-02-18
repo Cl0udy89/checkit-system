@@ -51,11 +51,37 @@ class AuthService:
         if self.is_domain_blocked(user_in.email):
             raise HTTPException(status_code=400, detail="Email domain is blocked.")
 
-        # 3. Check uniqueness
-        statement = select(User).where(User.nick == user_in.nick)
-        result = await session.execute(statement)
-        if result.scalar_one_or_none():
-            raise HTTPException(status_code=409, detail="Nick already taken.")
+        # 3. Check if user exists (Get or Create Logic)
+        # Check by Nick
+        stmt_nick = select(User).where(User.nick == user_in.nick)
+        result_nick = await session.execute(stmt_nick)
+        existing_user_nick = result_nick.scalar_one_or_none()
+
+        if existing_user_nick:
+            # If nick exists, check if email matches
+            if existing_user_nick.email == user_in.email:
+                # Login successful (Return existing user)
+                return existing_user_nick
+            else:
+                # Nick taken by someone else
+                raise HTTPException(status_code=409, detail="Nick already taken by another user.")
+
+        # Check by Email (to prevent one email having multiple nicks if desired, or allow it?)
+        # User said: "useerr moze sie zalogowac tlyko raz na jendego maila" -> One account per email?
+        # Let's enforce unique email too for safety.
+        stmt_email = select(User).where(User.email == user_in.email)
+        result_email = await session.execute(stmt_email)
+        existing_user_email = result_email.scalar_one_or_none()
+
+        if existing_user_email:
+             # Email exists but with different nick (since nick check failed above)
+             # Option A: Allow multiple nicks per email?
+             # Option B: Error.
+             # User said: "jak bedzi enowy email to si eauto rejestruje"
+             # imply unique email -> unique user.
+             # If I register with new nick but old email, I should probably get the old user or error?
+             # Let's return error to be safe and consistent.
+             raise HTTPException(status_code=409, detail="Email already registered with different nick.")
 
         # 4. Create User
         user = User(nick=user_in.nick, email=user_in.email)
