@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models import GameScore
+from app.models import GameScore, GameLog
 from app.simple_config import settings
 from app.services.content_service import content_service
 from app.hardware.solenoid import solenoid
@@ -34,6 +34,9 @@ class GameService:
                 logger.info(f"Binary Brain passed! Score: {score}. Triggering Solenoid.")
                 import asyncio
                 asyncio.create_task(solenoid.open_box())
+                
+                # Log Event
+                session.add(GameLog(event_type="SOLENOID", details=f"Open Triggered by User {user_id} (Score: {score})"))
             else:
                 logger.info(f"Binary Brain finished but score {score} < 5000. No box.")
 
@@ -61,6 +64,10 @@ class GameService:
         )
         try:
             session.add(game_score)
+            
+            # Add Log
+            session.add(GameLog(event_type="GAME_FINISHED", details=f"User {user_id} finished {game_type} with {score} pts"))
+            
             await session.commit()
             await session.refresh(game_score)
             logger.info(f"GameScore saved: {game_score}")

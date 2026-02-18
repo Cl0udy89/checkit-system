@@ -22,7 +22,9 @@ async def get_leaderboard(session: AsyncSession = Depends(get_session)):
             .limit(10)
         )
         result = await session.execute(stmt)
-        return [{"nick": row.nick, "score": row.score} for row in result]
+        rows = result.all()
+        print(f"DEBUG: Leaderboard for {game_type}: Found {len(rows)} rows")
+        return [{"nick": row.nick, "score": row.score} for row in rows]
 
     binary_brain = await get_top("binary_brain")
     patch_master = await get_top("patch_master")
