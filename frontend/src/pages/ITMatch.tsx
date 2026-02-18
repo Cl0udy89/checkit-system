@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { fetchITMatchQuestions, api } from '../lib/api'
+import { fetchITMatchQuestions, submitGameScore } from '../lib/api'
 import { useNavigate } from 'react-router-dom'
 import { Check, X, Info } from 'lucide-react'
 import { useGameStore } from '../hooks/useGameStore'
@@ -21,6 +21,14 @@ export default function ITMatch() {
     const [score, setScore] = useState(0)
     const [gameOver, setGameOver] = useState(false)
     const [startTime] = useState(Date.now())
+    const [answers, setAnswers] = useState<Record<string, any>>({})
+
+    const submitMutation = useMutation({
+        mutationFn: submitGameScore,
+        onSuccess: () => {
+            // navigate('/dashboard') // Optional: wait for user to click button
+        }
+    })
 
     // Fetch questions
     const { data, isLoading } = useQuery({
@@ -45,6 +53,16 @@ export default function ITMatch() {
             setScore(prev => Math.max(0, prev - 50)) // Penalty
         }
 
+        // Record answer: '1' (Safe/Right) or '0' (Danger/Left)
+        // Backend expects comparison with is_correct (bool/1/0)
+        // Let's send what the user chose as "safe" logic?
+        // Actually backend ContentService checks: correct and ans == correct.
+        // If question is_correct=True (Safe).
+        // User swipes Right (Safe).
+        // We should send "True" or "1"?
+        // Let's assume we send boolean of "User thinks it is safe".
+        setAnswers(prev => ({ ...prev, [currentQ.id]: userChoiceSafe }))
+
         if (currentIndex < questions.length - 1) {
             setCurrentIndex(prev => prev + 1)
         } else {
@@ -57,20 +75,13 @@ export default function ITMatch() {
         const endTime = Date.now()
         const duration = endTime - startTime
 
-        // Final Score Calculation (Simple for now)
-        // Bonus for speed if perfect score? Or just raw score.
-        // Let's just save raw score + duration.
-
         if (user) {
-            try {
-                await api.post('/game/submit', {
-                    game_type: 'IT_MATCH',
-                    score: score,
-                    duration_ms: duration
-                })
-            } catch (e) {
-                console.error("Failed to submit score", e)
-            }
+            submitMutation.mutate({
+                user_id: user.id,
+                game_type: 'it_match',
+                answers: answers, // Backend will recalculate score based on this
+                duration_ms: duration
+            })
         }
     }
 

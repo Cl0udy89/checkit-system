@@ -45,3 +45,29 @@ async def get_current_admin(token: str = Depends(oauth2_scheme)):
     except JWTError:
         raise credentials_exception
     return username
+
+from app.database import get_session
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.models import User
+from fastapi import Header
+
+async def get_current_user(
+    x_user_id: Optional[str] = Header(None, alias="X-User-ID"),
+    session: AsyncSession = Depends(get_session)
+) -> User:
+    """
+    Simple Kiosk Authentication.
+    Trusts the X-User-ID header sent by the frontend (which stores the registered user ID).
+    In a real internet-facing app, this is insecure. For a local kiosk, it's fine.
+    """
+    if not x_user_id:
+        raise HTTPException(status_code=401, detail="Authentication required (X-User-ID missing)")
+    
+    try:
+        uid = int(x_user_id)
+        user = await session.get(User, uid)
+        if not user:
+             raise HTTPException(status_code=401, detail="User not found")
+        return user
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid User ID format")

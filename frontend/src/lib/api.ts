@@ -43,8 +43,10 @@ export const submitGameScore = async (payload: { user_id: number, game_type: str
     return data
 }
 
-export const fetchGameStatus = async () => {
-    const { data } = await api.get('/games/status')
+export const fetchGameStatus = async (userId: number) => {
+    const { data } = await api.get('/games/status', {
+        headers: { 'X-User-ID': userId.toString() }
+    })
     return data
 }
 
