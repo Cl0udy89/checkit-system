@@ -6,7 +6,7 @@ from app.database import get_session
 from app.models import GameScore, User
 from typing import List, Dict
 
-router = APIRouter(prefix="/leaderboard", tags=["Leaderboard"])
+router = APIRouter(tags=["Leaderboard"])
 
 @router.get("/")
 async def get_leaderboard(session: AsyncSession = Depends(get_session)):

@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from typing import List, Dict, Any
 from app.hardware.patch_panel import patch_panel
 
-router = APIRouter(prefix="/games", tags=["Games"])
+router = APIRouter(tags=["Games"])
 
 class GameSubmit(BaseModel):
     user_id: int

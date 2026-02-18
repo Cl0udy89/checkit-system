@@ -49,7 +49,7 @@ app.add_middleware(
 API_V1_STR = "/api/v1"
 
 app.include_router(auth.router, prefix=f"{API_V1_STR}/auth", tags=["auth"])
-app.include_router(game.router, prefix=f"{API_V1_STR}/game", tags=["game"])
+app.include_router(game.router, prefix=f"{API_V1_STR}/games", tags=["game"])
 app.include_router(it_match.router, prefix=f"{API_V1_STR}/game/it-match", tags=["it-match"])
 app.include_router(leaderboard.router, prefix=f"{API_V1_STR}/leaderboard", tags=["leaderboard"])
 app.include_router(admin.router, prefix=f"{API_V1_STR}/admin", tags=["admin"])
