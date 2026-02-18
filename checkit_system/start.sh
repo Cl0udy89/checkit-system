@@ -48,6 +48,8 @@ pip install -r requirements-core.txt
 if grep -q "Raspberry Pi" /proc/cpuinfo 2>/dev/null; then
     echo ">>> RPi detected. Installing hardware libs..."
     # pip install RPi.GPIO # Uncomment if needed, usually installed system-wide or handled via core
+fi
+
 # 5. Start Frontend (Background)
 # Go back to root first to be safe
 cd ..
