@@ -69,11 +69,11 @@ async def get_content(game_type: str, session: AsyncSession = Depends(get_sessio
     if conf and conf.value == "false":
         raise HTTPException(status_code=403, detail="Competition has ended.")
         
-    limit = 50 # Default max
+    limit = 10 # Default max set to 10 as per requirement
     if game_type == "binary_brain":
-        limit = 30
+        limit = 10
     elif game_type == "it_match":
-        limit = 50
+        limit = 10
         
     questions = content_service.get_questions(game_type, limit=limit)
     # Sanitize: remove correct answer if we want strict security, 
