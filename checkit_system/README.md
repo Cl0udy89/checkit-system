@@ -2,6 +2,18 @@
 
 System obsługi stoiska na wydarzenie IT "CheckIT". Aplikacja typu Kiosk/Server obsługująca 3 gry edukacyjne, sterująca fizycznym hardwarem (Patch Panel, Solenoid, LED) i wyświetlająca rankingi.
 
+## Gry
+
+1.  **BINARY BRAIN** (Quiz + Hardware)
+    - Odpowiedz na pytania.
+    - Jeśli wygrasz, Solenoid otworzy skrzynkę (`GPIO 26`).
+2.  **PATCH MASTER** (Hardware)
+    - Połącz poprawnie kable na patch panelu.
+    - System wykrywa połączenia na żywo.
+3.  **IT MATCH** (Tinder-style Quiz) **[NOWOŚĆ]**
+    - Szybkie decyzje: Przesuń w PRAWO (Bezpieczne/Tak), w LEWO (Zagrożenie/Nie).
+    - Zdjęcia i pytania ładowane z pliku CSV.
+
 ## Instalacja ("EASY MODE")
 
 System posiada teraz **jeden skrypt startowy**, który automatycznie wykrywa środowisko, instaluje zależności i aktualizuje kod.
@@ -24,36 +36,49 @@ Przy pierwszym uruchomieniu skrypt zapyta o rolę urządzenia:
 1.  **SERVER** (PC/Proxmox):
     - Wybierz **1**.
     - Skrypt skonfiguruje bazę danych i API.
-    - Nie będzie próbował instalować bibliotek GPIO.
-
 2.  **CLIENT** (Raspberry Pi):
     - Wybierz **2**.
     - Skrypt skonfiguruje obsługę hardware'u.
-    - Automatycznie zainstaluje biblioteki `RPi.GPIO` (jeśli wykryje RPi).
 
 ---
 
-## Architektura Klient-Serwer
+## Panel Admina
 
-1.  **Serwer (API & DB)**:
-    - Adres: np. `http://192.168.1.100:8000`
-    - Panel Admina: `http://192.168.1.100:8000/docs` lub Frontend `/admin`
-    - Login: `admin` / `checkit2024`
+Dostępny pod adresem strony głównej -> `/admin`.
+**Login:** `admin`
+**Hasło:** `checkit2024`
 
-2.  **Klient (Kiosk)**:
-    - Łączy się z Serwerem, aby wysyłać wyniki.
-    - Aby zmienić adres Serwera, edytuj `config.yaml`:
-      ```yaml
-      api:
-        sync_endpoint: "http://<IP_SERWERA>:8000/api/v1/logs"
-      ```
+**Funkcje:**
+- **Sprzęt:** Ręczne sterowanie Solenoidem (Otwórz skrzynkę) i podgląd Patch Panela.
+- **Użytkownicy:** Lista zarejestrowanych osób. **Możliwość USUWANIA użytkowników** (reset wyników).
+- **Wyniki:** Podgląd tabeli wyników.
+
+---
+
+## Zarządzanie Treścią (Edycja Pytań)
+
+### IT-Match (Tinder)
+Plik z pytaniami znajduje się w:
+`backend/assets/it_match/questions.csv`
+
+**Format pliku:**
+```csv
+id,question,image,is_correct
+1,"Czy to hasło jest bezpieczne?","obrazek.jpg",1
+2,"Czy to phishing?","phishing.jpg",0
+```
+- `id`: Unikalny numer pytania.
+- `question`: Treść pytania.
+- `image`: Nazwa pliku zdjęcia. Zdjęcia wrzuć do folderu `backend/assets/it_match/`.
+- `is_correct`: `1` = Prawda/Bezpieczne (Swipe w Prawo), `0` = Fałsz/Zagrożenie (Swipe w Lewo).
+
+### Obrazki
+Wrzuć pliki `.jpg` lub `.png` do folderu `backend/assets/it_match/`.
+Upewnij się, że nazwa w pliku CSV zgadza się z nazwą pliku (wielkość liter ma znaczenie!).
 
 ---
 
 ## Hardware Wiring (Patch Master)
-
-Gra "Patch Master" wymaga pociągnięcia kabli od portów RJ45 (masa/GND) do pinów GPIO.
-Jeśli port RJ45 ma być "poprawny", musi zewrzeć GND z odpowiednim pinem GPIO.
 
 | Patch Panel Pair | RJ45 Port | RPi GPIO (BCM) | Physical Pin |
 |------------------|-----------|----------------|--------------|
@@ -66,21 +91,8 @@ Jeśli port RJ45 ma być "poprawny", musi zewrzeć GND z odpowiednim pinem GPIO.
 | **Pair 7**       | Port 9    | **GPIO 05**    | Pin 29       |
 | **Pair 8**       | Port 11   | **GPIO 06**    | Pin 31       |
 
-> **Uwaga:** Wszystkie piny GPIO są skonfigurowane jako `INPUT_PULLUP`. Zwarcie do masy (GND) oznacza "Połączenie aktywne" (Logic LOW).
+> **Uwaga:** Wszystkie piny GPIO są skonfigurowane jako `INPUT_PULLUP`. Zwarcie do masy (GND) oznacza "Połączenie aktywne".
 
 ## Solenoid (Binary Brain)
-- **GPIO 26 (BCM)** (Pin 37) steruje przekaźnikiem/MOSFETem cewki.
+- **GPIO 26 (BCM)** (Pin 37) steruje przekaźnikiem.
 - Stan wysoki (HIGH) = Otwarcie.
-- Czas otwarcia: 5 sekund (safety timeout).
-
-## Konfiguracja Zaawansowana
-Plik `config.yaml` jest teraz **opcjonalny**. Jeśli go usuniesz, system wstanie na "Bezpiecznych Domyślnych" ustawieniach.
-Możesz go wygenerować ponownie kopiując `config-server.example.yaml` lub `config-client.example.yaml`.
-
-## Zarządzanie Treścią
-Pliki contentu znajdują się w folderze `/content`:
-- `/content/binary_brain/questions.csv`
-- `/content/it_match/questions.csv`
-- `/content/*/images/*.jpg`
-
-Edycja CSV możliwa w Excelu/Notatniku. Nie zmieniaj nazw kolumn!
