@@ -178,9 +178,17 @@ async def send_all_emails(session: AsyncSession = Depends(get_session)):
     templates = (await session.execute(select(EmailTemplate))).scalars().all()
     
     # Get Sender Config
-    conf_res = await session.execute(select(SystemConfig).where(SystemConfig.key == "smtp_sender"))
-    conf = conf_res.scalar_one_or_none()
-    sender_email = conf.value if conf else "noreply@checkit.com"
+    conf_keys = ["email_sender", "smtp_host", "smtp_port", "smtp_user", "smtp_password"]
+    config_rows = (await session.execute(select(SystemConfig).where(SystemConfig.key.in_(conf_keys)))).scalars().all()
+    config_map = {c.key: c.value for c in config_rows}
+    
+    smtp_config = {
+        "sender": config_map.get("email_sender", "noreply@checkit.com"),
+        "host": config_map.get("smtp_host", ""),
+        "port": int(config_map.get("smtp_port", "587")),
+        "user": config_map.get("smtp_user", ""),
+        "password": config_map.get("smtp_password", ""),
+    }
     
     tpl_map = {t.slug: t for t in templates}
     user_map = {u.id: u for u in users}
@@ -255,6 +263,6 @@ async def send_all_emails(session: AsyncSession = Depends(get_session)):
         })
 
     # Send
-    await email_service.send_bulk(email_queue, sender=sender_email)
+    await email_service.send_bulk(email_queue, smtp_config=smtp_config)
     
-    return {"status": "sent", "count": len(email_queue), "winner_count": len(winner_ids), "from": sender_email}
+    return {"status": "sent", "count": len(email_queue), "winner_count": len(winner_ids), "from": smtp_config["sender"]}
