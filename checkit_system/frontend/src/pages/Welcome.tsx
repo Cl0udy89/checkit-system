@@ -25,7 +25,12 @@ export default function Welcome() {
             navigate('/dashboard')
         },
         onError: (err: any) => {
-            setError(err.response?.data?.detail || 'Registration failed. Try different nick.')
+            console.error("Registration Error:", err)
+            if (err.message === "Network Error") {
+                setError("Connection failure. Is Backend running?")
+            } else {
+                setError(err.response?.data?.detail || 'Registration failed. Try different nick.')
+            }
         }
     })
 
