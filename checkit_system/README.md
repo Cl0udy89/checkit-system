@@ -2,56 +2,53 @@
 
 System obsługi stoiska na wydarzenie IT "CheckIT". Aplikacja typu Kiosk/Server obsługująca 3 gry edukacyjne, sterująca fizycznym hardwarem (Patch Panel, Solenoid, LED) i wyświetlająca rankingi.
 
-## Instalacja i Architektura
+## Instalacja ("EASY MODE")
 
-System działa w architekturze Klient-Serwer:
-1. **Serwer (Proxmox/x86):** Baza danych, API, Leaderboard.
-2. **Klient (Raspberry Pi/ARM):** Gry, Hardware (Patch Panel, Solenoid).
+System posiada teraz **jeden skrypt startowy**, który automatycznie wykrywa środowisko, instaluje zależności i aktualizuje kod.
 
-### 1. Instalacja SERWERA (Proxmox/Docker/PC)
-Serwer uruchamiamy na maszynie, która będzie zbierać wyniki. Nie wymaga GPIO.
+### 1. Pobranie i Uruchomienie
 
-```bash
-# Uruchom skrypt instalacyjny dla SERWERA
-chmod +x install_server.sh
-./install_server.sh
-```
-
-**Uruchomienie:**
-- Backend: `cd backend && source venv/bin/activate && uvicorn main:app --host 0.0.0.0 --port 8000`
-- Frontend: `cd frontend && npm run dev` (lub build)
-
-### 2. Instalacja KLIENTA (Raspberry Pi 4)
-Klient (Kiosk) łączy się z hardwarem i wysyła wyniki do Serwera.
+Na **KAŻDYM** urządzeniu (Serwer PC lub Raspberry Pi) wykonaj:
 
 ```bash
-# Uruchom skrypt instalacyjny dla KLIENTA (wymaga RPi)
-chmod +x install_client.sh
-./install_client.sh
+cd ~/checkit-system/checkit_system
+git pull
+chmod +x start.sh
+./start.sh
 ```
 
-**Konfiguracja Połączenia:**
-1. Sprawdź IP Serwera (np. `192.168.1.100`).
-2. Edytuj `config.yaml` na Kliencie:
-   ```yaml
-   api:
-     sync_endpoint: "http://192.168.1.100:8000/api/v1/games/submit" # Dostosuj IP
-   ```
-3. Uruchomienie jak wyżej (Backend + Frontend).
+### 2. Wybór Roli
 
-### Szybki Start (Raspberry Pi)
-Poniższa sekcja dotyczy starej wersji (Standalone), zachowana dla kompatybilności wstecznej jeśli używasz 1 urządzenia:
-1. Sklonuj repozytorium:
-   ```bash
-   git clone <repo_url>
-   cd checkit_system
-   ```
-2. Uruchom skrypt instalacyjny:
-   ```bash
-   chmod +x install_client.sh # Traktuj RPi jako Klienta z lokalną bazą
-   ./install_client.sh
-   ```
-3. Skonfiguruj `config.yaml` (opcjonalnie).
+Przy pierwszym uruchomieniu skrypt zapyta o rolę urządzenia:
+
+1.  **SERVER** (PC/Proxmox):
+    - Wybierz **1**.
+    - Skrypt skonfiguruje bazę danych i API.
+    - Nie będzie próbował instalować bibliotek GPIO.
+
+2.  **CLIENT** (Raspberry Pi):
+    - Wybierz **2**.
+    - Skrypt skonfiguruje obsługę hardware'u.
+    - Automatycznie zainstaluje biblioteki `RPi.GPIO` (jeśli wykryje RPi).
+
+---
+
+## Architektura Klient-Serwer
+
+1.  **Serwer (API & DB)**:
+    - Adres: np. `http://192.168.1.100:8000`
+    - Panel Admina: `http://192.168.1.100:8000/docs` lub Frontend `/admin`
+    - Login: `admin` / `checkit2024`
+
+2.  **Klient (Kiosk)**:
+    - Łączy się z Serwerem, aby wysyłać wyniki.
+    - Aby zmienić adres Serwera, edytuj `config.yaml`:
+      ```yaml
+      api:
+        sync_endpoint: "http://<IP_SERWERA>:8000/api/v1/logs"
+      ```
+
+---
 
 ## Hardware Wiring (Patch Master)
 
@@ -76,11 +73,9 @@ Jeśli port RJ45 ma być "poprawny", musi zewrzeć GND z odpowiednim pinem GPIO.
 - Stan wysoki (HIGH) = Otwarcie.
 - Czas otwarcia: 5 sekund (safety timeout).
 
-## Konfiguracja (`config.yaml`)
-W pliku `config.yaml` możesz zmienić:
-- Mapowanie pinów.
-- Adres API do synchronizacji logów.
-- Progi punktowe i szybkość spadku punktów.
+## Konfiguracja Zaawansowana
+Plik `config.yaml` jest teraz **opcjonalny**. Jeśli go usuniesz, system wstanie na "Bezpiecznych Domyślnych" ustawieniach.
+Możesz go wygenerować ponownie kopiując `config-server.example.yaml` lub `config-client.example.yaml`.
 
 ## Zarządzanie Treścią
 Pliki contentu znajdują się w folderze `/content`:
