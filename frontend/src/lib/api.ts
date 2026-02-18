@@ -54,3 +54,11 @@ export const fetchPatchPanelState = async () => {
     const { data } = await api.get('/games/patch_panel/state')
     return data
 }
+
+
+// System Config & Email
+export const fetchSystemConfig = async () => (await api.get('/admin/config')).data
+export const setSystemConfig = async (key: string, value: string) => (await api.post(`/admin/config/${key}?value=${value}`)).data
+export const fetchEmailTemplates = async () => (await api.get('/admin/email-templates')).data
+export const updateEmailTemplate = async (slug: string, subject: string, body: string) => (await api.put(`/admin/email-templates/${slug}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`)).data
+export const sendAllEmails = async () => (await api.post('/admin/email/send-all')).data

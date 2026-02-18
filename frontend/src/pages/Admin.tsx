@@ -9,7 +9,6 @@ import { useState } from 'react'
 const triggerSolenoid = async () => api.post('/admin/solenoid/trigger')
 const fetchHardwareStatus = async () => (await api.get('/admin/hardware/status')).data
 const fetchAdminLogs = async () => (await api.get('/admin/logs')).data
-const fetchConfig = async () => (await api.get('/admin/config')).data
 
 export default function Admin() {
     const navigate = useNavigate()
@@ -104,7 +103,6 @@ export default function Admin() {
                 <button onClick={() => setActiveTab('hardware')} className={`px-4 py-2 border ${activeTab === 'hardware' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>SPRZĘT</button>
                 <button onClick={() => setActiveTab('users')} className={`px-4 py-2 border ${activeTab === 'users' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>UŻYTKOWNICY</button>
 
-                <button onClick={() => setActiveTab('scores')} className={`px-4 py-2 border ${activeTab === 'scores' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>WYNIKI</button>
                 <button onClick={() => setActiveTab('scores')} className={`px-4 py-2 border ${activeTab === 'scores' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>WYNIKI</button>
                 <button onClick={() => setActiveTab('logs')} className={`px-4 py-2 border ${activeTab === 'logs' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>LOGI SYSTEMOWE</button>
                 <button onClick={() => setActiveTab('settings')} className={`px-4 py-2 border ${activeTab === 'settings' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>USTAWIENIA</button>
@@ -222,32 +220,126 @@ export default function Admin() {
                 </div>
             )}
 
-            {
-                activeTab === 'logs' && (
-                    <div className="overflow-x-auto border border-green-800 font-mono text-xs">
-                        <table className="w-full text-left">
-                            <thead className="bg-green-900/20 text-green-400">
-                                <tr>
-                                    <th className="p-2">ID</th>
-                                    <th className="p-2">CZAS</th>
-                                    <th className="p-2">TYP</th>
-                                    <th className="p-2">SZCZEGÓŁY</th>
+            {activeTab === 'logs' && (
+                <div className="overflow-x-auto border border-green-800 font-mono text-xs">
+                    <table className="w-full text-left">
+                        <thead className="bg-green-900/20 text-green-400">
+                            <tr>
+                                <th className="p-2">ID</th>
+                                <th className="p-2">CZAS</th>
+                                <th className="p-2">TYP</th>
+                                <th className="p-2">SZCZEGÓŁY</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {logs?.map((l: any) => (
+                                <tr key={l.id} className="border-b border-green-900 hover:bg-green-900/10">
+                                    <td className="p-2 text-gray-500">{l.id}</td>
+                                    <td className="p-2 text-gray-400">{new Date(l.timestamp).toLocaleTimeString()}</td>
+                                    <td className={`p-2 font-bold ${l.event_type === 'SOLENOID' ? 'text-red-400' : 'text-green-400'}`}>{l.event_type}</td>
+                                    <td className="p-2 text-white">{l.details}</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {logs?.map((l: any) => (
-                                    <tr key={l.id} className="border-b border-green-900 hover:bg-green-900/10">
-                                        <td className="p-2 text-gray-500">{l.id}</td>
-                                        <td className="p-2 text-gray-400">{new Date(l.timestamp).toLocaleTimeString()}</td>
-                                        <td className={`p-2 font-bold ${l.event_type === 'SOLENOID' ? 'text-red-400' : 'text-green-400'}`}>{l.event_type}</td>
-                                        <td className="p-2 text-white">{l.details}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {activeTab === 'settings' && (
+                <div className="border border-green-800 p-6 bg-green-900/10">
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Settings /> KONFIGURACJA SYSTEMU</h2>
+
+                    <div className="flex items-center justify-between p-4 border border-green-800 bg-black">
+                        <div>
+                            <div className="text-white font-bold">ZAWODY AKTYWNE</div>
+                            <div className="text-xs text-gray-400">Gdy wyłączone, gry są zablokowane dla uczestników.</div>
+                        </div>
+                        <div className="flex gap-2">
+                            {config?.competition_active !== 'false' ? (
+                                <button onClick={() => configMutation.mutate({ key: 'competition_active', value: 'false' })} className="bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-500">ZAKOŃCZ ZAWODY</button>
+                            ) : (
+                                <button onClick={() => configMutation.mutate({ key: 'competition_active', value: 'true' })} className="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-500">WZNÓW ZAWODY</button>
+                            )}
+                        </div>
                     </div>
-                )
-            }
+
+                    <div className="mt-8 p-4 border border-red-800/50 bg-red-900/5">
+                        <div className="text-red-400 font-bold mb-2">STREFA NIEBEZPIECZNA</div>
+                        <button
+                            onClick={() => { if (confirm("Na pewno zresetować bazę?")) alert("Funkcja niezaimplementowana (wymaga resetu pliku DB)."); }}
+                            className="text-red-500 hover:text-white border border-red-500 px-4 py-2 text-xs"
+                        >
+                            RESET DATABASE (WIPE ALL)
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'email' && (
+                <div className="border border-green-800 p-6 bg-green-900/10">
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Mail /> POWIADOMIENIA EMAIL</h2>
+
+                    {emailSuccess && <div className="mb-4 p-4 bg-green-500/20 text-white border border-green-500">{emailSuccess}</div>}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 className="text-green-400 font-bold mb-4">SZABLONY WIADOMOŚCI</h3>
+                            <div className="space-y-4">
+                                {templates?.map((t: any) => (
+                                    <div key={t.slug} className="p-4 border border-green-800 bg-black hover:bg-green-900/10 cursor-pointer" onClick={() => setEditingTemplate(t)}>
+                                        <div className="text-xs text-gray-500 uppercase">{t.slug}</div>
+                                        <div className="font-bold text-white">{t.subject}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div>
+                            {editingTemplate ? (
+                                <div className="border border-green-500 p-4 bg-black h-full">
+                                    <h3 className="text-white font-bold mb-4">EDYCJA: {editingTemplate.slug}</h3>
+                                    <div className="mb-4">
+                                        <label className="block text-xs text-gray-500 mb-1">TEMAT</label>
+                                        <input
+                                            value={editingTemplate.subject}
+                                            onChange={e => setEditingTemplate({ ...editingTemplate, subject: e.target.value })}
+                                            className="w-full bg-gray-900 border border-green-800 p-2 text-white"
+                                        />
+                                    </div>
+                                    <div className="mb-4">
+                                        <label className="block text-xs text-gray-500 mb-1">TREŚĆ (Obsługuje: {'{nick}'}, {'{score}'}, {'{game}'})</label>
+                                        <textarea
+                                            value={editingTemplate.body}
+                                            onChange={e => setEditingTemplate({ ...editingTemplate, body: e.target.value })}
+                                            className="w-full h-40 bg-gray-900 border border-green-800 p-2 text-white font-mono text-sm"
+                                        />
+                                    </div>
+                                    <div className="flex justify-end gap-2">
+                                        <button onClick={() => setEditingTemplate(null)} className="px-4 py-2 text-gray-400 hover:text-white">ANULUJ</button>
+                                        <button onClick={() => updateTemplateMutation.mutate()} className="px-4 py-2 bg-green-600 text-white hover:bg-green-500">ZAPISZ</button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="border border-green-800 p-4 bg-black h-full flex flex-col justify-center items-center text-center">
+                                    <div className="mb-6">
+                                        <h3 className="text-xl font-bold text-white mb-2">MASOWA WYSYŁKA</h3>
+                                        <p className="text-gray-400 text-sm">
+                                            System automatycznie wyłoni zwycięzców (Top 3 Grandmaster + Kategorie) i wyśle im odpowiednie wiadomości.
+                                            Pozostali otrzymają podziękowanie.
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => { if (confirm("Czy na pewno wysłać e-maile do WSZYSTKICH?")) sendEmailsMutation.mutate() }}
+                                        className="bg-white text-black font-bold px-8 py-4 rounded hover:bg-gray-200 transition"
+                                    >
+                                        WYŚLIJ NAGRODY I PODZIĘKOWANIA
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div >
     )
