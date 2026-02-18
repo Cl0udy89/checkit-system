@@ -62,3 +62,5 @@ export const setSystemConfig = async (key: string, value: string) => (await api.
 export const fetchEmailTemplates = async () => (await api.get('/admin/email-templates')).data
 export const updateEmailTemplate = async (slug: string, subject: string, body: string) => (await api.put(`/admin/email-templates/${slug}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`)).data
 export const sendAllEmails = async () => (await api.post('/admin/email/send-all')).data
+export const clearLogs = async () => (await api.delete('/admin/logs')).data
+export const resetDatabase = async () => (await api.delete('/admin/database')).data

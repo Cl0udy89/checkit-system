@@ -23,12 +23,14 @@ class EmailService:
         # logger.debug(f"Body: {html_content[:100]}...")
         return True
 
-    async def send_bulk(self, separate_emails: List[Dict]):
+    async def send_bulk(self, separate_emails: List[Dict], sender: str = "noreply@checkit.com"):
         # separate_emails = [{to, subject, body}, ...]
         count = 0
         for email in separate_emails:
+            # In real impl, use 'sender'
             await self.send_email(email['to'], email['subject'], email['body'])
             count += 1
+        logger.info(f"Sent {count} emails from {sender} (MOCK)")
         return count
 
 email_service = EmailService()

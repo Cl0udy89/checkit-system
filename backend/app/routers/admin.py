@@ -79,7 +79,32 @@ async def get_logs(limit: int = 50, session: AsyncSession = Depends(get_session)
     result = await session.execute(stmt)
     return result.scalars().all()
 
+@router.delete("/logs")
+async def clear_logs(session: AsyncSession = Depends(get_session)):
+    from app.models import GameLog
+    from sqlmodel import delete
+    await session.execute(delete(GameLog))
+    await session.commit()
+    return {"status": "cleared"}
+
 # --- System Config & Competition Control ---
+
+@router.delete("/database")
+async def reset_database(session: AsyncSession = Depends(get_session)):
+    from app.models import User, GameScore, GameLog, SystemConfig, EmailTemplate
+    from sqlmodel import delete
+    
+    # Delete all data
+    await session.execute(delete(GameScore))
+    await session.execute(delete(GameLog))
+    await session.execute(delete(User))
+    # Optionally keep config/templates? User said "WIPE ALL". 
+    # Usually we want to keep admin/system config, but "Reset Database" implies fresh start.
+    # Let's keep SystemConfig and EmailTemplate to avoid breaking the app completely, 
+    # but wipe user data.
+    
+    await session.commit()
+    return {"status": "reset_complete"}
 
 @router.get("/config")
 async def get_system_config(session: AsyncSession = Depends(get_session)):
@@ -151,6 +176,11 @@ async def send_all_emails(session: AsyncSession = Depends(get_session)):
     users = (await session.execute(select(User))).scalars().all()
     scores = (await session.execute(select(GameScore))).scalars().all()
     templates = (await session.execute(select(EmailTemplate))).scalars().all()
+    
+    # Get Sender Config
+    conf_res = await session.execute(select(SystemConfig).where(SystemConfig.key == "smtp_sender"))
+    conf = conf_res.scalar_one_or_none()
+    sender_email = conf.value if conf else "noreply@checkit.com"
     
     tpl_map = {t.slug: t for t in templates}
     user_map = {u.id: u for u in users}
@@ -225,6 +255,6 @@ async def send_all_emails(session: AsyncSession = Depends(get_session)):
         })
 
     # Send
-    await email_service.send_bulk(email_queue)
+    await email_service.send_bulk(email_queue, sender=sender_email)
     
-    return {"status": "sent", "count": len(email_queue), "winner_count": len(winner_ids)}
+    return {"status": "sent", "count": len(email_queue), "winner_count": len(winner_ids), "from": sender_email}

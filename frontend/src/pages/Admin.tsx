@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { api, fetchAdminUsers, fetchAdminScores, deleteUser, fetchSystemConfig, setSystemConfig, fetchEmailTemplates, updateEmailTemplate, sendAllEmails } from '../lib/api'
+import { api, fetchAdminUsers, fetchAdminScores, deleteUser, fetchSystemConfig, setSystemConfig, fetchEmailTemplates, updateEmailTemplate, sendAllEmails, clearLogs, resetDatabase } from '../lib/api'
 import { useNavigate } from 'react-router-dom'
 import { Shield, Zap, RefreshCw, Lock, LogOut, Settings, Mail } from 'lucide-react'
 import AdminLogin from './AdminLogin'
@@ -87,9 +87,9 @@ export default function Admin() {
     })
 
     return (
-        <div className="min-h-screen bg-black text-green-500 font-mono p-8 border-4 border-green-900">
-            <header className="flex justify-between items-center mb-8 border-b border-green-800 pb-4">
-                <h1 className="text-3xl font-bold flex items-center gap-4">
+        <div className="min-h-screen bg-black text-green-500 font-mono p-4 md:p-8 border-x-0 md:border-4 border-green-900 overflow-x-hidden">
+            <header className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-green-800 pb-4 gap-4">
+                <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-4 text-center md:text-left">
                     <Shield /> ADMIN_CONSOLE // ROOT_ACCESS
                 </h1>
                 <div className="flex gap-4">
@@ -99,14 +99,13 @@ export default function Admin() {
             </header>
 
             {/* Tabs */}
-            <div className="flex gap-4 mb-8">
-                <button onClick={() => setActiveTab('hardware')} className={`px-4 py-2 border ${activeTab === 'hardware' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>SPRZĘT</button>
-                <button onClick={() => setActiveTab('users')} className={`px-4 py-2 border ${activeTab === 'users' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>UŻYTKOWNICY</button>
-
-                <button onClick={() => setActiveTab('scores')} className={`px-4 py-2 border ${activeTab === 'scores' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>WYNIKI</button>
-                <button onClick={() => setActiveTab('logs')} className={`px-4 py-2 border ${activeTab === 'logs' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>LOGI SYSTEMOWE</button>
-                <button onClick={() => setActiveTab('settings')} className={`px-4 py-2 border ${activeTab === 'settings' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>USTAWIENIA</button>
-                <button onClick={() => setActiveTab('email')} className={`px-4 py-2 border ${activeTab === 'email' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>EMAIL</button>
+            <div className="flex gap-2 mb-8 overflow-x-auto pb-2 w-full no-scrollbar">
+                <button onClick={() => setActiveTab('hardware')} className={`whitespace-nowrap px-3 py-2 text-sm border ${activeTab === 'hardware' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>SPRZĘT</button>
+                <button onClick={() => setActiveTab('users')} className={`whitespace-nowrap px-3 py-2 text-sm border ${activeTab === 'users' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>UŻYTKOWNICY</button>
+                <button onClick={() => setActiveTab('scores')} className={`whitespace-nowrap px-3 py-2 text-sm border ${activeTab === 'scores' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>WYNIKI</button>
+                <button onClick={() => setActiveTab('logs')} className={`whitespace-nowrap px-3 py-2 text-sm border ${activeTab === 'logs' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>LOGI</button>
+                <button onClick={() => setActiveTab('settings')} className={`whitespace-nowrap px-3 py-2 text-sm border ${activeTab === 'settings' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>USTAWIENIA</button>
+                <button onClick={() => setActiveTab('email')} className={`whitespace-nowrap px-3 py-2 text-sm border ${activeTab === 'email' ? 'bg-green-900/30 border-green-500 text-white' : 'border-green-900 text-green-700'}`}>EMAIL</button>
             </div>
 
             {activeTab === 'hardware' && (
@@ -222,8 +221,12 @@ export default function Admin() {
 
             {activeTab === 'logs' && (
                 <div className="overflow-x-auto border border-green-800 font-mono text-xs">
+                    <div className="flex justify-between items-center bg-green-900/20 p-2 border-b border-green-800">
+                        <span className="text-green-400 font-bold">OSTATNIE ZDARZENIA (MAX 50)</span>
+                        <button onClick={() => { if (confirm("Wyczyścić logi?")) clearLogsMutation.mutate() }} className="text-xs border border-green-600 px-2 py-1 text-green-400 hover:bg-green-900">WYCZYŚĆ</button>
+                    </div>
                     <table className="w-full text-left">
-                        <thead className="bg-green-900/20 text-green-400">
+                        <thead className="bg-green-900/20 text-green-400 hidden md:table-header-group">
                             <tr>
                                 <th className="p-2">ID</th>
                                 <th className="p-2">CZAS</th>
@@ -249,25 +252,39 @@ export default function Admin() {
                 <div className="border border-green-800 p-6 bg-green-900/10">
                     <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Settings /> KONFIGURACJA SYSTEMU</h2>
 
-                    <div className="flex items-center justify-between p-4 border border-green-800 bg-black">
+                    <div className="flex items-center justify-between p-4 border border-green-800 bg-black mb-4 flex-col md:flex-row gap-4">
                         <div>
                             <div className="text-white font-bold">ZAWODY AKTYWNE</div>
                             <div className="text-xs text-gray-400">Gdy wyłączone, gry są zablokowane dla uczestników.</div>
                         </div>
                         <div className="flex gap-2">
                             {config?.competition_active !== 'false' ? (
-                                <button onClick={() => configMutation.mutate({ key: 'competition_active', value: 'false' })} className="bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-500">ZAKOŃCZ ZAWODY</button>
+                                <button onClick={() => configMutation.mutate({ key: 'competition_active', value: 'false' })} className="bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-500 w-full md:w-auto">ZAKOŃCZ ZAWODY</button>
                             ) : (
-                                <button onClick={() => configMutation.mutate({ key: 'competition_active', value: 'true' })} className="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-500">WZNÓW ZAWODY</button>
+                                <button onClick={() => configMutation.mutate({ key: 'competition_active', value: 'true' })} className="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-500 w-full md:w-auto">WZNÓW ZAWODY</button>
                             )}
+                        </div>
+                    </div>
+
+                    <div className="mb-4 p-4 border border-green-800 bg-black">
+                        <label className="block text-white font-bold mb-2">ADRES EMAIL NADAWCY</label>
+                        <div className="flex gap-2">
+                            <input
+                                type="email"
+                                placeholder="noreply@checkit.com"
+                                defaultValue={config?.email_sender || ""}
+                                onBlur={(e) => configMutation.mutate({ key: 'email_sender', value: e.target.value })}
+                                className="bg-gray-900 border border-green-800 p-2 text-white flex-1"
+                            />
+                            <button className="bg-green-900 px-4 py-2 text-white">ZAPISZ</button>
                         </div>
                     </div>
 
                     <div className="mt-8 p-4 border border-red-800/50 bg-red-900/5">
                         <div className="text-red-400 font-bold mb-2">STREFA NIEBEZPIECZNA</div>
                         <button
-                            onClick={() => { if (confirm("Na pewno zresetować bazę?")) alert("Funkcja niezaimplementowana (wymaga resetu pliku DB)."); }}
-                            className="text-red-500 hover:text-white border border-red-500 px-4 py-2 text-xs"
+                            onClick={() => { if (confirm("POWAŻNIE: TO USUNIE WSZYSTKICH UŻYTKOWNIKÓW, WYNIKI I LOGI. CZY NA PEWNO?")) resetDbMutation.mutate() }}
+                            className="text-red-500 hover:text-white border border-red-500 px-4 py-2 text-xs w-full md:w-auto"
                         >
                             RESET DATABASE (WIPE ALL)
                         </button>
