@@ -29,17 +29,29 @@ class ContentService:
             logger.warning(f"Content file not found: {path}")
             return []
         
+        encodings = ['utf-8', 'utf-8-sig', 'windows-1250', 'cp1252', 'latin-1']
         items = []
-        try:
-            with open(path, mode='r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    # Clean up keys (strip BOM, external whitespace)
-                    clean_row = {k.strip(): v.strip() for k, v in row.items() if k}
-                    items.append(clean_row)
-        except Exception as e:
-            logger.error(f"Error reading CSV {path}: {e}")
-        return items
+        
+        for encoding in encodings:
+            try:
+                with open(path, mode='r', encoding=encoding) as f:
+                    reader = csv.DictReader(f)
+                    items = [] # Reset on new attempt
+                    for row in reader:
+                        # Clean up keys (strip BOM, external whitespace)
+                        clean_row = {k.strip(): v.strip() for k, v in row.items() if k}
+                        items.append(clean_row)
+                
+                # If we got here, success
+                logger.info(f"Successfully loaded {path} using {encoding}")
+                return items
+            except UnicodeDecodeError:
+                continue # Try next encoding
+            except Exception as e:
+                logger.error(f"Error reading CSV {path} with {encoding}: {e}")
+                
+        logger.error(f"Failed to load {path} with any supported encoding.")
+        return []
 
     def get_questions(self, game_type: str, limit: int = 10) -> List[Dict]:
         if game_type == "binary_brain":
