@@ -37,11 +37,17 @@ export default function Admin() {
         enabled: activeTab === 'scores'
     })
 
-    const { data: logs } = useQuery({
+    const { data: logs, refetch: refetchLogs } = useQuery({
         queryKey: ['admin_logs'],
-        queryFn: fetchAdminLogs,
+        queryFn: async () => (await api.get('/admin/logs')).data,
         refetchInterval: 3000,
         enabled: activeTab === 'logs'
+    })
+
+    const { data: systemStatus } = useQuery({
+        queryKey: ['system_status'],
+        queryFn: async () => (await api.get('/admin/system/status')).data,
+        refetchInterval: 5000 // Refresh often to see new nodes
     })
 
     const { data: config, refetch: refetchConfig } = useQuery({
@@ -105,9 +111,27 @@ export default function Admin() {
     return (
         <div className="min-h-screen bg-black text-green-500 font-mono p-4 md:p-8 border-x-0 md:border-4 border-green-900 overflow-x-hidden">
             <header className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-green-800 pb-4 gap-4">
-                <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-4 text-center md:text-left">
-                    <Shield /> ADMIN_CONSOLE // ROOT_ACCESS
-                </h1>
+                <div className="flex items-center gap-4">
+                    <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2 text-center md:text-left">
+                        <Shield /> ADMIN_CONSOLE // ROOT_ACCESS
+                    </h1>
+                    {/* Connected Nodes Indicator */}
+                    <div className="flex gap-2 ml-4 hidden md:flex">
+                        {systemStatus?.connected_nodes && Object.values(systemStatus.connected_nodes).length > 0 ? (
+                            Object.values(systemStatus.connected_nodes).map((node: any, idx) => (
+                                <div key={idx} className="px-2 py-1 bg-green-900/50 border border-green-500 text-green-400 text-xs rounded font-mono flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                    {node.is_rpi ? "RPi" : "PC"} [{node.node_id}]
+                                </div>
+                            ))
+                        ) : (
+                            <div className="px-2 py-1 bg-yellow-900/50 border border-yellow-500 text-yellow-500 text-xs rounded font-mono flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                                NO NODES
+                            </div>
+                        )}
+                    </div>
+                </div>
                 <div className="flex gap-4">
                     <button onClick={() => { localStorage.removeItem('admin_token'); window.location.reload() }} className="hover:text-red-500 flex items-center gap-2"><LogOut size={16} /> WYLOGUJ</button>
                     <button onClick={() => navigate('/dashboard')} className="hover:text-white">WYJŚCIE</button>

@@ -1,98 +1,93 @@
-# CheckIT System - Kiosk & Hardware Control
+# CheckIT System Instructions
 
-System obsługi stoiska na wydarzenie IT "CheckIT". Aplikacja typu Kiosk/Server obsługująca 3 gry edukacyjne, sterująca fizycznym hardwarem (Patch Panel, Solenoid, LED) i wyświetlająca rankingi.
+## System Architecture
 
-## Gry
+CheckIT is designed as a distributed system with two roles:
 
-1.  **BINARY BRAIN** (Quiz + Hardware)
-    - Odpowiedz na pytania.
-    - Jeśli wygrasz, Solenoid otworzy skrzynkę (`GPIO 26`).
-2.  **PATCH MASTER** (Hardware)
-    - Połącz poprawnie kable na patch panelu.
-    - System wykrywa połączenia na żywo.
-3.  **IT MATCH** (Tinder-style Quiz)
-    - Szybkie decyzje: Przesuń w PRAWO (Bezpieczne/Tak), w LEWO (Zagrożenie/Nie).
-    - Zdjęcia i pytania ładowane z pliku CSV.
+1.  **Central Server (Server):**
+    *   Hosts the Database, Admin Panel, and Game Configurations.
+    *   Aggregates scores from all terminals.
+    *   Manages "Active Competition" state.
+    *   **IP Address:** `57.128.247.85` (as configured)
 
-## Instalacja ("EASY MODE")
-
-System posiada teraz **jeden skrypt startowy**, który automatycznie wykrywa środowisko, instaluje zależności i aktualizuje kod.
-
-### 1. Pobranie i Uruchomienie
-
-Na **KAŻDYM** urządzeniu (Serwer PC lub Raspberry Pi) wykonaj:
-
-```bash
-cd ~/checkit-system
-git pull
-chmod +x start.sh
-./start.sh
-```
-
-### 2. Wybór Roli
-
-Przy pierwszym uruchomieniu skrypt zapyta o rolę urządzenia:
-
-1.  **SERVER** (PC/Proxmox):
-    - Wybierz **1**.
-    - Skrypt skonfiguruje bazę danych i API.
-2.  **CLIENT** (Raspberry Pi):
-    - Wybierz **2**.
-    - Skrypt skonfiguruje obsługę hardware'u.
+2.  **Game Terminals (Clients / Raspberry Pi):**
+    *   Run the Game UI for players.
+    *   Control Hardware (Solenoid, Patch Panel) via GPIO.
+    *   Sync scores and logs to the Central Server.
+    *   **Heartbeat:** Sends a signal every 30s to the Server to say "I'm alive".
 
 ---
 
-## Panel Admina
+## Installation & Setup
 
-Dostępny pod adresem strony głównej -> `/admin`.
-**Login:** `admin`
-**Hasło:** `checkit2024`
+### 1. Central Server Setup
+(*Already configured on 57.128.247.85*)
 
-**Funkcje:**
-- **Sprzęt:** Ręczne sterowanie Solenoidem (Otwórz skrzynkę) i podgląd Patch Panela.
-- **Użytkownicy:** Lista zarejestrowanych osób. **Możliwość USUWANIA użytkowników** (reset wyników).
-- **Wyniki:** Podgląd tabeli wyników.
+*   **Backend:** Runs usually on port `8000`.
+*   **Frontend:** Runs dev server or built static files.
+*   **Role:** Ensure `config.yaml` has `system.platform_role: "server"`.
+
+### 2. Raspberry Pi (Client) Setup
+
+1.  **Clone Repository:**
+    ```bash
+    git clone <repo_url> checkit-system
+    cd checkit-system
+    ```
+
+2.  **Install Dependencies:**
+    ```bash
+    ./install_client.sh  # (If available)
+    # OR manual:
+    cd backend
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    pip install rpi-lgpio  # CRITICAL for Pi 5 / Bookworm
+    ```
+
+3.  **Configuration (`config.yaml`):**
+    Ensure `backend/config.yaml` points to the server:
+    ```yaml
+    system:
+      node_id: "checkit-rpi-01"
+      platform_role: "client"
+    
+    api:
+      sync_endpoint: "http://57.128.247.85:8000/api/v1/logs"
+    ```
+
+4.  **Run Application:**
+    ```bash
+    ./start.sh
+    ```
 
 ---
 
-## Zarządzanie Treścią (Edycja Pytań)
+## Troubleshooting
 
-### IT-Match (Tinder)
-Plik z pytaniami znajduje się w:
-`backend/assets/it_match/questions.csv`
+### ⚠️ "RASBERRY PI NOT DETECTED"
+If the logs say `Using MOCK GPIO (Simulation Mode)` on a real Pi:
+1.  **Fix:** Install the missing library:
+    ```bash
+    pip install rpi-lgpio
+    ```
+2.  **Workaround (Force Mode):**
+    If it still fails but you want to force the Admin Panel to show "RPi ONLINE":
+    ```bash
+    export CHECKIT_IS_RPI=true
+    ./start.sh
+    ```
 
-**Format pliku:**
-```csv
-id,question,image,is_correct
-1,"Czy to hasło jest bezpieczne?","obrazek.jpg",1
-2,"Czy to phishing?","phishing.jpg",0
-```
-- `id`: Unikalny numer pytania.
-- `question`: Treść pytania.
-- `image`: Nazwa pliku zdjęcia. Zdjęcia wrzuć do folderu `backend/assets/it_match/`.
-- `is_correct`: `1` = Prawda/Bezpieczne (Swipe w Prawo), `0` = Fałsz/Zagrożenie (Swipe w Lewo).
-
-### Obrazki
-Wrzuć pliki `.jpg` lub `.png` do folderu `backend/assets/it_match/`.
-Upewnij się, że nazwa w pliku CSV zgadza się z nazwą pliku (wielkość liter ma znaczenie!).
+### 📡 Connection Issues
+*   **Check Server:** Open `http://57.128.247.85:8000/health` in a browser.
+*   **Check Client Logs:** Look for `Sync Service started` and `Heartbeat success`.
+*   **Admin Panel:** The top header should show a **green indicator** with `RPi [checkit-rpi-01]` when the Pi is connected.
 
 ---
 
-## Hardware Wiring (Patch Master)
-
-| Patch Panel Pair | RJ45 Port | RPi GPIO (BCM) | Physical Pin |
-|------------------|-----------|----------------|--------------|
-| **Pair 1**       | Port 1    | **GPIO 17**    | Pin 11       |
-| **Pair 2**       | Port 2    | **GPIO 27**    | Pin 13       |
-| **Pair 3**       | Port 4    | **GPIO 22**    | Pin 15       |
-| **Pair 4**       | Port 5    | **GPIO 10**    | Pin 19       |
-| **Pair 5**       | Port 6    | **GPIO 09**    | Pin 21       |
-| **Pair 6**       | Port 7    | **GPIO 11**    | Pin 23       |
-| **Pair 7**       | Port 9    | **GPIO 05**    | Pin 29       |
-| **Pair 8**       | Port 11   | **GPIO 06**    | Pin 31       |
-
-> **Uwaga:** Wszystkie piny GPIO są skonfigurowane jako `INPUT_PULLUP`. Zwarcie do masy (GND) oznacza "Połączenie aktywne".
-
-## Solenoid (Binary Brain)
-- **GPIO 26 (BCM)** (Pin 37) steruje przekaźnikiem.
-- Stan wysoki (HIGH) = Otwarcie.
+## Admin Panel Features
+*   **Hardware:** Manually trigger Solenoid or view Patch Panel connectivity.
+*   **Connected Nodes:** (Top Bar) Shows live status of all connected Game Terminals.
+*   **Competition Control:** Start/Stop the competition (blocks games).
+*   **Email:** Configure SMTP and send bulk rewards.
