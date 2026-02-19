@@ -55,4 +55,5 @@ fi
 # 4. Start Application
 echo "-----------------------------------------"
 echo "Starting CheckIT Client..."
+chmod +x start.sh
 ./start.sh
