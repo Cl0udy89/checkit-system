@@ -15,19 +15,24 @@ if command -v apt-get &> /dev/null; then
 fi
 
 # 2. Config Setup (Aggressive Fix)
-mkdir -p backend
-CONFIG_FILE="backend/config.yaml"
+CONFIG_FILE="config.yaml"
+
+# Cleanup wrong location if I created it earlier
+if [ -f "backend/config.yaml" ]; then
+    echo "⚠️  Removing invalid backend/config.yaml..."
+    rm "backend/config.yaml"
+fi
 
 # Check for BAD config domain and NUKE IT if found
 if [ -f "$CONFIG_FILE" ]; then
     if grep -q "api.checkit.event" "$CONFIG_FILE"; then
-        echo "⚠️  Outdated config detected. Overwriting $CONFIG_FILE..."
+        echo "⚠️  Outdated config detected ($CONFIG_FILE). Overwriting..."
         rm "$CONFIG_FILE"
     fi
 fi
 
 if [ ! -f "$CONFIG_FILE" ]; then
-    echo ">>> Creating Client Configuration..."
+    echo ">>> Creating Client Configuration in ROOT..."
     cat > "$CONFIG_FILE" <<EOL
 system:
   node_id: "checkit-rpi-01"
