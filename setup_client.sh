@@ -38,6 +38,13 @@ fi
 # 3. Check for dependencies
 echo "-----------------------------------------"
 echo "Checking dependencies..."
+# 3a. Install System Deps
+if command -v apt-get &> /dev/null; then
+    echo ">>> Installing System Dependencies (swig, python3-dev)..."
+    apt-get update && apt-get install -y swig python3-dev python3-setuptools gcc
+fi
+
+# 3b. Install Python Libs
 if ! python3 -c "import rpi_lgpio" &> /dev/null; then
     echo "⚠️  rpi-lgpio not found. Installing..."
     pip install rpi-lgpio --break-system-packages
