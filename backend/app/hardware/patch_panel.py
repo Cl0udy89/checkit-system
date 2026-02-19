@@ -34,13 +34,37 @@ class PatchPanel:
             # Setup as Input with Pull Up. 
             # If connected to END (Ground), it will read LOW.
             gpio_manager.setup_input(pair["gpio"], GPIO.PUD_UP)
+            
+        # Remote State Storage (for Server Mode)
+        # We store the last known state from the agent
+        self._remote_state = []
+        # Fallback initial state (all disconnected)
+        for pair in self.pin_mapping:
+            self._remote_state.append({
+                "label": pair["label"],
+                "gpio": pair["gpio"],
+                "connected": False
+            })
+
+    def update_remote_state(self, state: List[Dict[str, any]]):
+        """Called by the API when Agent sends an update."""
+        # Validate or just replace? Just replace for now.
+        # Ensure format match if needed, but for now trust the agent.
+        self._remote_state = state
+        # log debug?
+        # logger.debug(f"PatchPanel remote state updated: {state}")
 
     def get_state(self) -> List[Dict[str, any]]:
         """
         Returns the state of all pairs.
-        Connected (LOW) = True
-        Disconnected (HIGH) = False
+        If on Server (no RPi GPIO), returns last known remote state.
+        If on Client (RPi), reads local GPIO.
         """
+        if not gpio_manager.is_rpi_mode():
+             # Server Mode (or Dev PC) - Return what the Agent sent us
+             return self._remote_state
+
+        # Client Mode - Read Hardware
         results = []
         for pair in self.pin_mapping:
             state = gpio_manager.read(pair["gpio"])

@@ -17,8 +17,29 @@ class Solenoid:
         # Standard relay modules are often Active Low. Ssolenoids via MOSFET are Active High.
         # Let's assume Active HIGH for MOSFET solenoid driver.
         gpio_manager.write(self.pin, GPIO.LOW) 
+        
+        # Command Queue for Agent (Server Mode)
+        self._command_queue = []
+
+    def queue_open(self):
+        """Called by Server to request open on Agent."""
+        self._command_queue.append("OPEN")
+        logger.info("Solenoid OPEN command queued for Agent.")
+
+    def pop_pending_command(self) -> str:
+        """Called by Agent API to get pending commands."""
+        if self._command_queue:
+            return self._command_queue.pop(0)
+        return None 
 
     async def open_box(self):
+        # Check if we are Server or Client
+        if not gpio_manager.is_rpi_mode():
+            # Server Mode: Queue command
+            self.queue_open()
+            return
+
+        # Client Mode: Execute Hardware
         if self._is_active:
             logger.warning("Solenoid trigger requested but already active.")
             return

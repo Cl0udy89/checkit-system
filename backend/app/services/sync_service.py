@@ -31,9 +31,9 @@ class SyncService:
     async def _loop(self):
         while self.running:
             try:
-                await self._send_heartbeat()
+                # Hardware Sync (High Frequency if possible, or just same loop)
+                await self._sync_hardware()
                 await self._sync_scores()
-                # await self._sync_logs() # If implemented
             except Exception as e:
                 logger.error(f"Error in Sync loop: {e}")
             
@@ -87,31 +87,56 @@ class SyncService:
             # but with `async for` it yields once.
             break # Ensure we only use one session per loop iteration
 
-    async def _send_heartbeat(self):
+            pass
+
+    async def _sync_hardware(self):
+        """
+        Reads local hardware state (if RPi) and sends to Server.
+        Receives commands from Server and executes them.
+        """
         from app.hardware.gpio_manager import IS_RPI
+        from app.hardware.patch_panel import patch_panel
+        from app.hardware.solenoid import solenoid
         import time
 
-        # Derive heartbeat URL from sync endpoint
-        # sync_endpoint: http://host:port/api/v1/logs
-        # target: http://host:port/api/v1/games/heartbeat
+        if not IS_RPI:
+            return
+
+        # 1. Read Local State
+        # patch_panel.get_state() will read GPIO because IS_RPI is True
+        pp_state = patch_panel.get_state()
         
-        base_url = settings.api.sync_endpoint.replace("/logs", "")
-        url = f"{base_url}/games/heartbeat"
-        
+        # 2. Prepare Payload
         payload = {
             "node_id": settings.node_id,
-            "is_rpi": IS_RPI,
-            "platform_role": settings.system.platform_role,
-            "timestamp": time.time()
+            "is_rpi": True,
+            "timestamp": time.time(),
+            "patch_panel": pp_state
         }
+        
+        # 3. Send to Agent Sync Endpoint
+        base_url = settings.api.sync_endpoint.replace("/logs", "")
+        url = f"{base_url}/agent/sync"
         
         try:
             async with aiohttp.ClientSession() as client:
                 async with client.post(url, json=payload, timeout=5) as resp:
-                    if resp.status != 200:
-                        logger.warning(f"Heartbeat failed: {resp.status}")
+                    if resp.status == 200:
+                        data = await resp.json()
+                        
+                        # 4. Handle Commands
+                        if data.get("trigger_solenoid"):
+                            logger.info("Received OPEN command from Server.")
+                            # Execute immediately
+                            # We can await it here or spawn a task. 
+                            # Awaiting might block the sync loop for 5s.
+                            # Better to spawn task.
+                            asyncio.create_task(solenoid.open_box())
+                            
+                    else:
+                        logger.warning(f"Agent Sync failed: {resp.status}")
         except Exception as e:
-            # logger.debug(f"Heartbeat failed: {e}") # Verbose
+            # logger.debug(f"Agent Sync error: {e}")
             pass
 
 

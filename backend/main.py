@@ -54,6 +54,9 @@ app.include_router(it_match.router, prefix=f"{API_V1_STR}/game/it-match", tags=[
 app.include_router(leaderboard.router, prefix=f"{API_V1_STR}/leaderboard", tags=["leaderboard"])
 app.include_router(admin.router, prefix=f"{API_V1_STR}/admin", tags=["admin"])
 
+from app.routers import agent
+app.include_router(agent.router, prefix=f"{API_V1_STR}/agent", tags=["agent"])
+
 # Mount content directory for images
 from pathlib import Path
 CONTENT_DIR = Path(__file__).parent.parent / "content"

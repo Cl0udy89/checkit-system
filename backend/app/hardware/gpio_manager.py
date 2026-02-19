@@ -102,4 +102,7 @@ class GPIOManager:
     def write(self, pin: int, state: int):
         GPIO.output(pin, state)
 
+    def is_rpi_mode(self) -> bool:
+        return IS_RPI
+
 gpio_manager = GPIOManager()
