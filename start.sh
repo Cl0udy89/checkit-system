@@ -47,7 +47,14 @@ pip install -r requirements-core.txt
 # Platform specific check
 if grep -q "Raspberry Pi" /proc/cpuinfo 2>/dev/null; then
     echo ">>> RPi detected. Installing hardware libs..."
-    # pip install RPi.GPIO # Uncomment if needed, usually installed system-wide or handled via core
+    # Always install rpi-lgpio for modern support
+    pip install rpi-lgpio
+fi
+
+# Check if Client config
+if grep -q "platform_role: \"client\"" config.yaml; then
+    echo ">>> Installing Client Dependencies..."
+    pip install -r requirements-client.txt
 fi
 
 # 5. Start Frontend (Background)
