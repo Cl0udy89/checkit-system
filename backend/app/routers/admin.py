@@ -7,11 +7,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.security import get_current_admin
 from app.models import SystemConfig, EmailTemplate, User, GameScore
 from app.services.email_service import email_service
-import logging
+from app.security import get_current_admin
+from app.hardware.gpio_manager import IS_RPI
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Admin"], dependencies=[Depends(get_current_admin)])
+
+@router.get("/system/status")
+async def get_system_status():
+    return {
+        "node_id": settings.node_id,
+        "is_rpi": IS_RPI,
+        "platform_role": settings.system.platform_role,
+        "sync_endpoint": settings.api.sync_endpoint
+    }
 
 @router.post("/solenoid/trigger")
 async def trigger_solenoid():

@@ -14,7 +14,7 @@ DEFAULTS = {
         "platform_role": "client"  # 'server' or 'client'
     },
     "api": {
-        "sync_endpoint": "http://localhost:8000/api/v1/logs", # Default to local
+        "sync_endpoint": "http://57.128.247.85:8000/api/v1/logs", # Central Server IP
         "sync_interval_seconds": 60,
         "retry_interval_seconds": 10
     },
