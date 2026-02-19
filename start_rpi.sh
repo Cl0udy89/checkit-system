@@ -48,7 +48,8 @@ game:
   initial_points: 10000
 
 hardware:
-  solenoid_pin: 17
+hardware:
+  solenoid_pin: 26
   solenoid_open_time_sec: 5
 EOL
     echo "✅ Configured for Server: 57.128.247.85"

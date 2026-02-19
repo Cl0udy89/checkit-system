@@ -12,11 +12,12 @@ class Solenoid:
         self._is_active = False
         
         # Setup GPIO
-        gpio_manager.setup_output(self.pin)
-        # Ensure it's off initially (assuming HIGH is ON or LOW is ON? Usually relay is Active Low or High. 
-        # Standard relay modules are often Active Low. Ssolenoids via MOSFET are Active High.
-        # Let's assume Active HIGH for MOSFET solenoid driver.
-        gpio_manager.write(self.pin, GPIO.LOW) 
+        if gpio_manager.is_rpi_mode():
+            try:
+                gpio_manager.setup_output(self.pin)
+                gpio_manager.write(self.pin, GPIO.LOW)
+            except Exception as e:
+                logger.error(f"Solenoid Init Error: {e}") 
         
         # Command Queue for Agent (Server Mode)
         self._command_queue = []
@@ -47,6 +48,8 @@ class Solenoid:
         logger.info(f"Opening solenoid on PIN {self.pin} for {self.duration}s")
         self._is_active = True
         try:
+            # Ensure pin is set up (Safe to call repeatedly)
+            gpio_manager.setup_output(self.pin)
             gpio_manager.write(self.pin, GPIO.HIGH)
             # Use asyncio sleep to not block the event loop
             await asyncio.sleep(self.duration)
