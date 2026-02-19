@@ -39,14 +39,28 @@ class MockGPIO:
     def setwarnings(flag):
         pass
 
+import os
+
+# Check if RPi mode is forced via environment variable
+FORCE_RPI = os.environ.get("CHECKIT_IS_RPI", "false").lower() == "true"
+
 try:
     import RPi.GPIO as GPIO
     logger.info("✅ RASBERRY PI DETECTED: RPi.GPIO imported successfully. Hardware control ENABLED.")
     IS_RPI = True
 except (ImportError, RuntimeError):
-    logger.warning("⚠️  RASBERRY PI NOT DETECTED: RPi.GPIO not found. Using MOCK GPIO (Simulation Mode).")
+    if FORCE_RPI:
+        logger.error("🚨 FORCE RPi MODE ENABLED but 'RPi.GPIO' is missing!")
+        logger.error("👉 To fix: Run 'pip install rpi-lgpio' (recommended for Pi 5/Bookworm) or 'pip install RPi.GPIO'")
+        logger.warning("⚠️ Falling back to MOCK GPIO because library is missing, despite FORCE_RPI=true.")
+    else:
+        logger.warning("⚠️  RASBERRY PI NOT DETECTED: RPi.GPIO not found. Using MOCK GPIO (Simulation Mode).")
+    
     GPIO = MockGPIO()
-    IS_RPI = False
+    # If forced, we MIGHT want to set IS_RPI=True to trick the UI, 
+    # but hardware won't work. The user requested "let me specify".
+    # So we set IS_RPI = FORCE_RPI, but use MockGPIO to prevent crash.
+    IS_RPI = FORCE_RPI
 
 class GPIOManager:
     _instance = None
