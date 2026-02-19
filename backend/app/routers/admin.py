@@ -9,6 +9,7 @@ from app.models import SystemConfig, EmailTemplate, User, GameScore
 from app.services.email_service import email_service
 from app.security import get_current_admin
 from app.hardware.gpio_manager import IS_RPI
+import logging
 
 logger = logging.getLogger(__name__)
 
