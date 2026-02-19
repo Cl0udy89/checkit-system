@@ -41,10 +41,12 @@ class MockGPIO:
 
 try:
     import RPi.GPIO as GPIO
-    logger.info("RPi.GPIO imported successfully.")
+    logger.info("✅ RASBERRY PI DETECTED: RPi.GPIO imported successfully. Hardware control ENABLED.")
+    IS_RPI = True
 except (ImportError, RuntimeError):
-    logger.warning("RPi.GPIO not found. Using MockGPIO.")
+    logger.warning("⚠️  RASBERRY PI NOT DETECTED: RPi.GPIO not found. Using MOCK GPIO (Simulation Mode).")
     GPIO = MockGPIO()
+    IS_RPI = False
 
 class GPIOManager:
     _instance = None
