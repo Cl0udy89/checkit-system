@@ -27,15 +27,18 @@ class GameService:
         existing = (await session.execute(existing_stmt)).scalar_one_or_none()
         
         if existing:
-            logger.warning(f"User {user_id} already played {game_type}. Blocking duplicate score.")
-            # Option A: Raise error
-            # raise Exception("User already played this game")
-            # Option B: Return existing to be idempotent?
-            # User reported "2 spis w tabele" -> they want to prevent it.
-            # If we return existing, they might think they played again.
-            # Let's update if score is better? No, usually it's one attempt.
-            # Let's just return the existing record and NOT save a new one.
-            return existing
+            if final_score > existing.score:
+                logger.info(f"User {user_id} improved score in {game_type} from {existing.score} to {final_score}.")
+                existing.score = final_score
+                existing.duration_ms = duration_ms
+                existing.synced = False
+                session.add(existing)
+                await session.commit()
+                await session.refresh(existing)
+                return existing
+            else:
+                logger.info(f"User {user_id} played {game_type} but score {final_score} not better than {existing.score}.")
+                return existing
 
         passed = False
         
