@@ -31,6 +31,7 @@ class SyncService:
     async def _loop(self):
         while self.running:
             try:
+                await self._send_heartbeat()
                 await self._sync_scores()
                 # await self._sync_logs() # If implemented
             except Exception as e:
@@ -85,5 +86,33 @@ class SyncService:
             # get_session handles closing via try-finally in generator if used correctly, 
             # but with `async for` it yields once.
             break # Ensure we only use one session per loop iteration
+
+    async def _send_heartbeat(self):
+        from app.hardware.gpio_manager import IS_RPI
+        import time
+
+        # Derive heartbeat URL from sync endpoint
+        # sync_endpoint: http://host:port/api/v1/logs
+        # target: http://host:port/api/v1/games/heartbeat
+        
+        base_url = settings.api.sync_endpoint.replace("/logs", "")
+        url = f"{base_url}/games/heartbeat"
+        
+        payload = {
+            "node_id": settings.node_id,
+            "is_rpi": IS_RPI,
+            "platform_role": settings.system.platform_role,
+            "timestamp": time.time()
+        }
+        
+        try:
+            async with aiohttp.ClientSession() as client:
+                async with client.post(url, json=payload, timeout=5) as resp:
+                    if resp.status != 200:
+                        logger.warning(f"Heartbeat failed: {resp.status}")
+        except Exception as e:
+            # logger.debug(f"Heartbeat failed: {e}") # Verbose
+            pass
+
 
 sync_service = SyncService()

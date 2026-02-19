@@ -9,6 +9,7 @@ from app.models import SystemConfig, EmailTemplate, User, GameScore
 from app.services.email_service import email_service
 from app.security import get_current_admin
 from app.hardware.gpio_manager import IS_RPI
+from app.node_state import connected_nodes
 import logging
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,8 @@ async def get_system_status():
         "node_id": settings.node_id,
         "is_rpi": IS_RPI,
         "platform_role": settings.system.platform_role,
-        "sync_endpoint": settings.api.sync_endpoint
+        "sync_endpoint": settings.api.sync_endpoint,
+        "connected_nodes": connected_nodes
     }
 
 @router.post("/solenoid/trigger")
