@@ -8,6 +8,14 @@ echo "========================================="
 mkdir -p backend
 
 # 2. Check for config.yaml
+# Auto-fix: Check for old domain name
+if [ -f "backend/config.yaml" ]; then
+    if grep -q "api.checkit.event" "backend/config.yaml"; then
+        echo "⚠️ Detected outdated config (api.checkit.event). Backing up to config.yaml.bak..."
+        mv backend/config.yaml backend/config.yaml.bak
+    fi
+fi
+
 if [ ! -f "backend/config.yaml" ]; then
     echo "❌ backend/config.yaml NOT found. Creating default..."
     
