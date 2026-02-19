@@ -31,10 +31,11 @@ export default function ITMatch() {
     })
 
     // Fetch questions
-    const { data, isLoading } = useQuery({
+    const { data, isLoading, isError, error } = useQuery({
         queryKey: ['it_match_questions'],
         queryFn: fetchITMatchQuestions,
-        refetchOnWindowFocus: false
+        refetchOnWindowFocus: false,
+        retry: false
     })
 
     useEffect(() => {
@@ -86,6 +87,20 @@ export default function ITMatch() {
     }
 
     if (isLoading) return <div className="text-white text-center mt-20 font-mono">LOADING_ASSETS...</div>
+
+    if (isError) {
+        // @ts-ignore
+        if (error?.response?.status === 403) {
+            return (
+                <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
+                    <h1 className="text-4xl font-bold mb-4">ZAWODY ZAKOŃCZONE</h1>
+                    <p className="mb-8 text-xl">System został zablokowany przez administratora.</p>
+                    <button onClick={() => navigate('/dashboard')} className="border border-red-500 text-red-500 px-6 py-3 hover:bg-red-900/20">POWRÓT</button>
+                </div>
+            )
+        }
+        return <div className="text-red-500 text-center mt-20">CONNECTION_ERROR</div>
+    }
 
     if (gameOver) {
         return (

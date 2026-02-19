@@ -34,10 +34,11 @@ export default function BinaryBrain() {
     const DECAY_PER_MS = 0.05 // 50 points per second
     const MAX_Q_POINTS = 1000
 
-    const { data: questions, isLoading } = useQuery({
+    const { data: questions, isLoading, isError, error } = useQuery({
         queryKey: ['questions', 'binary_brain'],
         queryFn: () => fetchGameContent('binary_brain'),
-        staleTime: Infinity
+        staleTime: Infinity,
+        retry: false
     })
 
     // Shuffle options when question changes
@@ -130,6 +131,21 @@ export default function BinaryBrain() {
     }
 
     if (isLoading) return <div className="p-10 text-center animate-pulse">LOADING_NEURAL_LINK...</div>
+
+    if (isError) {
+        // @ts-ignore
+        if (error?.response?.status === 403) {
+            return (
+                <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
+                    <h1 className="text-4xl font-bold mb-4">ZAWODY ZAKOŃCZONE</h1>
+                    <p className="mb-8 text-xl">System został zablokowany przez administratora.</p>
+                    <button onClick={() => navigate('/dashboard')} className="border border-red-500 text-red-500 px-6 py-3 hover:bg-red-900/20">POWRÓT</button>
+                </div>
+            )
+        }
+        return <div className="p-10 text-center text-red-500">SYSTEM_ERROR: {(error as any).message}</div>
+    }
+
     if (!questions || questions.length === 0) return <div className="p-10 text-center text-red-500">NO_DATA_FOUND</div>
 
     const q = questions ? questions[currentQIndex] : null
