@@ -40,8 +40,8 @@ echo "-----------------------------------------"
 echo "Checking dependencies..."
 # 3a. Install System Deps
 if command -v apt-get &> /dev/null; then
-    echo ">>> Installing System Dependencies (swig, python3-dev)..."
-    apt-get update && apt-get install -y swig python3-dev python3-setuptools gcc
+    echo ">>> Installing System Dependencies (swig, python3-dev, liblgpio-dev)..."
+    apt-get update && apt-get install -y swig python3-dev python3-setuptools gcc liblgpio-dev
 fi
 
 # 3b. Install Python Libs
