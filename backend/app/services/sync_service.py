@@ -119,6 +119,7 @@ class SyncService:
         url = f"{base_url}/agent/sync"
         
         try:
+            # logger.debug(f"Syncing hardware state to {url}...")
             async with aiohttp.ClientSession() as client:
                 async with client.post(url, json=payload, timeout=5) as resp:
                     if resp.status == 200:
@@ -127,17 +128,13 @@ class SyncService:
                         # 4. Handle Commands
                         if data.get("trigger_solenoid"):
                             logger.info("Received OPEN command from Server.")
-                            # Execute immediately
-                            # We can await it here or spawn a task. 
-                            # Awaiting might block the sync loop for 5s.
-                            # Better to spawn task.
                             asyncio.create_task(solenoid.open_box())
                             
                     else:
-                        logger.warning(f"Agent Sync failed: {resp.status}")
+                        logger.warning(f"Agent Sync failed: {resp.status} - {await resp.text()}")
         except Exception as e:
-            # logger.debug(f"Agent Sync error: {e}")
-            pass
+            logger.error(f"Agent Sync Connection Error: {e}")
+            # pass
 
 
 sync_service = SyncService()
