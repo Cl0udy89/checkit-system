@@ -43,13 +43,24 @@ class ContentService:
 
     def get_questions(self, game_type: str, limit: int = 10) -> List[Dict]:
         if game_type == "binary_brain":
+            # Auto-reload if empty (e.g. valid file but loaded before write)
+            if not self.binary_brain_questions:
+                logger.info("Reloading Binary Brain questions...")
+                self._load_content()
+                
             # Shuffle and limit
             full_list = self.binary_brain_questions
             count = min(len(full_list), limit)
+            if count == 0: return []
             return random.sample(full_list, count)
         elif game_type == "it_match":
+            if not self.it_match_questions:
+                logger.info("Reloading IT Match questions...")
+                self._load_content()
+
             full_list = self.it_match_questions
             count = min(len(full_list), limit)
+            if count == 0: return []
             return random.sample(full_list, count)
         return []
 
