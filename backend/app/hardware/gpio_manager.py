@@ -48,13 +48,16 @@ try:
     import RPi.GPIO as GPIO
     logger.info("✅ RASBERRY PI DETECTED: RPi.GPIO imported successfully. Hardware control ENABLED.")
     IS_RPI = True
-except (ImportError, RuntimeError):
+except (ImportError, RuntimeError) as e:
+    import traceback
     if FORCE_RPI:
         logger.error("🚨 FORCE RPi MODE ENABLED but 'RPi.GPIO' is missing!")
-        logger.error("👉 To fix: Run 'pip install rpi-lgpio' (recommended for Pi 5/Bookworm) or 'pip install RPi.GPIO'")
+        logger.error(f"Error details: {e}")
+        logger.error(traceback.format_exc())
         logger.warning("⚠️ Falling back to MOCK GPIO because library is missing, despite FORCE_RPI=true.")
     else:
         logger.warning("⚠️  RASBERRY PI NOT DETECTED: RPi.GPIO not found. Using MOCK GPIO (Simulation Mode).")
+        logger.debug(f"Import Error details: {e}")
     
     GPIO = MockGPIO()
     # If forced, we MIGHT want to set IS_RPI=True to trick the UI, 

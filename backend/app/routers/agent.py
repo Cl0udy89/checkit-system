@@ -25,11 +25,14 @@ async def sync_agent_hardware(state: HardwareState):
     Returns pending commands for Agent.
     """
     # 1. Update Node Status (Heartbeat)
+    # Log every heartbeat for debugging
+    logger.info(f"Checking in Agent: {state.node_id} (RPi: {state.is_rpi})")
+    
     connected_nodes[state.node_id] = {
         "last_seen": datetime.utcnow(),
         "is_rpi": state.is_rpi,
         "role": "client", # If calling this, it's a client
-        "ip": "unknown" # Could get from request request.client.host
+        "ip": "remote" # We don't have request object readily available unless we add it to signature, but 'remote' is fine
     }
 
     # 2. Update Patch Panel State
