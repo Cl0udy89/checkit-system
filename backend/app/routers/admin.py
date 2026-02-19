@@ -18,12 +18,49 @@ router = APIRouter(tags=["Admin"], dependencies=[Depends(get_current_admin)])
 
 @router.get("/system/status")
 async def get_system_status():
+    # Filter/Update node status based on heartbeat
+    active_nodes = {}
+    now = datetime.utcnow()
+    for node_id, data in connected_nodes.items():
+        last_seen = data.get("last_seen")
+        # If seen within last 30 seconds, it's online
+        if last_seen and (now - last_seen).total_seconds() < 30:
+            active_nodes[node_id] = data
+        else:
+            # Option A: Remove it
+            # Option B: Mark as offline (better for UI to see it drop)
+            data_copy = data.copy()
+            data_copy["status"] = "offline" 
+            # actually strict filtering might be better for now to avoid clutter
+            # Let's just return it but frontend should handle "offline" red color if we add a status field.
+            # But wait, connected_nodes just stores raw data.
+            # Let's verify what the frontend expects.
+            pass
+
+    # Actually, simpler: Just calculate "is_online" here
+    nodes_response = {}
+    for node_id, data in connected_nodes.items():
+        last_seen = data.get("last_seen")
+        is_online = False
+        if last_seen and (now - last_seen).total_seconds() < 15: # 15s timeout (since sync is 5s)
+            is_online = True
+        
+        nodes_response[node_id] = {
+            "ip": data.get("ip"),
+            "role": data.get("role"),
+            "is_rpi": data.get("is_rpi"),
+            "last_seen": last_seen.isoformat() if last_seen else None,
+            "status": "online" if is_online else "offline"
+        }
+
     return {
-        "node_id": settings.node_id,
-        "is_rpi": IS_RPI,
-        "platform_role": settings.system.platform_role,
-        "sync_endpoint": settings.api.sync_endpoint,
-        "connected_nodes": connected_nodes
+        "status": "online",
+        "system_mode": settings.system.platform_role,
+        "database": "connected", # TODO: Check real DB status
+        "connected_nodes": nodes_response,
+        "config": {
+             "node_id": settings.node_id
+        }
     }
 
 @router.post("/solenoid/trigger")

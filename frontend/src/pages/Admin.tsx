@@ -118,12 +118,15 @@ export default function Admin() {
                     {/* Connected Nodes Indicator */}
                     <div className="flex gap-2 ml-4 hidden md:flex">
                         {systemStatus?.connected_nodes && Object.values(systemStatus.connected_nodes).length > 0 ? (
-                            Object.values(systemStatus.connected_nodes).map((node: any, idx) => (
-                                <div key={idx} className="px-2 py-1 bg-green-900/50 border border-green-500 text-green-400 text-xs rounded font-mono flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                                    {node.is_rpi ? "RPi" : "PC"} [{node.node_id}]
-                                </div>
-                            ))
+                            Object.values(systemStatus.connected_nodes).map((node: any, idx) => {
+                                const isOnline = node.status === 'online';
+                                return (
+                                    <div key={idx} className={`px-2 py-1 border text-xs rounded font-mono flex items-center gap-2 ${isOnline ? 'bg-green-900/50 border-green-500 text-green-400' : 'bg-gray-900/50 border-gray-600 text-gray-500'}`}>
+                                        <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+                                        {node.is_rpi ? "RPi" : "PC"} [{node.node_id}]
+                                    </div>
+                                )
+                            })
                         ) : (
                             <div className="px-2 py-1 bg-yellow-900/50 border border-yellow-500 text-yellow-500 text-xs rounded font-mono flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
