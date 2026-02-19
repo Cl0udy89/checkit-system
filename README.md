@@ -29,38 +29,13 @@ CheckIT is designed as a distributed system with two roles:
 
 ### 2. Raspberry Pi (Client) Setup
 
-1.  **Clone Repository:**
+3.  **Run Dedicated RPi Agent:**
+    This single script handles dependencies, config, and startup.
     ```bash
-    git clone <repo_url> checkit-system
-    cd checkit-system
+    chmod +x start_rpi.sh  # Make executable (one time)
+    ./start_rpi.sh
     ```
-
-2.  **Install Dependencies:**
-    ```bash
-    ./install_client.sh  # (If available)
-    # OR manual:
-    cd backend
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    pip install rpi-lgpio  # CRITICAL for Pi 5 / Bookworm
-    ```
-
-3.  **Configuration (`config.yaml`):**
-    Ensure `backend/config.yaml` points to the server:
-    ```yaml
-    system:
-      node_id: "checkit-rpi-01"
-      platform_role: "client"
-    
-    api:
-      sync_endpoint: "http://57.128.247.85:8000/api/v1/logs"
-    ```
-
-4.  **Run Application:**
-    ```bash
-    ./start.sh
-    ```
+    *It will automatically install `swig`, `liblgpio`, and fix `config.yaml` to point to the server.*
 
 ---
 
