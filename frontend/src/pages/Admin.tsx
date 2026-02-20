@@ -417,16 +417,25 @@ export default function Admin() {
                             <div className="text-white font-bold">ZAWODY AKTYWNE</div>
                             <div className="text-xs text-gray-400">Gdy wyłączone, gry są zablokowane dla uczestników.</div>
                         </div>
-                        <div className="flex gap-2 w-full md:w-auto flex-wrap justify-end">
-                            {config?.competition_active !== 'true' && (
-                                <button onClick={() => configMutation.mutate({ key: 'competition_active', value: 'true' })} className="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-500 flex-1 md:flex-none">WZNÓW ZAWODY</button>
-                            )}
-                            {config?.competition_active !== 'technical_break' && (
-                                <button onClick={() => configMutation.mutate({ key: 'competition_active', value: 'technical_break' })} className="bg-yellow-600 text-white px-4 py-2 rounded font-bold hover:bg-yellow-500 flex-1 md:flex-none">PRZERWA</button>
-                            )}
-                            {config?.competition_active !== 'false' && (
-                                <button onClick={() => configMutation.mutate({ key: 'competition_active', value: 'false' })} className="bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-500 flex-1 md:flex-none">ZAKOŃCZ ZAWODY</button>
-                            )}
+                        <div className="flex gap-2 w-full md:w-auto flex-wrap justify-end bg-gray-900 p-1 rounded-lg border border-gray-700">
+                            <button
+                                onClick={() => config?.competition_active !== 'true' && configMutation.mutate({ key: 'competition_active', value: 'true' })}
+                                className={`px-6 py-2 rounded font-bold flex-1 md:flex-none transition-all ${config?.competition_active === 'true' ? 'bg-green-600 text-white shadow-[0_0_15px_rgba(0,255,100,0.4)]' : 'text-gray-500 hover:text-white hover:bg-gray-800'}`}
+                            >
+                                TRWA
+                            </button>
+                            <button
+                                onClick={() => config?.competition_active !== 'technical_break' && configMutation.mutate({ key: 'competition_active', value: 'technical_break' })}
+                                className={`px-6 py-2 rounded font-bold flex-1 md:flex-none transition-all ${config?.competition_active === 'technical_break' ? 'bg-yellow-600 text-white shadow-[0_0_15px_rgba(255,200,0,0.4)]' : 'text-gray-500 hover:text-white hover:bg-gray-800'}`}
+                            >
+                                PRZERWA
+                            </button>
+                            <button
+                                onClick={() => config?.competition_active !== 'false' && configMutation.mutate({ key: 'competition_active', value: 'false' })}
+                                className={`px-6 py-2 rounded font-bold flex-1 md:flex-none transition-all ${config?.competition_active === 'false' ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(255,0,0,0.4)]' : 'text-gray-500 hover:text-white hover:bg-gray-800'}`}
+                            >
+                                BŁOKADA
+                            </button>
                         </div>
                     </div>
 
