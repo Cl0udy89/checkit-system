@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchGameContent, submitGameScore, BACKEND_URL } from '../lib/api'
@@ -18,7 +18,6 @@ export default function BinaryBrain() {
     const user = useGameStore(state => state.user)
     const [currentQIndex, setCurrentQIndex] = useState(0)
     const [answers, setAnswers] = useState<Record<string, string>>({})
-    const [shuffledOptions, setShuffledOptions] = useState<any[]>([])
 
     // Scoring State
     const [totalScore, setTotalScore] = useState(0)
@@ -41,22 +40,19 @@ export default function BinaryBrain() {
         retry: false
     })
 
-    // Shuffle options when question changes
-    useEffect(() => {
-        if (questions && questions[currentQIndex]) {
-            const q = questions[currentQIndex]
-            const options = [
-                { text: q.answer_correct, isCorrect: true },
-                { text: q.answer_wrong1, isCorrect: false },
-                { text: q.answer_wrong2, isCorrect: false },
-                { text: q.answer_wrong3, isCorrect: false },
-            ]
-            setShuffledOptions(shuffle(options))
-            // Reset timer for new question
-            setQuestionStartTime(Date.now())
-            setCurrentPotentialScore(MAX_Q_POINTS)
-        }
-    }, [questions, currentQIndex])
+    const currentQ = questions ? questions[currentQIndex] : null
+
+    // Shuffle options immediately during render when question changes
+    const shuffledOptions = useMemo(() => {
+        if (!currentQ) return []
+        const options = [
+            { text: currentQ.answer_correct, isCorrect: true },
+            { text: currentQ.answer_wrong1, isCorrect: false },
+            { text: currentQ.answer_wrong2, isCorrect: false },
+            { text: currentQ.answer_wrong3, isCorrect: false },
+        ]
+        return shuffle(options)
+    }, [currentQ])
 
     // Timer Effect (Per Question)
     useEffect(() => {
@@ -108,6 +104,8 @@ export default function BinaryBrain() {
                 setCurrentQIndex(prev => prev + 1)
                 setGameState('playing')
                 setLastAnswerCorrect(null)
+                setQuestionStartTime(Date.now())
+                setCurrentPotentialScore(MAX_Q_POINTS)
             } else {
                 finishGame(totalScore + pointsEarned) // Pass final updated score
             }
@@ -211,7 +209,7 @@ export default function BinaryBrain() {
                         initial={{ opacity: 0, x: 50 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -50 }}
-                        className={`bg-surface border p-4 md:p-8 rounded-lg shadow-2xl relative transition-colors duration-300 ${gameState === 'feedback' ? (lastAnswerCorrect ? 'border-green-500/50 bg-green-900/10' : 'border-red-500/50 bg-red-900/10') : 'border-gray-700'}`}
+                        className={`bg-surface border p-4 md:p-8 rounded-lg shadow-2xl relative ${gameState === 'feedback' ? (lastAnswerCorrect ? 'border-green-500/50 bg-green-900/10' : 'border-red-500/50 bg-red-900/10') : 'border-gray-700'}`}
                     >
                         <div className="absolute top-0 right-0 bg-gray-800 px-2 py-1 md:px-3 text-[10px] md:text-xs font-mono rounded-bl-lg">
                             Q: {currentQIndex + 1} / {questions.length}
@@ -220,7 +218,7 @@ export default function BinaryBrain() {
                         <h2 className="text-lg md:text-2xl font-bold mb-4 md:mb-8 text-white pr-12 md:pr-16">{q?.question}</h2>
 
                         {/* Image Logic */}
-                        {q?.image && (
+                        {q?.image && gameState !== 'feedback' && (
                             <div className="mb-4 md:mb-6 flex justify-center mx-auto w-full">
                                 <img
                                     src={`${BACKEND_URL}/content/binary_brain/images/${q.image}`}

@@ -22,13 +22,26 @@ class QueueStateResponse(BaseModel):
     current_player: Optional[Dict[str, Any]]
     queue: List[Dict[str, Any]]
     position: Optional[int] = None # Position for the requesting user
+    global_status: Optional[str] = "true" # "true", "technical_break", "false"
 
 # --- User Endpoints ---
 
 from fastapi import Header
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.database import get_session
+from sqlmodel import select
+from app.models import SystemConfig
 
 @router.get("", response_model=QueueStateResponse)
-async def get_queue_state(x_user_id: Optional[str] = Header(None, alias="X-User-ID")):
+async def get_queue_state(
+    x_user_id: Optional[str] = Header(None, alias="X-User-ID"),
+    session: AsyncSession = Depends(get_session)
+):
+    # Fetch global competition status
+    conf_res = await session.execute(select(SystemConfig).where(SystemConfig.key == "competition_active"))
+    conf = conf_res.scalar_one_or_none()
+    global_status = conf.value if conf else "true"
+
     position = None
     if x_user_id:
         try:
@@ -44,7 +57,8 @@ async def get_queue_state(x_user_id: Optional[str] = Header(None, alias="X-User-
         status=queue_state["status"],
         current_player=queue_state["current_player"],
         queue=queue_state["queue"],
-        position=position
+        position=position,
+        global_status=global_status
     )
 
 from sqlalchemy.ext.asyncio import AsyncSession

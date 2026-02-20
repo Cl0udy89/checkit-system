@@ -434,7 +434,7 @@ export default function Admin() {
                                 onClick={() => config?.competition_active !== 'false' && configMutation.mutate({ key: 'competition_active', value: 'false' })}
                                 className={`px-6 py-2 rounded font-bold flex-1 md:flex-none transition-all ${config?.competition_active === 'false' ? 'bg-red-600 text-white shadow-[0_0_15px_rgba(255,0,0,0.4)]' : 'text-gray-500 hover:text-white hover:bg-gray-800'}`}
                             >
-                                BŁOKADA
+                                BLOKADA
                             </button>
                         </div>
                     </div>
