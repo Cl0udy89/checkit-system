@@ -190,11 +190,11 @@ export default function BinaryBrain() {
                 <div className="flex gap-4 md:gap-8 text-right w-full md:w-auto justify-between md:justify-end">
                     <div>
                         <div className="text-[10px] md:text-xs text-gray-500 font-mono">TOTAL SCORE</div>
-                        <div className="text-lg md:text-2xl font-mono font-bold text-accent">{totalScore}</div>
+                        <div className="text-2xl md:text-4xl font-mono font-bold text-accent">{totalScore}</div>
                     </div>
                     <div>
                         <div className="text-[10px] md:text-xs text-gray-500 font-mono">POTENTIAL</div>
-                        <div className={`text-xl md:text-3xl font-mono font-bold tracking-widest text-shadow-neon ${gameState === 'feedback' ? (lastAnswerCorrect ? 'text-green-500' : 'text-red-500') : 'text-white'}`}>
+                        <div className={`text-3xl md:text-5xl font-mono font-bold tracking-widest text-shadow-neon ${gameState === 'feedback' ? (lastAnswerCorrect ? 'text-green-500' : 'text-red-500') : 'text-white'}`}>
                             {currentPotentialScore.toString().padStart(4, '0')}
                         </div>
                     </div>
@@ -202,7 +202,7 @@ export default function BinaryBrain() {
             </div>
 
             {/* Question Card */}
-            <div className="flex-1 flex flex-col justify-center max-w-4xl mx-auto w-full relative mt-4 md:mt-8">
+            <div className="flex-1 flex flex-col justify-center max-w-4xl mx-auto w-full relative mt-8 md:mt-10">
                 <AnimatePresence mode='wait'>
                     <motion.div
                         key={currentQIndex}
@@ -261,9 +261,9 @@ export default function BinaryBrain() {
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`absolute top-[-30px] md:top-[-40px] left-0 w-full text-center text-lg md:text-xl font-bold font-mono ${lastAnswerCorrect ? 'text-green-500' : 'text-red-500'}`}
+                        className={`absolute top-[-25px] md:top-[-30px] left-0 w-full text-center text-lg md:text-xl font-bold font-mono ${lastAnswerCorrect ? 'text-green-500' : 'text-red-500'}`}
                     >
-                        {lastAnswerCorrect ? "POPRAWNA ODPOWIDŹ (+PUNKTY)" : "NIEPOPRAWNA (0 PUNKTÓW)"}
+                        {lastAnswerCorrect ? "POPRAWNA ODPOWIEDŹ (+PUNKTY)" : "NIEPOPRAWNA (0 PUNKTÓW)"}
                     </motion.div>
                 )}
             </div>
