@@ -156,6 +156,12 @@ class SyncService:
                             logger.info("⚡ OTRZYMANO KOMENDĘ Z SERWERA: Otwieranie Solenoidu (Zamka)... ⚡")
                             asyncio.create_task(solenoid.open_box())
                             
+                        led_cmd = data.get("led_command")
+                        if led_cmd:
+                            logger.info(f"✨ OTRZYMANO KOMENDĘ LED: {led_cmd} ✨")
+                            from app.hardware.led_manager import led_manager
+                            led_manager.play_effect(led_cmd)
+                            
                     else:
                         logger.warning(f"Agent Sync failed: {resp.status} - {await resp.text()}")
         except Exception as e:

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
+from pydantic import BaseModel
 from app.hardware.solenoid import solenoid
 from app.hardware.patch_panel import patch_panel
 from app.simple_config import settings
@@ -105,6 +106,15 @@ async def get_hardware_status():
             "pairs": pp_state
         }
     }
+
+class LEDCommand(BaseModel):
+    effect: str
+
+@router.post("/hardware/led")
+async def control_led(cmd: LEDCommand):
+    from app.routers.agent import pending_led_commands
+    pending_led_commands.append(cmd.effect)
+    return {"message": f"LED effect {cmd.effect} queued"}
 
 @router.get("/users")
 async def get_users(session: AsyncSession = Depends(get_session)):

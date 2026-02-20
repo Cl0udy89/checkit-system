@@ -7,6 +7,7 @@ import { useState } from 'react'
 
 // Direct axios calls for admin to save time updating api.ts
 const triggerSolenoid = async () => api.post('/admin/solenoid/trigger')
+const triggerLed = async (effect: string) => api.post('/admin/hardware/led', { effect })
 const fetchHardwareStatus = async () => (await api.get('/admin/hardware/status')).data
 const fetchAdminLogs = async () => (await api.get('/admin/logs')).data
 
@@ -108,6 +109,11 @@ export default function Admin() {
         onSuccess: () => alert("Solenoid Triggered")
     })
 
+    const ledMutation = useMutation({
+        mutationFn: triggerLed,
+        onSuccess: (_, variables) => alert(`LED Effect Queued: ${variables}`)
+    })
+
     return (
         <div className="min-h-screen bg-black text-green-500 font-mono p-4 md:p-8 border-x-0 md:border-4 border-green-900 overflow-x-hidden">
             <header className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-green-800 pb-4 gap-4">
@@ -199,6 +205,20 @@ export default function Admin() {
                         </div>
                         <div className="mt-4 text-center font-bold">
                             SOLVED: {status?.patch_panel?.solved ? "YES" : "NO"}
+                        </div>
+                    </div>
+
+                    {/* LED Control */}
+                    <div className="border border-green-800 p-6 bg-green-900/10 md:col-span-2">
+                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Zap /> LED_CONTROL</h2>
+                        <p className="mb-4 text-sm text-green-400">Manual override for Neopixel Strip.</p>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                            <button onClick={() => ledMutation.mutate('rainbow')} className="bg-purple-900 border border-purple-500 text-white p-2 text-sm hover:bg-purple-700 transition">RAINBOW</button>
+                            <button onClick={() => ledMutation.mutate('chase')} className="bg-blue-900 border border-blue-500 text-white p-2 text-sm hover:bg-blue-700 transition">CHASE</button>
+                            <button onClick={() => ledMutation.mutate('police')} className="bg-red-900 border border-blue-500 text-white p-2 text-sm hover:bg-red-700 transition">POLICE</button>
+                            <button onClick={() => ledMutation.mutate('green')} className="bg-green-900 border border-green-500 text-white p-2 text-sm hover:bg-green-700 transition">SOLID GREEN</button>
+                            <button onClick={() => ledMutation.mutate('red')} className="bg-red-900 border border-red-500 text-white p-2 text-sm hover:bg-red-700 transition">SOLID RED</button>
+                            <button onClick={() => ledMutation.mutate('off')} className="bg-gray-900 border border-gray-500 text-white p-2 text-sm hover:bg-gray-700 transition">TURN OFF</button>
                         </div>
                     </div>
                 </div>

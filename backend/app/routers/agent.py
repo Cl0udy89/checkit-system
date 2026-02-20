@@ -54,5 +54,12 @@ async def sync_agent_hardware(state: HardwareState):
     if cmd == "OPEN":
         response["trigger_solenoid"] = True
         logger.info(f"Sent OPEN command to Agent {state.node_id}")
+        
+    global pending_led_commands
+    if pending_led_commands:
+        response["led_command"] = pending_led_commands.pop(0)
 
     return response
+
+# Global queue for LED commands from Admin
+pending_led_commands = []
