@@ -1,7 +1,9 @@
 import axios from 'axios'
 
+export const BACKEND_URL = `http://${window.location.hostname}:8000`
+
 export const api = axios.create({
-    baseURL: `http://${window.location.hostname}:8000/api/v1`
+    baseURL: `${BACKEND_URL}/api/v1`
 })
 
 // Auth Interceptor

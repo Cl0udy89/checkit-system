@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { fetchGameContent, submitGameScore } from '../lib/api'
+import { fetchGameContent, submitGameScore, BACKEND_URL } from '../lib/api'
 import { useGameStore } from '../hooks/useGameStore'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Zap } from 'lucide-react'
@@ -221,7 +221,7 @@ export default function BinaryBrain() {
                         {q?.image && (
                             <div className="mb-6 flex justify-center mx-auto w-full">
                                 <img
-                                    src={`/content/binary_brain/images/${q.image}`}
+                                    src={`${BACKEND_URL}/content/binary_brain/images/${q.image}`}
                                     className="max-h-[20rem] w-auto max-w-full object-contain rounded-lg border border-gray-700 bg-black/50 shadow-lg"
                                     onError={(e) => {
                                         if (e.currentTarget.parentElement) {
