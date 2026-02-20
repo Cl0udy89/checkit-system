@@ -1,51 +1,51 @@
 id,question,image,answer_correct,answer_wrong1,answer_wrong2,answer_wrong3
-1,Za co odpowiada jednostka ALU w procesorze?,pyt_1.jpg,Operacje matematyczne,Przechowywanie danych,Chłodzenie,Zasilanie
-2,"Co oznacza termin ""Packet Loss"" w sieciach?",pyt_2.jpg,Utrata pakietów danych,Przepełnienie dysku,Słaba bateria,Awaria zasilacza
-3,Jak nazywa się proces naprawiania błędów w kodzie?,pyt_3.jpg,Debugging,Kompilacja,Refaktoryzacja,Wdrażanie
-4,Która warstwa modelu OSI odpowiada za adresację IP?,pyt_4.jpg,Sieciowa (Network),Łącza danych,Transportowa,Sesji
-5,"Co to jest ""Kernel"" w systemie operacyjnym?",pyt_5.jpg,Jądro systemu,Tapeta pulpitu,Przeglądarka,Konto użytkownika
-6,Jak zapisać liczbę dziesiętną 12 binarnie?,pyt_6.jpg,1100,1010,1111,1001
-7,"Czym jest ""Deadlock"" w systemach operacyjnych?",pyt_7.jpg,Zakleszczenie zasobów,Szybkie działanie,Tryb awaryjny,Aktualizacja
-8,"Co oznacza skrót ""SaaS"" w chmurze?",pyt_8.jpg,Software as a Service,System as a Security,Storage as a Source,Simple as a Server
-9,Unikalny adres fizyczny karty sieciowej to:,pyt_9.jpg,Adres MAC,Adres IP,Adres DNS,Brama domyślna
-10,Który port TCP służy do bezpiecznego logowania SSH?,pyt_10.jpg,Port 22,Port 21,Port 80,Port 443
-11,"Wynik operacji bitowej ""XOR"" na bitach 1 i 1 to:",pyt_11.jpg,0,1,2,-1
-12,"Czym jest ""GUI"" w informatyce?",pyt_12.jpg,Graficzny interfejs,Język programowania,Indeks jednostek,Interfejs gracza
-13,"Co oznacza skrót ""RAID"" w kontekście dysków?",pyt_13.jpg,Macierz nadmiarowa,Szybki dostęp,Interfejs audio,Losowy odczyt
-14,Standardowy port TCP dla usługi HTTPS to:,pyt_14.jpg,443,80,21,25
-15,"Co to jest ""Virtual Machine"" (VM)?",pyt_15.jpg,Maszyna wirtualna,Szybki komputer,Karta graficzna,Wirus
-16,Główna baza konfiguracji w systemie Windows to:,pyt_16.jpg,Rejestr (Registry),Terminal,BIOS,Jądro
-17,"Co oznacza termin ""Open Source""?",pyt_17.jpg,Otwarty kod źródłowy,Płatny program,System zamknięty,Brak internetu
-18,Jaki język nazywamy niskopoziomowym (Low-level)?,pyt_18.jpg,Asembler,Python,Java,JavaScript
-19,"Czym zajmuje się system ""DNS"" w internecie?",pyt_19.jpg,Tłumaczeniem nazw na IP,Przechowywaniem zdjęć,Chłodzeniem,Drukowaniem
-20,"Co to jest ""Overclocking"" podzespołów?",pyt_20.jpg,Podkręcanie zegara,Zmniejszanie mocy,Czyszczenie kurzu,Usuwanie plików
-21,Wartość binarnego 1111 w systemie dziesiętnym to:,pyt_21.jpg,15,7,10,16
-22,"Co w sieciach oznacza termin ""Latency""?",pyt_22.jpg,Opóźnienie (Lagi),Wysoka prędkość,Rozmiar pliku,Kolor monitora
-23,"Czym jest ""Trojan"" w cyberbezpieczeństwie?",pyt_23.jpg,Złośliwym softem,Antywirusem,Zaporą ogniową,Hasłem
-24,"Jaką rolę pełni ""Default Gateway"" w sieci?",pyt_24.jpg,Kieruje ruch do sieci,Uruchamia PC,Zapisuje hasła,Wyświetla obraz
-25,Czego nie posiada dysk SSD w porównaniu do HDD?,pyt_25.jpg,Części ruchomych,Pamięci,Interfejsu,Kontrolera
-26,"Co oznacza skrót ""API"" w programowaniu?",pyt_26.jpg,Interfejs aplikacji,Procesor Apple,Indeks wydruku,Moc macierzy
-27,W jakim formacie zapisany jest kolor #000000?,pyt_27.jpg,Szesnastkowym (Hex),Binarnym,Ósemkowym,Dziesiętnym
-28,"Co to jest ""SQL Injection""?",pyt_28.jpg,Atak na bazę danych,Przyspieszenie PC,Kopia zapasowa,Nowy język
-29,Do czego służy protokół DHCP?,pyt_29.jpg,Do nadawania adresów IP,Do wysyłania e-maili,Do szyfrowania,Do przeglądania WWW
-30,"Czym jest ""Bitrate"" w plikach wideo/audio?",pyt_30.jpg,Prędkością bitową,Rozmiarem dysku,Temperaturą,Szybkością pisania
-31,Rozszerzenie pliku .sh w Linuxie to:,pyt_31.jpg,Skrypt powłoki,Obraz,Dźwięk,Archiwum
-32,"Co daje technologia ""Hyper-Threading""?",pyt_32.jpg,Wirtualne rdzenie,Chłodzenie wodne,Szybki RAM,Odświeżanie
-33,Jaki system plików jest standardem dla Windows?,pyt_33.jpg,NTFS,FAT32,EXT4,APFS
-34,"Do czego służy polecenie ""Ping"" (ICMP)?",pyt_34.jpg,Sprawdzenie łączności,Test szybkości,Skan wirusów,Wysyłanie plików
-35,Ile bitów ma adres IPv4?,pyt_35.jpg,32,16,64,128
-36,"Co oznacza skrót ""VPN""?",pyt_36.jpg,Virtual Private Network,Video Port Node,Very Private Name,Voice Protocol
-37,"Co oznacza skrót ""FPS"" w grach?",pyt_37.jpg,Klatki na sekundę,Pliki na sekundę,Moc zasilacza,Czcionka ekranu
-38,"Co to jest ""Firmware"" urządzenia?",pyt_38.jpg,Oprogramowanie układowe,Miękkie etui,Przeglądarka,Pakiet biurowy
-39,Do czego służy protokół FTP?,pyt_39.jpg,Do przesyłania plików,Do filmów,Do poczty,Do czatowania
-40,"Czym jest pamięć ""Cache"" w procesorze?",pyt_40.jpg,Szybką pamięcią podręczną,Wolnym dyskiem,Chipem graficznym,Zasilaczem
-41,Ile to jest dokładnie 1024 Gigabajty?,pyt_41.jpg,1 Terabajt,1 Megabajt,1 Petabajt,1 Eksabajt
-42,"Co oznacza ""Scalability"" (Skalowalność)?",pyt_42.jpg,Obsługa wzrostu ruchu,Naprawianie błędów,Usuwanie danych,Zmiana hasła
-43,"Czym jest ""Docker"" w świecie IT?",pyt_43.jpg,Platformą kontenerową,Marką laptopa,Serwerem WWW,Antywirusem
-44,"Co robi funkcja ""Defragmentacji"" dysku HDD?",pyt_44.jpg,Porządkuje dane,Przyspiesza SSD,Czyści klawiaturę,Reinstaluje OS
-45,"Skrót ""BIOS"" oznacza:",pyt_45.jpg,Basic Input Output System,Binary Intel OS,Basic Internal Op,Built In OS
-46,Liczba binarna 1010 to dziesiętnie:,pyt_46.jpg,10,8,12,14
-47,"Co to jest ""Motherboard Form Factor""?",pyt_47.jpg,Standard wymiarów (ATX),Kolor płyty,Szybkość CPU,Typ RAM
-48,"Czym jest ""Encryption"" (Szyfrowanie)?",pyt_48.jpg,Zabezpieczaniem danych,Kompresją,Usuwaniem danych,Kopiowaniem
-49,"Co oznacza skrót ""URL""?",pyt_49.jpg,Uniform Resource Locator,User Radio Link,Universal Repair Log,User Remote List
-50,Kto jest uważany za ojca informatyki?,pyt_50.jpg,Alan Turing,Bill Gates,Steve Jobs,Elon Musk
+1,Za co odpowiada jednostka ALU w procesorze?,pyt_1.webp,Operacje matematyczne,Przechowywanie danych,Chłodzenie,Zasilanie
+2,"Co oznacza termin ""Packet Loss"" w sieciach?",pyt_2.webp,Utrata pakietów danych,Przepełnienie dysku,Słaba bateria,Awaria zasilacza
+3,Jak nazywa się proces naprawiania błędów w kodzie?,pyt_3.webp,Debugging,Kompilacja,Refaktoryzacja,Wdrażanie
+4,Która warstwa modelu OSI odpowiada za adresację IP?,pyt_4.webp,Sieciowa (Network),Łącza danych,Transportowa,Sesji
+5,"Co to jest ""Kernel"" w systemie operacyjnym?",pyt_5.webp,Jądro systemu,Tapeta pulpitu,Przeglądarka,Konto użytkownika
+6,Jak zapisać liczbę dziesiętną 12 binarnie?,pyt_6.webp,1100,1010,1111,1001
+7,"Czym jest ""Deadlock"" w systemach operacyjnych?",pyt_7.webp,Zakleszczenie zasobów,Szybkie działanie,Tryb awaryjny,Aktualizacja
+8,"Co oznacza skrót ""SaaS"" w chmurze?",pyt_8.webp,Software as a Service,System as a Security,Storage as a Source,Simple as a Server
+9,Unikalny adres fizyczny karty sieciowej to:,pyt_9.webp,Adres MAC,Adres IP,Adres DNS,Brama domyślna
+10,Który port TCP służy do bezpiecznego logowania SSH?,pyt_10.webp,Port 22,Port 21,Port 80,Port 443
+11,"Wynik operacji bitowej ""XOR"" na bitach 1 i 1 to:",pyt_11.webp,0,1,2,-1
+12,"Czym jest ""GUI"" w informatyce?",pyt_12.webp,Graficzny interfejs,Język programowania,Indeks jednostek,Interfejs gracza
+13,"Co oznacza skrót ""RAID"" w kontekście dysków?",pyt_13.webp,Macierz nadmiarowa,Szybki dostęp,Interfejs audio,Losowy odczyt
+14,Standardowy port TCP dla usługi HTTPS to:,pyt_14.webp,443,80,21,25
+15,"Co to jest ""Virtual Machine"" (VM)?",pyt_15.webp,Maszyna wirtualna,Szybki komputer,Karta graficzna,Wirus
+16,Główna baza konfiguracji w systemie Windows to:,pyt_16.webp,Rejestr (Registry),Terminal,BIOS,Jądro
+17,"Co oznacza termin ""Open Source""?",pyt_17.webp,Otwarty kod źródłowy,Płatny program,System zamknięty,Brak internetu
+18,Jaki język nazywamy niskopoziomowym (Low-level)?,pyt_18.webp,Asembler,Python,Java,JavaScript
+19,"Czym zajmuje się system ""DNS"" w internecie?",pyt_19.webp,Tłumaczeniem nazw na IP,Przechowywaniem zdjęć,Chłodzeniem,Drukowaniem
+20,"Co to jest ""Overclocking"" podzespołów?",pyt_20.webp,Podkręcanie zegara,Zmniejszanie mocy,Czyszczenie kurzu,Usuwanie plików
+21,Wartość binarnego 1111 w systemie dziesiętnym to:,pyt_21.webp,15,7,10,16
+22,"Co w sieciach oznacza termin ""Latency""?",pyt_22.webp,Opóźnienie (Lagi),Wysoka prędkość,Rozmiar pliku,Kolor monitora
+23,"Czym jest ""Trojan"" w cyberbezpieczeństwie?",pyt_23.webp,Złośliwym softem,Antywirusem,Zaporą ogniową,Hasłem
+24,"Jaką rolę pełni ""Default Gateway"" w sieci?",pyt_24.webp,Kieruje ruch do sieci,Uruchamia PC,Zapisuje hasła,Wyświetla obraz
+25,Czego nie posiada dysk SSD w porównaniu do HDD?,pyt_25.webp,Części ruchomych,Pamięci,Interfejsu,Kontrolera
+26,"Co oznacza skrót ""API"" w programowaniu?",pyt_26.webp,Interfejs aplikacji,Procesor Apple,Indeks wydruku,Moc macierzy
+27,W jakim formacie zapisany jest kolor #000000?,pyt_27.webp,Szesnastkowym (Hex),Binarnym,Ósemkowym,Dziesiętnym
+28,"Co to jest ""SQL Injection""?",pyt_28.webp,Atak na bazę danych,Przyspieszenie PC,Kopia zapasowa,Nowy język
+29,Do czego służy protokół DHCP?,pyt_29.webp,Do nadawania adresów IP,Do wysyłania e-maili,Do szyfrowania,Do przeglądania WWW
+30,"Czym jest ""Bitrate"" w plikach wideo/audio?",pyt_30.webp,Prędkością bitową,Rozmiarem dysku,Temperaturą,Szybkością pisania
+31,Rozszerzenie pliku .sh w Linuxie to:,pyt_31.webp,Skrypt powłoki,Obraz,Dźwięk,Archiwum
+32,"Co daje technologia ""Hyper-Threading""?",pyt_32.webp,Wirtualne rdzenie,Chłodzenie wodne,Szybki RAM,Odświeżanie
+33,Jaki system plików jest standardem dla Windows?,pyt_33.webp,NTFS,FAT32,EXT4,APFS
+34,"Do czego służy polecenie ""Ping"" (ICMP)?",pyt_34.webp,Sprawdzenie łączności,Test szybkości,Skan wirusów,Wysyłanie plików
+35,Ile bitów ma adres IPv4?,pyt_35.webp,32,16,64,128
+36,"Co oznacza skrót ""VPN""?",pyt_36.webp,Virtual Private Network,Video Port Node,Very Private Name,Voice Protocol
+37,"Co oznacza skrót ""FPS"" w grach?",pyt_37.webp,Klatki na sekundę,Pliki na sekundę,Moc zasilacza,Czcionka ekranu
+38,"Co to jest ""Firmware"" urządzenia?",pyt_38.webp,Oprogramowanie układowe,Miękkie etui,Przeglądarka,Pakiet biurowy
+39,Do czego służy protokół FTP?,pyt_39.webp,Do przesyłania plików,Do filmów,Do poczty,Do czatowania
+40,"Czym jest pamięć ""Cache"" w procesorze?",pyt_40.webp,Szybką pamięcią podręczną,Wolnym dyskiem,Chipem graficznym,Zasilaczem
+41,Ile to jest dokładnie 1024 Gigabajty?,pyt_41.webp,1 Terabajt,1 Megabajt,1 Petabajt,1 Eksabajt
+42,"Co oznacza ""Scalability"" (Skalowalność)?",pyt_42.webp,Obsługa wzrostu ruchu,Naprawianie błędów,Usuwanie danych,Zmiana hasła
+43,"Czym jest ""Docker"" w świecie IT?",pyt_43.webp,Platformą kontenerową,Marką laptopa,Serwerem WWW,Antywirusem
+44,"Co robi funkcja ""Defragmentacji"" dysku HDD?",pyt_44.webp,Porządkuje dane,Przyspiesza SSD,Czyści klawiaturę,Reinstaluje OS
+45,"Skrót ""BIOS"" oznacza:",pyt_45.webp,Basic Input Output System,Binary Intel OS,Basic Internal Op,Built In OS
+46,Liczba binarna 1010 to dziesiętnie:,pyt_46.webp,10,8,12,14
+47,"Co to jest ""Motherboard Form Factor""?",pyt_47.webp,Standard wymiarów (ATX),Kolor płyty,Szybkość CPU,Typ RAM
+48,"Czym jest ""Encryption"" (Szyfrowanie)?",pyt_48.webp,Zabezpieczaniem danych,Kompresją,Usuwaniem danych,Kopiowaniem
+49,"Co oznacza skrót ""URL""?",pyt_49.webp,Uniform Resource Locator,User Radio Link,Universal Repair Log,User Remote List
+50,Kto jest uważany za ojca informatyki?,pyt_50.webp,Alan Turing,Bill Gates,Steve Jobs,Elon Musk
