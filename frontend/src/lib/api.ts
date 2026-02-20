@@ -12,6 +12,18 @@ api.interceptors.request.use(config => {
     if (token) {
         config.headers.set('Authorization', `Bearer ${token}`)
     }
+
+    // Auto-inject User ID for kiosk users
+    const gameStoreStr = localStorage.getItem('game-storage')
+    if (gameStoreStr) {
+        try {
+            const data = JSON.parse(gameStoreStr)
+            if (data.state?.user?.id) {
+                config.headers.set('X-User-ID', data.state.user.id.toString())
+            }
+        } catch (e) { } // Ignore parse errors
+    }
+
     return config
 })
 
@@ -19,9 +31,24 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            if (localStorage.getItem('admin_token')) {
-                localStorage.removeItem('admin_token')
-                window.location.reload()
+            if (window.location.pathname.startsWith('/admin')) {
+                // Admin Token expired/invalid
+                if (localStorage.getItem('admin_token')) {
+                    localStorage.removeItem('admin_token')
+                    window.location.reload()
+                }
+            } else {
+                // Regular Kiosk User deleted/invalid
+                const state = localStorage.getItem('game-storage')
+                if (state) {
+                    try {
+                        const data = JSON.parse(state)
+                        if (data.state?.user) {
+                            localStorage.removeItem('game-storage')
+                            window.location.href = '/'
+                        }
+                    } catch (e) { }
+                }
             }
         }
         return Promise.reject(error)

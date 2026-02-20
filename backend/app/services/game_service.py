@@ -27,18 +27,9 @@ class GameService:
         existing = (await session.execute(existing_stmt)).scalar_one_or_none()
         
         if existing:
-            if final_score > existing.score:
-                logger.info(f"User {user_id} improved score in {game_type} from {existing.score} to {final_score}.")
-                existing.score = final_score
-                existing.duration_ms = duration_ms
-                existing.synced = False
-                session.add(existing)
-                await session.commit()
-                await session.refresh(existing)
-                return existing
-            else:
-                logger.info(f"User {user_id} played {game_type} but score {final_score} not better than {existing.score}.")
-                return existing
+            from fastapi import HTTPException
+            logger.warning(f"User {user_id} attempted to play {game_type} again, but already has a score.")
+            raise HTTPException(status_code=400, detail="Masz już zapisany wynik dla tej gry. Dozwolona jest tylko jedna gra w każdej kategorii!")
 
         passed = False
         

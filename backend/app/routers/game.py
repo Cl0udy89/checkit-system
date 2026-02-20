@@ -60,7 +60,7 @@ async def get_user_game_status(user=Depends(get_current_user), session: AsyncSes
     return status
 
 @router.get("/content/{game_type}")
-async def get_content(game_type: str, session: AsyncSession = Depends(get_session)):
+async def get_content(game_type: str, user=Depends(get_current_user), session: AsyncSession = Depends(get_session)):
     from app.models import SystemConfig
     from sqlmodel import select
     # Check competition state
@@ -104,7 +104,7 @@ async def get_content(game_type: str, session: AsyncSession = Depends(get_sessio
     return sanitized
 
 @router.post("/submit", response_model=GameResult)
-async def submit_game(submission: GameSubmit, session: AsyncSession = Depends(get_session)):
+async def submit_game(submission: GameSubmit, user=Depends(get_current_user), session: AsyncSession = Depends(get_session)):
     from app.models import SystemConfig
     from sqlmodel import select
     # Check competition state
