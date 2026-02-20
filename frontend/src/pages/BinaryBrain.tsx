@@ -181,20 +181,20 @@ export default function BinaryBrain() {
     }
 
     return (
-        <div className="min-h-screen bg-background flex flex-col p-4 md:p-6 relative overflow-x-hidden">
+        <div className="min-h-screen bg-background flex flex-col p-2 md:p-6 relative overflow-x-hidden">
             {/* HUD */}
-            <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
-                <h1 className="text-2xl font-mono text-primary flex items-center gap-2">
-                    <Zap size={24} /> BINARY_BRAIN
+            <div className="flex flex-col md:flex-row justify-between items-center mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2">
+                <h1 className="text-xl md:text-2xl font-mono text-primary flex items-center gap-2">
+                    <Zap size={20} className="md:w-6 md:h-6" /> BINARY_BRAIN
                 </h1>
-                <div className="flex gap-8 text-right">
+                <div className="flex gap-4 md:gap-8 text-right w-full md:w-auto justify-between md:justify-end">
                     <div>
-                        <div className="text-xs text-gray-500 font-mono">TOTAL SCORE</div>
-                        <div className="text-3xl font-mono font-bold text-accent">{totalScore}</div>
+                        <div className="text-[10px] md:text-xs text-gray-500 font-mono">TOTAL SCORE</div>
+                        <div className="text-xl md:text-3xl font-mono font-bold text-accent">{totalScore}</div>
                     </div>
                     <div>
-                        <div className="text-xs text-gray-500 font-mono">POTENTIAL</div>
-                        <div className={`text-4xl font-mono font-bold tracking-widest text-shadow-neon ${gameState === 'feedback' ? (lastAnswerCorrect ? 'text-green-500' : 'text-red-500') : 'text-white'}`}>
+                        <div className="text-[10px] md:text-xs text-gray-500 font-mono">POTENTIAL</div>
+                        <div className={`text-2xl md:text-4xl font-mono font-bold tracking-widest text-shadow-neon ${gameState === 'feedback' ? (lastAnswerCorrect ? 'text-green-500' : 'text-red-500') : 'text-white'}`}>
                             {currentPotentialScore.toString().padStart(4, '0')}
                         </div>
                     </div>
@@ -209,20 +209,20 @@ export default function BinaryBrain() {
                         initial={{ opacity: 0, x: 50 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -50 }}
-                        className={`bg-surface border p-8 rounded-lg shadow-2xl relative transition-colors duration-300 ${gameState === 'feedback' ? (lastAnswerCorrect ? 'border-green-500/50 bg-green-900/10' : 'border-red-500/50 bg-red-900/10') : 'border-gray-700'}`}
+                        className={`bg-surface border p-4 md:p-8 rounded-lg shadow-2xl relative transition-colors duration-300 ${gameState === 'feedback' ? (lastAnswerCorrect ? 'border-green-500/50 bg-green-900/10' : 'border-red-500/50 bg-red-900/10') : 'border-gray-700'}`}
                     >
-                        <div className="absolute top-0 right-0 bg-gray-800 px-3 py-1 text-xs font-mono rounded-bl-lg">
+                        <div className="absolute top-0 right-0 bg-gray-800 px-2 py-1 md:px-3 text-[10px] md:text-xs font-mono rounded-bl-lg">
                             Q: {currentQIndex + 1} / {questions.length}
                         </div>
 
-                        <h2 className="text-2xl font-bold mb-8 text-white">{q?.question}</h2>
+                        <h2 className="text-lg md:text-2xl font-bold mb-4 md:mb-8 text-white pr-12 md:pr-16">{q?.question}</h2>
 
                         {/* Image Logic */}
                         {q?.image && (
-                            <div className="mb-6 flex justify-center mx-auto w-full">
+                            <div className="mb-4 md:mb-6 flex justify-center mx-auto w-full">
                                 <img
                                     src={`${BACKEND_URL}/content/binary_brain/images/${q.image}`}
-                                    className="max-h-[20rem] w-auto max-w-full object-contain rounded-lg border border-gray-700 bg-black/50 shadow-lg"
+                                    className="max-h-[12rem] md:max-h-[20rem] w-auto max-w-full object-contain rounded-lg border border-gray-700 bg-black/50 shadow-lg"
                                     onError={(e) => {
                                         if (e.currentTarget.parentElement) {
                                             e.currentTarget.parentElement.style.display = 'none';
@@ -233,13 +233,13 @@ export default function BinaryBrain() {
                             </div>
                         )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
                             {shuffledOptions.map((opt, idx) => (
                                 <button
                                     key={idx}
                                     onClick={() => handleAnswer(opt)}
                                     disabled={gameState !== 'playing'}
-                                    className={`p-4 border text-left transition-all font-mono group rounded relative overflow-hidden
+                                    className={`p-3 md:p-4 text-sm md:text-base border text-left transition-all font-mono group rounded relative overflow-hidden
                                         ${gameState === 'feedback'
                                             ? (opt.isCorrect
                                                 ? 'border-green-500 bg-green-500/20 text-white'
@@ -261,7 +261,7 @@ export default function BinaryBrain() {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`absolute top-[-50px] left-0 w-full text-center text-2xl font-bold font-mono ${lastAnswerCorrect ? 'text-green-500' : 'text-red-500'}`}
+                        className={`absolute top-[-40px] md:top-[-50px] left-0 w-full text-center text-xl md:text-2xl font-bold font-mono ${lastAnswerCorrect ? 'text-green-500' : 'text-red-500'}`}
                     >
                         {lastAnswerCorrect ? "CORRECT (+POINTS)" : "INCORRECT (0 POINTS)"}
                     </motion.div>
