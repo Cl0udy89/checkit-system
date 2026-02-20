@@ -210,8 +210,20 @@ export default function Admin() {
 
                     {/* LED Control */}
                     <div className="border border-green-800 p-6 bg-green-900/10 md:col-span-2">
-                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Zap /> LED_CONTROL</h2>
-                        <p className="mb-4 text-sm text-green-400">Manual override for Neopixel Strip.</p>
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-bold flex items-center gap-2"><Zap /> LED_CONTROL</h2>
+                            <div className="flex items-center gap-3">
+                                <span className="text-xs text-gray-500 hidden md:inline">DOWOLNY KOLOR:</span>
+                                {/* By setting a background with border rounded tight, the color input fits nicer. Some browsers stylize it weirdly anyway */}
+                                <input
+                                    type="color"
+                                    onChange={(e) => ledMutation.mutate(e.target.value)}
+                                    className="w-10 h-10 cursor-pointer bg-black border border-green-800 p-1"
+                                    title="Wybierz z palety kolorów"
+                                />
+                            </div>
+                        </div>
+                        <p className="mb-4 text-sm text-green-400">Manual override for Neopixel Strip. Wybierz kolor obok, lub uruchom gotowy efekt poniżej.</p>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
                             <button onClick={() => ledMutation.mutate('rainbow')} className="bg-purple-900 border border-purple-500 text-white p-2 text-sm hover:bg-purple-700 transition">RAINBOW</button>
                             <button onClick={() => ledMutation.mutate('chase')} className="bg-blue-900 border border-blue-500 text-white p-2 text-sm hover:bg-blue-700 transition">CHASE</button>

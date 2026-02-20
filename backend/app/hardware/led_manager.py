@@ -74,6 +74,15 @@ class LEDManager:
             self._set_solid_color("green")
         elif effect_name == "police":
             self._bg_task = asyncio.create_task(self._fx_police())
+        elif effect_name.startswith("#") and len(effect_name) == 7:
+            try:
+                r = int(effect_name[1:3], 16)
+                g = int(effect_name[3:5], 16)
+                b = int(effect_name[5:7], 16)
+                self._set_solid_color((r, g, b))
+            except ValueError:
+                self.current_state = "blocked"
+                self._set_solid_color("red")
         else:
             self.current_state = "blocked"
             self._set_solid_color("red")
@@ -82,7 +91,9 @@ class LEDManager:
         if not self.strip or not self.color_lib: return
         Color = self.color_lib
         
-        if color_name == "red": color = Color(255, 0, 0)
+        if isinstance(color_name, tuple) and len(color_name) == 3:
+            color = Color(color_name[0], color_name[1], color_name[2])
+        elif color_name == "red": color = Color(255, 0, 0)
         elif color_name == "green": color = Color(0, 255, 0)
         elif color_name == "blue": color = Color(0, 0, 255)
         elif color_name == "black": color = Color(0, 0, 0)
