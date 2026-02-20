@@ -25,13 +25,20 @@ class QueueStateResponse(BaseModel):
 
 # --- User Endpoints ---
 
+from fastapi import Header
+
 @router.get("", response_model=QueueStateResponse)
-async def get_queue_state(user: User = Depends(get_current_user)):
+async def get_queue_state(x_user_id: Optional[str] = Header(None, alias="X-User-ID")):
     position = None
-    for idx, u in enumerate(queue_state["queue"]):
-        if u["id"] == user.id:
-            position = idx + 1
-            break
+    if x_user_id:
+        try:
+            uid = int(x_user_id)
+            for idx, u in enumerate(queue_state["queue"]):
+                if u["id"] == uid:
+                    position = idx + 1
+                    break
+        except ValueError:
+            pass
             
     return QueueStateResponse(
         status=queue_state["status"],
