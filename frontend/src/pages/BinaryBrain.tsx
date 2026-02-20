@@ -219,11 +219,15 @@ export default function BinaryBrain() {
 
                         {/* Image Logic */}
                         {q?.image && (
-                            <div className="mb-6 rounded-lg overflow-hidden border border-gray-700 bg-black/50 mx-auto max-w-lg">
+                            <div className="mb-6 flex justify-center mx-auto w-full">
                                 <img
                                     src={`/content/binary_brain/images/${q.image}`}
-                                    className="w-full h-64 object-contain"
-                                    onError={(e) => e.currentTarget.style.display = 'none'}
+                                    className="max-h-[20rem] w-auto max-w-full object-contain rounded-lg border border-gray-700 bg-black/50 shadow-lg"
+                                    onError={(e) => {
+                                        if (e.currentTarget.parentElement) {
+                                            e.currentTarget.parentElement.style.display = 'none';
+                                        }
+                                    }}
                                     alt="Question Visual"
                                 />
                             </div>
