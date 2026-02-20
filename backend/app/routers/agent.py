@@ -16,6 +16,7 @@ class HardwareState(BaseModel):
     is_rpi: bool
     timestamp: float
     patch_panel: List[Dict[str, Any]]
+    solenoid_state: Dict[str, Any]
     # Add other hardware states here if needed
 
 @router.post("/sync")
@@ -35,10 +36,16 @@ async def sync_agent_hardware(state: HardwareState):
         "ip": "remote" # We don't have request object readily available unless we add it to signature, but 'remote' is fine
     }
 
-    # 2. Update Patch Panel State
+    # 2. Update Hardware States
     # Only if this node is the "active" hardware node? 
     # For now, we assume ONE hardware node or last-write-wins.
     patch_panel.update_remote_state(state.patch_panel)
+    
+    if hasattr(solenoid, 'update_remote_state'):
+        solenoid.update_remote_state(
+            is_active=state.solenoid_state.get("is_active", False),
+            is_open=state.solenoid_state.get("is_open", False)
+        )
 
     # 3. Check for Pending Commands
     response = {}

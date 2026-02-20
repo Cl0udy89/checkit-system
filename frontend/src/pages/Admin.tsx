@@ -157,17 +157,32 @@ export default function Admin() {
                     <div className="border border-green-800 p-6 bg-green-900/10">
                         <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Lock /> RELAY_CONTROL</h2>
                         <p className="mb-4 text-sm text-green-400">Manual override for solenoid lock.</p>
-                        <div className="flex items-center gap-4">
+
+                        <div className="flex flex-col gap-4">
                             <button
                                 onClick={() => solenoidMutation.mutate()}
                                 className="bg-red-900 text-white px-6 py-4 font-bold rounded hover:bg-red-700 transition w-full flex justify-center items-center gap-2"
                             >
                                 <Zap /> FORCE OPEN (5s)
                             </button>
-                            <div className="text-center">
-                                STATUS: <span className={status?.solenoid?.is_active ? "text-red-500 animate-pulse" : "text-green-500"}>
-                                    {status?.solenoid?.is_active ? "ACTIVE" : "IDLE"}
-                                </span>
+
+                            <div className="flex justify-between items-center border border-green-800 p-3 bg-black">
+                                <div className="text-center w-1/2 border-r border-green-800">
+                                    <div className="text-xs text-gray-500 mb-1">KOMENDA</div>
+                                    <span className={`font-bold ${status?.solenoid?.is_active ? "text-red-500 animate-pulse" : "text-green-500"}`}>
+                                        {status?.solenoid?.is_active ? "ACTIVE" : "IDLE"}
+                                    </span>
+                                </div>
+                                <div className="text-center w-1/2">
+                                    <div className="text-xs text-gray-500 mb-1">CZUJNIK FIZYCZNY</div>
+                                    <span className={`font-bold flex items-center justify-center gap-2 ${status?.solenoid?.is_open ? "text-yellow-500" : "text-green-500"}`}>
+                                        {status?.solenoid?.is_open ? (
+                                            <>🔓 OTWARTE</>
+                                        ) : (
+                                            <>🔒 ZAMKNIĘTE</>
+                                        )}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>

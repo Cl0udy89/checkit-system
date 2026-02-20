@@ -8,19 +8,53 @@ logger = logging.getLogger(__name__)
 class Solenoid:
     def __init__(self):
         self.pin = settings.hardware.solenoid_pin
+        self.sensor_pin = settings.hardware.solenoid_sensor_pin
         self.duration = settings.hardware.solenoid_open_time_sec
-        self._is_active = False
+        self._is_active = False # Tracks if we're sending current
+        self._is_open = False   # Tracks physical box state
         
         # Setup GPIO
         if gpio_manager.is_rpi_mode():
             try:
                 gpio_manager.setup_output(self.pin)
                 gpio_manager.write(self.pin, GPIO.LOW)
+                
+                # Setup Sensor Pin (Input with Pull-Up. Assuming it pulls to GND when closed)
+                gpio_manager.setup_input(self.sensor_pin, GPIO.PUD_UP)
             except Exception as e:
-                logger.error(f"Solenoid Init Error: {e}") 
+                logger.error(f"Solenoid/Sensor Init Error: {e}") 
         
-        # Command Queue for Agent (Server Mode)
-        self._command_queue = []
+        # Remote State Storage (for Server Mode)
+        self._remote_state = {
+            "is_active": False,
+            "is_open": False
+        }
+        
+    def update_remote_state(self, is_active: bool, is_open: bool):
+        """Called by the API when Agent sends an update."""
+        self._remote_state["is_active"] = is_active
+        self._remote_state["is_open"] = is_open
+
+    def get_state(self) -> dict:
+        """Returns the local or remote state of the solenoid/box."""
+        if not gpio_manager.is_rpi_mode():
+            return self._remote_state
+            
+        # Read physical sensor if we are the RPi
+        # Assuming PULL_UP: CLOSED (magnet near) = LOW (0), OPEN (away) = HIGH (1)
+        # Note: Depending on reed switch NO/NC this might be inverted. Assuming generic NC door sensor.
+        is_open = False
+        try:
+            sensor_val = gpio_manager.read(self.sensor_pin)
+            is_open = (sensor_val == GPIO.HIGH)
+            self._is_open = is_open
+        except Exception:
+            pass
+            
+        return {
+            "is_active": self._is_active,
+            "is_open": self._is_open
+        }
 
     def queue_open(self):
         """Called by Server to request open on Agent."""

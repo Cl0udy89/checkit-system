@@ -114,6 +114,22 @@ class SyncService:
                 if current['connected'] != last['connected']:
                     status_text = "PODŁĄCZONY" if current['connected'] else "ODŁĄCZONY"
                     logger.info(f"PATCH PANEL: Kabel na porcie {current['label']} (Pin {current['gpio']}) został {status_text}!")
+                    
+                    # LED Interactions
+                    from app.hardware.led_manager import led_manager
+                    is_now_solved = patch_panel.is_solved()
+                    was_solved = all(p['connected'] for p in self._last_pp_state)
+                    
+                    if is_now_solved:
+                        led_manager.set_solved()
+                        logger.info("🟢 LED: PANEL ROZWIĄZANY (ZIELONY) 🟢")
+                    elif was_solved and not is_now_solved:
+                        led_manager.set_blocked()
+                        logger.info("🔴 LED: PANEL PRZERWANY (CZERWONY) 🔴")
+                    elif current['connected']:  # Just a single connection, not yet solved
+                        logger.info("✨ LED: IMPULS (WYKRYTO KABEL) ✨")
+                        asyncio.create_task(led_manager.trigger_connection_pulse())
+                        
             self._last_pp_state = pp_state
         
         # 2. Prepare Payload
@@ -121,7 +137,8 @@ class SyncService:
             "node_id": settings.node_id,
             "is_rpi": True,
             "timestamp": time.time(),
-            "patch_panel": pp_state
+            "patch_panel": pp_state,
+            "solenoid_state": solenoid.get_state()
         }
         
         # 3. Send to Agent Sync Endpoint

@@ -83,7 +83,8 @@ async def get_hardware_status():
                 is_rpi_online = True
             break
             
-    # Get current state
+    # Get current hardware states
+    solenoid_state = solenoid.get_state()
     pp_state = patch_panel.get_state()
     
     # Override with disconnected if offline (unless we are the RPi itself testing locally)
@@ -95,7 +96,8 @@ async def get_hardware_status():
         
     return {
         "solenoid": {
-            "is_active": solenoid._is_active, # Accessing protected member for debug
+            "is_active": solenoid_state.get("is_active", False), 
+            "is_open": solenoid_state.get("is_open", False),
             "pin": settings.hardware.solenoid_pin
         },
         "patch_panel": {

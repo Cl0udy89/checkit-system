@@ -26,6 +26,7 @@ DEFAULTS = {
     },
     "hardware": {
         "solenoid_pin": 26, # BCM
+        "solenoid_sensor_pin": 12, # BCM sensor detect pin (pulled to GND when closed)
         "solenoid_open_time_sec": 5,
         "patch_panel_scan_interval_ms": 50
     },
