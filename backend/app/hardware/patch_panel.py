@@ -8,15 +8,16 @@ logger = logging.getLogger(__name__)
 class PatchPanel:
     def __init__(self):
         # Mapping: Port Number (Physical Label) -> GPIO Pin (BCM)
-        # As per prompt:
-        # Pair 1: Port 1 (GND) <-> Port 14 (GPIO_17)
-        # Pair 2: Port 2 (GND) <-> Port 19 (GPIO_27)
-        # Pair 3: Port 4 (GND) <-> Port 17 (GPIO_22)
-        # Pair 4: Port 5 (GND) <-> Port 24 (GPIO_10)
-        # Pair 5: Port 6 (GND) <-> Port 18 (GPIO_09)
-        # Pair 6: Port 7 (GND) <-> Port 21 (GPIO_11)
-        # Pair 7: Port 9 (GND) <-> Port 22 (GPIO_05)
-        # Pair 8: Port 11 (GND) <-> Port 23 (GPIO_06)
+        # As per the hardware schematic, we use BCM numbering in code.
+        # To test the patch panel, short the following Physical Pins together:
+        # Pair 1: GND (Physical Pin 9)  <-> Physical Pin 11 (BCM 17)
+        # Pair 2: GND (Physical Pin 14) <-> Physical Pin 13 (BCM 27)
+        # Pair 3: GND (Physical Pin 14) <-> Physical Pin 15 (BCM 22)
+        # Pair 4: GND (Physical Pin 20) <-> Physical Pin 19 (BCM 10)
+        # Pair 5: GND (Physical Pin 20) <-> Physical Pin 21 (BCM 9)
+        # Pair 6: GND (Physical Pin 25) <-> Physical Pin 23 (BCM 11)
+        # Pair 7: GND (Physical Pin 30) <-> Physical Pin 29 (BCM 5)
+        # Pair 8: GND (Physical Pin 30) <-> Physical Pin 31 (BCM 6)
         
         self.pin_mapping = [
             {"label": "Pair 1", "gpio": 17},
