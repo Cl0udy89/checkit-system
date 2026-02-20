@@ -14,7 +14,7 @@ api.interceptors.request.use(config => {
     }
 
     // Auto-inject User ID for kiosk users
-    const gameStoreStr = localStorage.getItem('game-storage')
+    const gameStoreStr = localStorage.getItem('checkit-storage')
     if (gameStoreStr) {
         try {
             const data = JSON.parse(gameStoreStr)
@@ -39,12 +39,12 @@ api.interceptors.response.use(
                 }
             } else {
                 // Regular Kiosk User deleted/invalid
-                const state = localStorage.getItem('game-storage')
+                const state = localStorage.getItem('checkit-storage')
                 if (state) {
                     try {
                         const data = JSON.parse(state)
                         if (data.state?.user) {
-                            localStorage.removeItem('game-storage')
+                            localStorage.removeItem('checkit-storage')
                             window.location.href = '/'
                         }
                     } catch (e) { }
