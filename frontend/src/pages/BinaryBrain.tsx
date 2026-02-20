@@ -181,7 +181,7 @@ export default function BinaryBrain() {
     }
 
     return (
-        <div className="min-h-screen bg-background flex flex-col p-6 relative overflow-hidden">
+        <div className="min-h-screen bg-background flex flex-col p-4 md:p-6 relative overflow-x-hidden">
             {/* HUD */}
             <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
                 <h1 className="text-2xl font-mono text-primary flex items-center gap-2">

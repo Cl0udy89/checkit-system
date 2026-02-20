@@ -57,7 +57,7 @@ export default function PatchMaster() {
     const pairs = hardwareState?.pairs || []
 
     return (
-        <div className="min-h-screen bg-background p-8 flex flex-col items-center relative overflow-hidden">
+        <div className="min-h-screen bg-background p-8 flex flex-col items-center relative overflow-x-hidden">
             {/* HUD */}
             <div className="w-full flex justify-between items-center mb-12 border-b border-gray-800 pb-4 z-10">
                 <h1 className="text-2xl font-mono text-accent flex items-center gap-2">

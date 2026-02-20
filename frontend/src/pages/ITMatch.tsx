@@ -115,10 +115,10 @@ export default function ITMatch() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-between p-4 overflow-hidden relative">
-            <div className="absolute top-4 left-4 text-white font-mono z-10">
+        <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-between p-4 overflow-x-hidden relative">
+            <header className="w-full max-w-lg mt-4 flex justify-between items-center z-10">
                 SCORE: {score} | PROG: {currentIndex + 1}/{questions.length}
-            </div>
+            </header>
 
             <div className="w-full max-w-md h-[70vh] relative flex items-center justify-center mt-10">
                 <AnimatePresence>

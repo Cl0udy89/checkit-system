@@ -45,7 +45,7 @@ export default function Welcome() {
     }
 
     return (
-        <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-black flex flex-col items-center justify-center p-4 relative overflow-x-hidden">
             {/* Background Elements */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
             <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>

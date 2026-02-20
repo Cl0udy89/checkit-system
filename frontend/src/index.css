@@ -4,6 +4,6 @@
 
 @layer base {
   body {
-    @apply bg-background text-white font-sans overflow-hidden; /* Prevent scroll on kiosk */
+    @apply bg-background text-white font-sans overflow-x-hidden; /* Prevent horizontal scroll, allow vertical on mobile */
   }
 }
