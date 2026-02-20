@@ -79,3 +79,13 @@ export const updateEmailTemplate = async (slug: string, subject: string, body: s
 export const sendAllEmails = async () => (await api.post('/admin/email/send-all')).data
 export const clearLogs = async () => (await api.delete('/admin/logs')).data
 export const resetDatabase = async () => (await api.delete('/admin/database')).data
+
+// Patch Master Queue
+export const fetchPMQueue = async () => (await api.get('/game/patch-master/queue')).data
+export const joinPMQueue = async () => (await api.post('/game/patch-master/queue/join')).data
+export const leavePMQueue = async () => (await api.post('/game/patch-master/queue/leave')).data
+export const startPMQueue = async () => (await api.post('/game/patch-master/queue/start')).data
+
+export const adminPMQueueNext = async () => (await api.post('/game/patch-master/queue/admin/next')).data
+export const adminPMQueueSetStatus = async (status: string) => (await api.post('/game/patch-master/queue/admin/set_status', { status })).data
+export const adminPMQueueKick = async (userId: number) => (await api.delete(`/game/patch-master/queue/admin/kick/${userId}`)).data

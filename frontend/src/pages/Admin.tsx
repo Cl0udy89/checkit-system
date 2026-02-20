@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { api, fetchAdminUsers, fetchAdminScores, deleteUser, fetchSystemConfig, setSystemConfig, fetchEmailTemplates, updateEmailTemplate, sendAllEmails, clearLogs, resetDatabase } from '../lib/api'
+import { api, fetchAdminUsers, fetchAdminScores, deleteUser, fetchSystemConfig, setSystemConfig, fetchEmailTemplates, updateEmailTemplate, sendAllEmails, clearLogs, resetDatabase, fetchPMQueue, adminPMQueueNext, adminPMQueueSetStatus, adminPMQueueKick } from '../lib/api'
 import { useNavigate } from 'react-router-dom'
 import { Shield, Zap, RefreshCw, Lock, LogOut, Settings, Mail } from 'lucide-react'
 import AdminLogin from './AdminLogin'
@@ -114,6 +114,17 @@ export default function Admin() {
         onSuccess: (_, variables) => alert(`LED Effect Queued: ${variables}`)
     })
 
+    // Queue State
+    const { data: queueState, refetch: refetchQueue } = useQuery({
+        queryKey: ['admin_pm_queue'],
+        queryFn: fetchPMQueue,
+        refetchInterval: 1500,
+        enabled: activeTab === 'hardware'
+    })
+    const nextPlayerMutation = useMutation({ mutationFn: adminPMQueueNext, onSuccess: () => refetchQueue() })
+    const setQueueStatusMutation = useMutation({ mutationFn: adminPMQueueSetStatus, onSuccess: () => refetchQueue() })
+    const kickPlayerMutation = useMutation({ mutationFn: adminPMQueueKick, onSuccess: () => refetchQueue() })
+
     return (
         <div className="min-h-screen bg-black text-green-500 font-mono p-4 md:p-8 border-x-0 md:border-4 border-green-900 overflow-x-hidden">
             <header className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-green-800 pb-4 gap-4">
@@ -205,6 +216,65 @@ export default function Admin() {
                         </div>
                         <div className="mt-4 text-center font-bold">
                             SOLVED: {status?.patch_panel?.solved ? "YES" : "NO"}
+                        </div>
+                    </div>
+
+                    {/* Patch Master Queue */}
+                    <div className="border border-green-800 p-6 bg-green-900/10 md:col-span-2">
+                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Zap /> PATCH_MASTER QUEUE</h2>
+
+                        <div className="flex flex-col md:flex-row gap-8">
+                            <div className="flex-1">
+                                <div className="mb-4">
+                                    <span className="text-xs text-gray-500 block mb-1">STATUS KOLEJKI</span>
+                                    <span className="font-bold text-lg text-white uppercase">{queueState?.status || 'Brak danych'}</span>
+                                </div>
+                                <div className="mb-4">
+                                    <span className="text-xs text-gray-500 block mb-1">AKTUALNY GRACZ</span>
+                                    <span className="font-bold text-xl text-accent">{queueState?.current_player?.nick || 'BRAK'}</span>
+                                </div>
+                                <div className="flex gap-2 flex-wrap">
+                                    <button
+                                        onClick={() => nextPlayerMutation.mutate()}
+                                        className="bg-green-700 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors"
+                                    >
+                                        ZAPROŚ KOLEJNEGO
+                                    </button>
+                                    <button
+                                        onClick={() => setQueueStatusMutation.mutate('resetting')}
+                                        className="bg-yellow-700 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition-colors"
+                                    >
+                                        TRYB PRZERWY
+                                    </button>
+                                    <button
+                                        onClick={() => setQueueStatusMutation.mutate('available')}
+                                        className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition-colors"
+                                    >
+                                        RESETUJ STAN
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 border border-green-800 bg-black p-4 max-h-64 overflow-y-auto">
+                                <h3 className="text-sm font-bold text-green-500 mb-2 border-b border-green-800 pb-2">LISTA OCZEKUJĄCYCH ({queueState?.queue?.length || 0})</h3>
+                                {queueState?.queue?.length === 0 ? (
+                                    <div className="text-gray-500 text-xs text-center mt-4">Kolejka jest pusta.</div>
+                                ) : (
+                                    <ul className="space-y-2">
+                                        {queueState?.queue?.map((u: any, idx: number) => (
+                                            <li key={u.id} className="flex justify-between items-center bg-gray-900/50 p-2">
+                                                <span className="text-white font-mono">{idx + 1}. {u.nick}</span>
+                                                <button
+                                                    onClick={() => kickPlayerMutation.mutate(u.id)}
+                                                    className="text-xs text-red-500 hover:text-red-400 border border-red-900 px-2 py-1 rounded"
+                                                >
+                                                    WYRZUĆ
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </div>
                         </div>
                     </div>
 

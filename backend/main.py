@@ -54,8 +54,9 @@ app.include_router(it_match.router, prefix=f"{API_V1_STR}/game/it-match", tags=[
 app.include_router(leaderboard.router, prefix=f"{API_V1_STR}/leaderboard", tags=["leaderboard"])
 app.include_router(admin.router, prefix=f"{API_V1_STR}/admin", tags=["admin"])
 
-from app.routers import agent
+from app.routers import agent, patch_master_queue
 app.include_router(agent.router, prefix=f"{API_V1_STR}/agent", tags=["agent"])
+app.include_router(patch_master_queue.router, prefix=f"{API_V1_STR}/game/patch-master/queue", tags=["patch-master-queue"])
 
 # Mount content directory for images
 from pathlib import Path
