@@ -1,31 +1,51 @@
 id,question,image,answer_correct,answer_wrong1,answer_wrong2,answer_wrong3
-1,"Co oznacza skrót CPU?","cpu.jpg","Central Processing Unit","Central Power Unit","Computer Personal Unit","Central Process Utility"
-2,"Który port jest standardem dla HTTP?","http_port.jpg","80","443","22","21"
-3,"Co to jest Phishing?","phishing.jpg","Wyłudzanie danych","Łowienie ryb","Wirus komputerowy","Atak DDoS"
-4,"Jaki kolor ma złącze USB 3.0?","usb3.jpg","Niebieski","Czarny","Biały","Czerwony"
-5,"Co oznacza skrót RAM?","ram.jpg","Random Access Memory","Read Access Memory","Run Access Memory","Real Amount Memory"
-6,"Które hasło jest najsilniejsze?","pass.jpg","Trudne!Haslo123","admin1","123456","qwerty"
-7,"Co chroni sieć przed atakami z zewnątrz?","firewall.jpg","Firewall","Antywirus","Myszka","Klawiatura"
-8,"Co to jest Linux?","linux_tux.jpg","System operacyjny","Przeglądarka","Gra","Marka laptopa"
-9,"Ile bitów ma bajt?","bits.jpg","8","4","16","32"
-10,"Co oznacza '404 Not Found'?","404.jpg","Strona nie znaleziona","Błąd serwera","Brak internetu","Sukces"
-11,"Co oznacza GPU?","gpu.jpg","Graphics Processing Unit","General Power Unit","Global Position Unit","Green Power Utility"
-12,"Jaki jest skrót klawiszowy kopiowania?","ctrlc.jpg","Ctrl+C","Ctrl+V","Ctrl+X","Alt+F4"
-13,"Co to jest SSD?","ssd.jpg","Solid State Drive","Super Speed Disk","System Storage Data","Simple Save Drive"
-14,"Jaka jest rola DNS?","dns.jpg","Tłumaczenie nazw na IP","Szyfrowanie danych","Ochrona przed wirusami","Zasilanie routera"
-15,"Co oznacza HTML?","html.jpg","HyperText Markup Language","High Tech Modern Language","Home Tool Management List","Hyper Transfer Mode Link"
-16,"Który system jest mobilny?","android.jpg","Android","Windows Server","Ubuntu","MacOS"
-17,"Co to jest Bug?","bug.jpg","Błąd w kodzie","Rodzaj wirusa","Część komputera","Nazwa procesora"
-18,"Jaki kolor ma ekran śmierci Windows?","bsod.jpg","Niebieski","Czerwony","Zielony","Czarny"
-19,"Co robi Alt+Tab?","keyboard.jpg","Przełącza okna","Zamyka system","Kopiuje pliki","Otwiera menu start"
-20,"Co oznacza IoT?","iot.jpg","Internet of Things","Internal office Tool","Input output Type","International oil Trade"
-21,"Co to jest Python?","python.jpg","Język programowania","Gatunek węża w serwerowni","Program antywirusowy","Przeglądarka"
-22,"Jaki format ma adres IP v4?","ip.jpg","192.168.1.1","FFFF:0000","www.google.com","user@mail.com"
-23,"Co to jest Cloud Computing?","cloud.jpg","Chmura obliczeniowa","Latanie samolotem","Pogoda w internecie","Dysk twardy"
-24,"Do czego służy SQL?","sql.jpg","Bazy danych","Grafika 3D","Tworzenie stron www","Edycja wideo"
-25,"Co to jest Open Source?","opensource.jpg","Otwarte oprogramowanie","Otwarta obudowa PC","Darmowy internet","Hasło administratora"
-26,"Jaki kabel przesyła obraz i dźwięk?","hdmi.jpg","HDMI","VGA","USB","Ethernet"
-27,"Co oznacza WWW?","www.jpg","World Wide Web","World War Web","Wide Web World","Web World Wide"
-28,"Co to jest BIOS?","bios.jpg","Basic Input Output System","Best Internet OS","Bad Input Output Signal","Base Internal OS"
-29,"Jaka firma stworzyła iPhone?","apple.jpg","Apple","Samsung","Nokia","Microsoft"
-30,"Co to jest VPN?","vpn.jpg","Wirtualna sieć prywatna","Virus Protection Network","Very Powerful Net","Video Phone Number"
+1,"Za co odpowiada ""Arithmetic Logic Unit"" (ALU)?",pyt_1.jpg,Mathematical operations,Data storage,Cooling system,Power delivery
+2,"Co oznacza termin ""Packet Loss""?",pyt_2.jpg,Missing data in network,Too much data,Low battery,Broken hard drive
+3,Jak nazywa się proces naprawiania błędów w kodzie?,pyt_3.jpg,Debugging,Compiling,Refactoring,Deploying
+4,Która warstwa modelu OSI odpowiada za adresację IP?,pyt_4.jpg,Network Layer,Data Link,Transport,Session Layer
+5,"Co to jest ""Kernel"" w systemie operacyjnym?",pyt_5.jpg,Core of the OS,Desktop wallpaper,Web browser,User account
+6,Jak zapisać liczbę dziesiętną 12 w systemie binarnym?,pyt_6.jpg,1100,1010,1111,1001
+7,"Czym jest ""Deadlock"" w systemach operacyjnych?",pyt_7.jpg,Resource conflict,Fast processing,Safe mode,System update
+8,"Co oznacza skrót ""SaaS"" w chmurze?",pyt_8.jpg,Software as a Service,System as a Security,Storage as a Source,Simple as a Server
+9,Unikalny adres fizyczny karty sieciowej to:,pyt_9.jpg,MAC Address,IP Address,DNS Address,Gateway
+10,Który protokół służy do bezpiecznego logowania (SSH)?,pyt_10.jpg,Port 22,Port 21,Port 80,Port 443
+11,"Wynik operacji bitowej ""XOR"" na bitach 1 i 1 to:",pyt_11.jpg,0,1,2,-1
+12,"Czym jest ""GUI"" w informatyce?",pyt_12.jpg,Graphical User Interface,Programming language,Global Unit Index,Gaming Interface
+13,"Co oznacza skrót ""RAID"" dla dysków?",pyt_13.jpg,Redundant Array,Rapid Access Disk,Real Audio Interface,Random Access
+14,Standardowy port TCP dla usługi HTTPS to:,pyt_14.jpg,443,80,21,25
+15,"Co to jest ""Virtual Machine"" (VM)?",pyt_15.jpg,Emulated system,Fast computer,Graphic card,Virus
+16,Główna baza konfiguracji w Windows to:,pyt_16.jpg,Registry,Terminal,BIOS,Kernel
+17,"Co to jest ""Open Source""?",pyt_17.jpg,Public source code,Paid software,Closed system,No internet
+18,Przykład języka niskiego poziomu (Low-level) to:,pyt_18.jpg,Assembly,Python,Java,JavaScript
+19,"Czym zajmuje się system ""DNS""?",pyt_19.jpg,Domain to IP translation,Storing files,Cooling CPU,Printing
+20,"Co to jest ""Overclocking""?",pyt_20.jpg,Increasing clock rate,Reducing speed,Cleaning fans,Deleting files
+21,Wartość liczby binarnej 1111 w systemie DEC to:,pyt_21.jpg,15,7,10,16
+22,"Termin ""Latency"" w sieci oznacza:",pyt_22.jpg,Network delay,High speed,File size,Monitor color
+23,"""Trojan"" w cyberbezpieczeństwie to:",pyt_23.jpg,Malware as legit software,Antivirus,Firewall,Password
+24,"Co robi ""Default Gateway""?",pyt_24.jpg,Routes to other networks,Starts the PC,Saves passwords,Displays video
+25,Dysk SSD w odróżnieniu od HDD nie posiada:,pyt_25.jpg,Moving parts,Memory,Interface,Controller
+26,"Co oznacza skrót ""API""?",pyt_26.jpg,Application Interface,Apple Process Info,Auto Print Index,Array Power Item
+27,Format zapisu kolorów #FFFFFF to:,pyt_27.jpg,Hexadecimal,Binary,Octal,Decimal
+28,"Co to jest ""SQL Injection""?",pyt_28.jpg,Database attack,Speed boost,Data backup,New language
+29,Protokół DHCP służy do:,pyt_29.jpg,Assigning IP addresses,Sending emails,Encrypting files,Web browsing
+30,"Czym jest ""Bitrate""?",pyt_30.jpg,Number of bits per sec,Hard drive size,CPU temperature,Keyboard speed
+31,Rozszerzenie .sh w systemie Linux to zazwyczaj:,pyt_31.jpg,Shell Script,Image,Sound file,Archive
+32,"Co oznacza ""Hyper-Threading""?",pyt_32.jpg,Virtual cores,Water cooling,Fast RAM,Screen refresh
+33,Jaki system plików jest standardem dla Windows 10/11?,pyt_33.jpg,NTFS,FAT32,EXT4,APFS
+34,"Czym jest ""Ping"" (ICMP)?",pyt_34.jpg,Connectivity check,Speed test,Virus scan,File upload
+35,Architektura 64-bitowa pozwala obsłużyć więcej:,pyt_35.jpg,RAM,Power,Storage,Fans
+36,"Co to jest ""VPN""?",pyt_36.jpg,Virtual Private Network,Video Port Node,Very Private Name,Voice Protocol
+37,"Skrót ""FPS"" w grafice oznacza:",pyt_37.jpg,Frames Per Second,Files Per Second,Fast Power System,Font Per Screen
+38,"Co to jest ""Firmware""?",pyt_38.jpg,Hardware-embedded code,Soft pillow,Web browser,Office suite
+39,Protokół FTP służy do:,pyt_39.jpg,File transfer,Watching videos,Sending emails,Chatting
+40,"Czym jest ""Cache"" procesora?",pyt_40.jpg,Fast temporary memory,Slow storage,Graphics chip,Power unit
+41,Ile to jest 1024 Gigabajty?,pyt_41.jpg,1 Terabajt,1 Megabajt,1 Petabajt,1 Eksabajt
+42,"Co oznacza ""Scalability""?",pyt_42.jpg,Handling growth,Fixing bugs,Deleting data,Password change
+43,"Czym jest ""Docker"" w IT?",pyt_43.jpg,Containerization platform,Hardware brand,Web server,Antivirus
+44,"Co robi ""Defragmentacja""?",pyt_44.jpg,Organizes HDD data,Speeds up SSD,Cleans keyboard,Reinstalls OS
+45,"Skrót ""BIOS"" oznacza:",pyt_45.jpg,Basic Input Output System,Binary Intel OS,Basic Internal Op,Built In OS
+46,Liczba binarna 1010 to w systemie DEC:,pyt_46.jpg,10,8,12,14
+47,"Co to jest ""Motherboard Form Factor""?",pyt_47.jpg,Size and shape (ATX),Color of the board,CPU speed,RAM type
+48,"Czym jest ""Encryption""?",pyt_48.jpg,Data scrambling (security),Data compression,Data deletion,Data copying
+49,"Co oznacza skrót ""URL""?",pyt_49.jpg,Uniform Resource Locator,User Radio Link,Universal Repair Log,User Remote List
+50,"Jak nazywa się ""ojciec"" współczesnych komputerów?",pyt_50.jpg,Alan Turing,Bill Gates,Steve Jobs,Elon Musk
