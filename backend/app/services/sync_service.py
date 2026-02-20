@@ -103,8 +103,18 @@ class SyncService:
             return
 
         # 1. Read Local State
-        # patch_panel.get_state() will read GPIO because IS_RPI is True
         pp_state = patch_panel.get_state()
+        
+        # Log state changes for better observability
+        if not hasattr(self, '_last_pp_state'):
+            self._last_pp_state = pp_state
+        else:
+            for i, current in enumerate(pp_state):
+                last = self._last_pp_state[i]
+                if current['connected'] != last['connected']:
+                    status_text = "PODŁĄCZONY" if current['connected'] else "ODŁĄCZONY"
+                    logger.info(f"PATCH PANEL: Kabel na porcie {current['label']} (Pin {current['gpio']}) został {status_text}!")
+            self._last_pp_state = pp_state
         
         # 2. Prepare Payload
         payload = {
@@ -119,7 +129,6 @@ class SyncService:
         url = f"{base_url}/agent/sync"
         
         try:
-            # logger.debug(f"Syncing hardware state to {url}...")
             async with aiohttp.ClientSession() as client:
                 async with client.post(url, json=payload, timeout=5) as resp:
                     if resp.status == 200:
@@ -127,14 +136,14 @@ class SyncService:
                         
                         # 4. Handle Commands
                         if data.get("trigger_solenoid"):
-                            logger.info("Received OPEN command from Server.")
+                            logger.info("⚡ OTRZYMANO KOMENDĘ Z SERWERA: Otwieranie Solenoidu (Zamka)... ⚡")
                             asyncio.create_task(solenoid.open_box())
                             
                     else:
                         logger.warning(f"Agent Sync failed: {resp.status} - {await resp.text()}")
         except Exception as e:
-            logger.error(f"Agent Sync Connection Error: {e}")
-            # pass
+            # logger.error(f"Agent Sync Connection Error: {e}")
+            pass
 
 
 sync_service = SyncService()

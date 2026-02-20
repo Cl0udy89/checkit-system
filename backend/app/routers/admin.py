@@ -73,14 +73,34 @@ async def trigger_solenoid():
 
 @router.get("/hardware/status")
 async def get_hardware_status():
+    # Check if RPi is online
+    is_rpi_online = False
+    now = datetime.utcnow()
+    for node_id, data in connected_nodes.items():
+        if data.get("is_rpi"):
+            last_seen = data.get("last_seen")
+            if last_seen and (now - last_seen).total_seconds() < 15:
+                is_rpi_online = True
+            break
+            
+    # Get current state
+    pp_state = patch_panel.get_state()
+    
+    # Override with disconnected if offline (unless we are the RPi itself testing locally)
+    if not is_rpi_online and not IS_RPI:
+        pp_state = [
+            {"label": p["label"], "gpio": p["gpio"], "connected": False}
+            for p in pp_state
+        ]
+        
     return {
         "solenoid": {
             "is_active": solenoid._is_active, # Accessing protected member for debug
             "pin": settings.hardware.solenoid_pin
         },
         "patch_panel": {
-            "solved": patch_panel.is_solved(),
-            "pairs": patch_panel.get_state()
+            "solved": patch_panel.is_solved() if is_rpi_online or IS_RPI else False,
+            "pairs": pp_state
         }
     }
 
