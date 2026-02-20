@@ -66,8 +66,11 @@ async def get_content(game_type: str, user=Depends(get_current_user), session: A
     # Check competition state
     conf_res = await session.execute(select(SystemConfig).where(SystemConfig.key == "competition_active"))
     conf = conf_res.scalar_one_or_none()
-    if conf and conf.value == "false":
-        raise HTTPException(status_code=403, detail="Competition has ended.")
+    if conf:
+        if conf.value == "false":
+            raise HTTPException(status_code=403, detail="ZAWODY_ZAKONCZONE")
+        elif conf.value == "technical_break":
+            raise HTTPException(status_code=403, detail="PRZERWA_TECHNICZNA")
         
     limit = 10 # Default max set to 10 as per requirement
     if game_type == "binary_brain":
@@ -110,8 +113,11 @@ async def submit_game(submission: GameSubmit, user=Depends(get_current_user), se
     # Check competition state
     conf_res = await session.execute(select(SystemConfig).where(SystemConfig.key == "competition_active"))
     conf = conf_res.scalar_one_or_none()
-    if conf and conf.value == "false":
-        raise HTTPException(status_code=403, detail="Competition has ended.")
+    if conf:
+        if conf.value == "false":
+            raise HTTPException(status_code=403, detail="ZAWODY_ZAKONCZONE")
+        elif conf.value == "technical_break":
+            raise HTTPException(status_code=403, detail="PRZERWA_TECHNICZNA")
 
     result = await game_service.finish_game(
         game_type=submission.game_type,

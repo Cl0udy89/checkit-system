@@ -25,7 +25,15 @@ export default function PatchMaster() {
     })
 
     // Mutations
-    const joinMutation = useMutation({ mutationFn: joinPMQueue, onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pm_queue'] }) })
+    const joinMutation = useMutation({
+        mutationFn: joinPMQueue,
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pm_queue'] }),
+        onError: (err: any) => {
+            if (err?.response?.status === 403) {
+                alert(err?.response?.data?.detail === "PRZERWA_TECHNICZNA" ? "PRZERWA TECHNICZNA: System pauzuje grę. Spróbuj za chwilę." : "ZAWODY ZAKOŃCZONE");
+            }
+        }
+    })
     const leaveMutation = useMutation({ mutationFn: leavePMQueue, onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pm_queue'] }) })
     const startMutation = useMutation({
         mutationFn: startPMQueue,
@@ -33,6 +41,11 @@ export default function PatchMaster() {
             setGameStartedLocal(true)
             setStartTime(Date.now())
             queryClient.invalidateQueries({ queryKey: ['pm_queue'] })
+        },
+        onError: (err: any) => {
+            if (err?.response?.status === 403) {
+                alert(err?.response?.data?.detail === "PRZERWA_TECHNICZNA" ? "PRZERWA TECHNICZNA: Czekaj." : "ZAWODY ZAKOŃCZONE");
+            }
         }
     })
 

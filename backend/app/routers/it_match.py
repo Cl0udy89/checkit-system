@@ -22,11 +22,26 @@ class ITMatchQuestion(BaseModel):
 
 from app.services.content_service import content_service
 
+from app.security import get_current_user
+from app.database import get_session
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Depends
+
 @router.get("/questions", response_model=List[ITMatchQuestion])
-async def get_questions(count: int = 10):
+async def get_questions(count: int = 10, user=Depends(get_current_user), session: AsyncSession = Depends(get_session)):
     """
     Returns a random set of questions from ContentService.
     """
+    from app.models import SystemConfig
+    from sqlmodel import select
+    conf_res = await session.execute(select(SystemConfig).where(SystemConfig.key == "competition_active"))
+    conf = conf_res.scalar_one_or_none()
+    if conf:
+        if conf.value == "false":
+            raise HTTPException(status_code=403, detail="ZAWODY_ZAKONCZONE")
+        elif conf.value == "technical_break":
+            raise HTTPException(status_code=403, detail="PRZERWA_TECHNICZNA")
+
     questions_data = content_service.get_questions("it_match", limit=50) # Get all avaliable
     
     # Map to schema

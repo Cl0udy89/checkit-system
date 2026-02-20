@@ -91,10 +91,12 @@ export default function ITMatch() {
     if (isError) {
         // @ts-ignore
         if (error?.response?.status === 403) {
+            // @ts-ignore
+            const isBreak = error?.response?.data?.detail === "PRZERWA_TECHNICZNA"
             return (
                 <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
-                    <h1 className="text-4xl font-bold mb-4">ZAWODY ZAKOŃCZONE</h1>
-                    <p className="mb-8 text-xl">System został zablokowany przez administratora.</p>
+                    <h1 className="text-4xl font-bold mb-4">{isBreak ? "PRZERWA TECHNICZNA" : "ZAWODY ZAKOŃCZONE"}</h1>
+                    <p className="mb-8 text-xl">{isBreak ? "System chwilowo niedostępny. Zostań na stanowisku!" : "System został zablokowany przez administratora."}</p>
                     <button onClick={() => navigate('/dashboard')} className="border border-red-500 text-red-500 px-6 py-3 hover:bg-red-900/20">POWRÓT</button>
                 </div>
             )
@@ -177,7 +179,7 @@ function Card({ question, onSwipe }: { question: Question, onSwipe: (dir: 'left'
             style={{ x, rotate, opacity }}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
-            onDragEnd={(e, info) => {
+            onDragEnd={(_, info) => {
                 if (info.offset.x > 100) onSwipe('right')
                 else if (info.offset.x < -100) onSwipe('left')
             }}

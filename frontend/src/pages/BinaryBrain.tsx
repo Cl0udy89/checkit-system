@@ -135,10 +135,12 @@ export default function BinaryBrain() {
     if (isError) {
         // @ts-ignore
         if (error?.response?.status === 403) {
+            // @ts-ignore
+            const isBreak = error?.response?.data?.detail === "PRZERWA_TECHNICZNA"
             return (
                 <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
-                    <h1 className="text-4xl font-bold mb-4">ZAWODY ZAKOŃCZONE</h1>
-                    <p className="mb-8 text-xl">System został zablokowany przez administratora.</p>
+                    <h1 className="text-4xl font-bold mb-4">{isBreak ? "PRZERWA TECHNICZNA" : "ZAWODY ZAKOŃCZONE"}</h1>
+                    <p className="mb-8 text-xl">{isBreak ? "System chwilowo niedostępny. Zostań na stanowisku!" : "System został zablokowany przez administratora."}</p>
                     <button onClick={() => navigate('/dashboard')} className="border border-red-500 text-red-500 px-6 py-3 hover:bg-red-900/20">POWRÓT</button>
                 </div>
             )
@@ -236,17 +238,17 @@ export default function BinaryBrain() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
                             {shuffledOptions.map((opt, idx) => (
                                 <button
-                                    key={idx}
+                                    key={`${currentQIndex}-${idx}`}
                                     onClick={() => handleAnswer(opt)}
                                     disabled={gameState !== 'playing'}
                                     className={`p-3 md:p-4 text-sm md:text-base border text-left transition-all font-mono group rounded relative overflow-hidden
-                                        ${gameState === 'feedback'
+                                            ${gameState === 'feedback'
                                             ? (opt.isCorrect
                                                 ? 'border-green-500 bg-green-500/20 text-white'
                                                 : 'border-gray-800 opacity-50')
                                             : 'border-gray-600 hover:border-primary hover:bg-primary/10 text-gray-300 hover:text-white'
                                         }
-                                    `}
+                                        `}
                                 >
                                     <span className={`font-bold mr-2 ${gameState === 'feedback' && opt.isCorrect ? 'text-green-400' : 'text-primary'}`}>[{idx + 1}]</span>
                                     {opt.text}

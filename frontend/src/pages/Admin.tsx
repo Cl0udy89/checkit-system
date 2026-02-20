@@ -9,7 +9,6 @@ import { useState } from 'react'
 const triggerSolenoid = async () => api.post('/admin/solenoid/trigger')
 const triggerLed = async (effect: string) => api.post('/admin/hardware/led', { effect })
 const fetchHardwareStatus = async () => (await api.get('/admin/hardware/status')).data
-const fetchAdminLogs = async () => (await api.get('/admin/logs')).data
 
 export default function Admin() {
     const navigate = useNavigate()
@@ -38,7 +37,7 @@ export default function Admin() {
         enabled: activeTab === 'scores'
     })
 
-    const { data: logs, refetch: refetchLogs } = useQuery({
+    const { data: logs } = useQuery({
         queryKey: ['admin_logs'],
         queryFn: async () => (await api.get('/admin/logs')).data,
         refetchInterval: 3000,
@@ -418,11 +417,15 @@ export default function Admin() {
                             <div className="text-white font-bold">ZAWODY AKTYWNE</div>
                             <div className="text-xs text-gray-400">Gdy wyłączone, gry są zablokowane dla uczestników.</div>
                         </div>
-                        <div className="flex gap-2">
-                            {config?.competition_active !== 'false' ? (
-                                <button onClick={() => configMutation.mutate({ key: 'competition_active', value: 'false' })} className="bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-500 w-full md:w-auto">ZAKOŃCZ ZAWODY</button>
-                            ) : (
-                                <button onClick={() => configMutation.mutate({ key: 'competition_active', value: 'true' })} className="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-500 w-full md:w-auto">WZNÓW ZAWODY</button>
+                        <div className="flex gap-2 w-full md:w-auto flex-wrap justify-end">
+                            {config?.competition_active !== 'true' && (
+                                <button onClick={() => configMutation.mutate({ key: 'competition_active', value: 'true' })} className="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-500 flex-1 md:flex-none">WZNÓW ZAWODY</button>
+                            )}
+                            {config?.competition_active !== 'technical_break' && (
+                                <button onClick={() => configMutation.mutate({ key: 'competition_active', value: 'technical_break' })} className="bg-yellow-600 text-white px-4 py-2 rounded font-bold hover:bg-yellow-500 flex-1 md:flex-none">PRZERWA</button>
+                            )}
+                            {config?.competition_active !== 'false' && (
+                                <button onClick={() => configMutation.mutate({ key: 'competition_active', value: 'false' })} className="bg-red-600 text-white px-4 py-2 rounded font-bold hover:bg-red-500 flex-1 md:flex-none">ZAKOŃCZ ZAWODY</button>
                             )}
                         </div>
                     </div>

@@ -47,8 +47,21 @@ async def get_queue_state(x_user_id: Optional[str] = Header(None, alias="X-User-
         position=position
     )
 
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.database import get_session
+
 @router.post("/join")
-async def join_queue(user: User = Depends(get_current_user)):
+async def join_queue(user: User = Depends(get_current_user), session: AsyncSession = Depends(get_session)):
+    from app.models import SystemConfig
+    from sqlmodel import select
+    conf_res = await session.execute(select(SystemConfig).where(SystemConfig.key == "competition_active"))
+    conf = conf_res.scalar_one_or_none()
+    if conf:
+        if conf.value == "false":
+            raise HTTPException(status_code=403, detail="ZAWODY_ZAKONCZONE")
+        elif conf.value == "technical_break":
+            raise HTTPException(status_code=403, detail="PRZERWA_TECHNICZNA")
+
     # Check if already playing
     if queue_state["current_player"] and queue_state["current_player"]["id"] == user.id:
         return {"message": "Already playing"}
