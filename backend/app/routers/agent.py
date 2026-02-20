@@ -63,3 +63,4 @@ async def sync_agent_hardware(state: HardwareState):
 
 # Global queue for LED commands from Admin
 pending_led_commands = []
+current_led_effect = "red"

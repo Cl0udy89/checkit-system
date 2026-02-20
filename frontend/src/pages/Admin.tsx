@@ -217,20 +217,21 @@ export default function Admin() {
                                 {/* By setting a background with border rounded tight, the color input fits nicer. Some browsers stylize it weirdly anyway */}
                                 <input
                                     type="color"
+                                    value={status?.led?.current_effect?.startsWith('#') ? status.led.current_effect : "#000000"}
                                     onChange={(e) => ledMutation.mutate(e.target.value)}
-                                    className="w-10 h-10 cursor-pointer bg-black border border-green-800 p-1"
+                                    className={`w-10 h-10 cursor-pointer bg-black p-1 transition-all ${status?.led?.current_effect?.startsWith('#') ? 'border-2 border-white scale-110 shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'border border-green-800'}`}
                                     title="Wybierz z palety kolorów"
                                 />
                             </div>
                         </div>
                         <p className="mb-4 text-sm text-green-400">Manual override for Neopixel Strip. Wybierz kolor obok, lub uruchom gotowy efekt poniżej.</p>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
-                            <button onClick={() => ledMutation.mutate('rainbow')} className="bg-purple-900 border border-purple-500 text-white p-2 text-sm hover:bg-purple-700 transition">RAINBOW</button>
-                            <button onClick={() => ledMutation.mutate('chase')} className="bg-blue-900 border border-blue-500 text-white p-2 text-sm hover:bg-blue-700 transition">CHASE</button>
-                            <button onClick={() => ledMutation.mutate('police')} className="bg-red-900 border border-blue-500 text-white p-2 text-sm hover:bg-red-700 transition">POLICE</button>
-                            <button onClick={() => ledMutation.mutate('green')} className="bg-green-900 border border-green-500 text-white p-2 text-sm hover:bg-green-700 transition">SOLID GREEN</button>
-                            <button onClick={() => ledMutation.mutate('red')} className="bg-red-900 border border-red-500 text-white p-2 text-sm hover:bg-red-700 transition">SOLID RED</button>
-                            <button onClick={() => ledMutation.mutate('off')} className="bg-gray-900 border border-gray-500 text-white p-2 text-sm hover:bg-gray-700 transition">TURN OFF</button>
+                            <button onClick={() => ledMutation.mutate('rainbow')} className={`bg-purple-900 text-white p-2 text-sm hover:bg-purple-700 transition ${status?.led?.current_effect === 'rainbow' ? 'border-2 border-white font-bold shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'border border-purple-500'}`}>RAINBOW</button>
+                            <button onClick={() => ledMutation.mutate('chase')} className={`bg-blue-900 text-white p-2 text-sm hover:bg-blue-700 transition ${status?.led?.current_effect === 'chase' ? 'border-2 border-white font-bold shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'border border-blue-500'}`}>CHASE</button>
+                            <button onClick={() => ledMutation.mutate('police')} className={`bg-red-900 text-white p-2 text-sm hover:bg-red-700 transition ${status?.led?.current_effect === 'police' ? 'border-2 border-white font-bold shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'border border-blue-500'}`}>POLICE</button>
+                            <button onClick={() => ledMutation.mutate('green')} className={`bg-green-900 text-white p-2 text-sm hover:bg-green-700 transition ${status?.led?.current_effect === 'green' ? 'border-2 border-white font-bold shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'border border-green-500'}`}>SOLID GREEN</button>
+                            <button onClick={() => ledMutation.mutate('red')} className={`bg-red-900 text-white p-2 text-sm hover:bg-red-700 transition ${status?.led?.current_effect === 'red' ? 'border-2 border-white font-bold shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'border border-red-500'}`}>SOLID RED</button>
+                            <button onClick={() => ledMutation.mutate('off')} className={`bg-gray-900 text-white p-2 text-sm hover:bg-gray-700 transition ${status?.led?.current_effect === 'off' ? 'border-2 border-white font-bold shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'border border-gray-500'}`}>TURN OFF</button>
                         </div>
                     </div>
                 </div>

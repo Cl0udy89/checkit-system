@@ -95,6 +95,7 @@ async def get_hardware_status():
             for p in pp_state
         ]
         
+    import app.routers.agent as agent_router
     return {
         "solenoid": {
             "is_active": solenoid_state.get("is_active", False), 
@@ -104,6 +105,9 @@ async def get_hardware_status():
         "patch_panel": {
             "solved": patch_panel.is_solved() if is_rpi_online or IS_RPI else False,
             "pairs": pp_state
+        },
+        "led": {
+            "current_effect": agent_router.current_led_effect
         }
     }
 
@@ -112,7 +116,9 @@ class LEDCommand(BaseModel):
 
 @router.post("/hardware/led")
 async def control_led(cmd: LEDCommand):
+    import app.routers.agent as agent_router
     from app.routers.agent import pending_led_commands
+    agent_router.current_led_effect = cmd.effect
     pending_led_commands.append(cmd.effect)
     return {"message": f"LED effect {cmd.effect} queued"}
 
