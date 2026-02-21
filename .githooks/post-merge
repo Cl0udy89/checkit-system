@@ -1,0 +1,5 @@
+#!/bin/sh
+# This hook runs after every `git pull` (merge)
+echo ">>> [Git Hook] Czyszczenie bazy danych po aktualizacji..."
+rm -f backend/checkit.db
+echo ">>> [Git Hook] Gotowe. Pamiętaj zrestartować backend."

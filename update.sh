@@ -7,9 +7,15 @@ set -e
 
 echo ">>> Updating CheckIT System..."
 
+# Configure Git to use custom hooks (if not already set)
+git config core.hooksPath .githooks
+
 # 1. Pull Git Changes
 echo ">>> Pulling latest code..."
 git pull
+
+echo ">>> Wiping database for a clean start..."
+rm -f backend/checkit.db
 
 # 2. Update Python Dependencies
 echo ">>> Updating Python dependencies..."
