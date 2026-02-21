@@ -45,7 +45,7 @@ export default function Leaderboard() {
     )
 
     return (
-        <div className="min-h-screen bg-background p-8 relative overflow-y-auto">
+        <div className="min-h-screen bg-transparent p-8 relative overflow-y-auto">
             <button
                 onClick={() => navigate('/dashboard')}
                 className="mb-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors"

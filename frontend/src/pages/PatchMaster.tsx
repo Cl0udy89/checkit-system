@@ -260,7 +260,7 @@ export default function PatchMaster() {
 
 
     return (
-        <div className="min-h-screen bg-background p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden">
+        <div className="min-h-screen bg-transparent p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden">
             {/* Header only for non-playing states or overall branding */}
             {!gameStartedLocal && qState?.global_status !== 'false' && (
                 <div className="absolute top-0 right-0 p-8 text-white/5 font-mono text-6xl md:text-9xl font-bold select-none pointer-events-none z-0">

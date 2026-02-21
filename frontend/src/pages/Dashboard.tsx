@@ -56,7 +56,7 @@ export default function Dashboard() {
     ]
 
     return (
-        <div className="min-h-screen p-4 md:p-8 bg-background flex flex-col relative overflow-x-hidden">
+        <div className="min-h-screen p-4 md:p-8 flex flex-col relative overflow-x-hidden bg-transparent">
             {/* Header */}
             <header className="flex justify-between items-center mb-12 z-10">
                 <div>

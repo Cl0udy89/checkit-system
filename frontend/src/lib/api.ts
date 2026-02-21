@@ -44,8 +44,12 @@ api.interceptors.response.use(
                     try {
                         const data = JSON.parse(state)
                         if (data.state?.user) {
+                            // Import store dynamically to avoid circular dependencies if any, 
+                            // or just use localStorage + reload which is safest
                             localStorage.removeItem('checkit-storage')
-                            window.location.href = '/'
+                            // Force clear
+                            sessionStorage.clear()
+                            window.location.replace('/')
                         }
                     } catch (e) { }
                 }

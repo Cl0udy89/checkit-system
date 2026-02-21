@@ -94,7 +94,7 @@ export default function ITMatch() {
             // @ts-ignore
             const isBreak = error?.response?.data?.detail === "PRZERWA_TECHNICZNA"
             return (
-                <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
+                <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
                     <h1 className="text-4xl font-bold mb-4">{isBreak ? "PRZERWA TECHNICZNA" : "ZAWODY ZAKOŃCZONE"}</h1>
                     <p className="mb-8 text-xl">{isBreak ? "System chwilowo niedostępny. Zostań na stanowisku!" : "System został zablokowany przez administratora."}</p>
                     <button onClick={() => navigate('/dashboard')} className="border border-red-500 text-red-500 px-6 py-3 hover:bg-red-900/20">POWRÓT</button>
@@ -106,7 +106,7 @@ export default function ITMatch() {
 
     if (gameOver) {
         return (
-            <div className="min-h-screen bg-black flex flex-col items-center justify-center font-mono text-white p-4">
+            <div className="min-h-screen bg-transparent flex flex-col items-center justify-center font-mono text-white p-4">
                 <h1 className="text-4xl font-bold text-primary mb-4">LICZENIE PUNKTÓW...</h1>
                 <div className="text-2xl mb-8">TWÓJ WYNIK: {score}</div>
                 <button onClick={() => navigate('/dashboard')} className="bg-primary text-black px-8 py-3 rounded font-bold hover:bg-green-400">
@@ -117,7 +117,7 @@ export default function ITMatch() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-between p-4 overflow-x-hidden relative">
+        <div className="min-h-screen bg-transparent flex flex-col items-center justify-between p-4 overflow-x-hidden relative">
             <header className="w-full max-w-lg mt-4 flex justify-between items-center z-10">
                 SCORE: {score} | PROG: {currentIndex + 1}/{questions.length}
             </header>

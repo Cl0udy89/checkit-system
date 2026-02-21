@@ -7,10 +7,13 @@ import ITMatch from './pages/ITMatch'
 import Leaderboard from './pages/Leaderboard'
 import Admin from './pages/Admin'
 
+import InteractiveBackground from './components/InteractiveBackground'
+
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-background text-white selection:bg-primary selection:text-black">
+      <div className="min-h-screen text-white selection:bg-primary selection:text-black">
+        <InteractiveBackground />
         <Routes>
           <Route path="/" element={<Welcome />} />
           <Route path="/dashboard" element={<Dashboard />} />

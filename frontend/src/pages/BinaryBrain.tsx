@@ -150,7 +150,7 @@ export default function BinaryBrain() {
             const detail = activeError?.response?.data?.detail
             if (detail === "ALREADY_PLAYED") {
                 return (
-                    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
+                    <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
                         <h1 className="text-4xl font-bold mb-4">GRA ZAKOŃCZONA</h1>
                         <p className="mb-8 text-xl">Masz już zapisany wynik dla tej gry. Dozwolona jest tylko jedna gra w każdej kategorii!</p>
                         <button onClick={() => navigate('/dashboard')} className="border border-red-500 text-red-500 px-6 py-3 hover:bg-red-900/20">POWRÓT</button>
@@ -159,7 +159,7 @@ export default function BinaryBrain() {
             }
             const isBreak = detail === "PRZERWA_TECHNICZNA"
             return (
-                <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
+                <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
                     <h1 className="text-4xl font-bold mb-4">{isBreak ? "PRZERWA TECHNICZNA" : "ZAWODY ZAKOŃCZONE"}</h1>
                     <p className="mb-8 text-xl">{isBreak ? "System chwilowo niedostępny. Zostań na stanowisku!" : "System został zablokowany przez administratora."}</p>
                     <button onClick={() => navigate('/dashboard')} className="border border-red-500 text-red-500 px-6 py-3 hover:bg-red-900/20">POWRÓT</button>
@@ -177,7 +177,7 @@ export default function BinaryBrain() {
     // GAME OVER SCREEN
     if (gameState === 'finished' && finalResult) {
         return (
-            <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8 text-center">
+            <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-8 text-center">
                 <h1 className="text-5xl font-mono font-bold text-primary mb-8 glow-text">SYSTEM UPDATE COMPLETE</h1>
 
                 <div className="mb-12">
@@ -204,7 +204,7 @@ export default function BinaryBrain() {
     }
 
     return (
-        <div className="min-h-screen bg-background flex flex-col p-2 md:p-6 relative overflow-x-hidden">
+        <div className="min-h-screen bg-transparent flex flex-col p-2 md:p-6 relative overflow-x-hidden">
             {/* HUD */}
             <div className="flex flex-col md:flex-row justify-between items-center mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2">
                 <h1 className="text-xl md:text-2xl font-mono text-primary flex items-center gap-2">
