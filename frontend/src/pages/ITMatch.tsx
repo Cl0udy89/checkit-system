@@ -167,9 +167,9 @@ export default function ITMatch() {
                     <X size={32} color="white" />
                 </button>
                 <div className="flex items-center text-gray-500 text-xs font-mono uppercase tracking-widest">
-                    <span className="mr-2">Danger</span>
+                    <span className="mr-2">Zagrożenie</span>
                     <Info size={16} />
-                    <span className="ml-2">Safe</span>
+                    <span className="ml-2">Bezpiecznie</span>
                 </div>
                 <button
                     onClick={() => document.dispatchEvent(new CustomEvent('manual-swipe', { detail: 'right' }))}
@@ -212,22 +212,20 @@ function Card({ question, onSwipe }: { question: Question, onSwipe: (dir: 'left'
         >
             <motion.div className="absolute inset-0 rounded-2xl pointer-events-none z-0" style={{ backgroundColor: bg }} />
 
-            <div className="w-full h-48 bg-gray-800 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative z-10">
+            <div className="w-full aspect-square md:aspect-[4/5] bg-gray-800 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative z-10">
                 {question.image && question.image !== 'none' ? (
                     // Image fetched from backend
                     <img src={`${BACKEND_URL}/content/it_match/images/${question.image}`} alt="Quiz" className="object-cover w-full h-full" onError={(e) => e.currentTarget.style.display = 'none'} />
                 ) : (
-                    <span className="text-gray-600 font-mono">NO IMAGE</span>
+                    <span className="text-gray-600 font-mono">BRAK ZDJĘCIA</span>
                 )}
-                {/* Safe fallback text if image fails or is missing */}
-                <span className="absolute text-gray-700 font-mono text-xs bottom-2 right-2">{question.image}</span>
             </div>
 
             <h3 className="text-xl md:text-2xl font-bold text-white mb-4 z-10">{question.question}</h3>
 
             <div className="mt-auto text-gray-400 text-sm font-mono z-10">
-                Swipe RIGHT if SAFE<br />
-                Swipe LEFT if DANGER
+                Przesuń w PRAWO jeśli BEZPIECZNE<br />
+                Przesuń w LEWO jeśli ZAGROŻENIE
             </div>
         </motion.div>
     )
