@@ -75,7 +75,7 @@ export default function BinaryBrain() {
 
     // Save progress continuously
     useEffect(() => {
-        if (hasLoaded && user && questions && gameState !== 'finished') {
+        if (hasLoaded && user && questions && gameState === 'playing') {
             const stateToSave = { currentQIndex, totalScore, answers, questionStartTime }
             localStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify(stateToSave))
         }
