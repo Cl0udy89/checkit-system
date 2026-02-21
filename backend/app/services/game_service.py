@@ -133,7 +133,7 @@ class GameService:
         return base_score - time_penalty
 
     async def _calculate_it_match(self, answers: dict, duration_ms: int):
-        final_score = 0
+        correct_count = 0
         for q_id, ans in answers.items():
             correct = content_service.get_correct_answer("it_match", q_id)
             
@@ -147,10 +147,14 @@ class GameService:
             if corr_ans == 'false': corr_ans = '0'
             
             if correct is not None and user_ans == corr_ans:
-                final_score += 100
-            else:
-                final_score -= 50
+                correct_count += 1
         
-        return max(0, final_score)
+        accuracy = correct_count / max(1, len(answers))
+        
+        base_score = len(answers) * 1000
+        time_penalty = duration_ms * settings.game.decay_rate_per_ms
+        
+        score_potential = max(0, base_score - time_penalty)
+        return score_potential * accuracy
 
 game_service = GameService()

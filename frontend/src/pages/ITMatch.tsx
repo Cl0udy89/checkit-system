@@ -24,6 +24,11 @@ export default function ITMatch() {
     const [answers, setAnswers] = useState<Record<string, any>>({})
     const [floatingPoints, setFloatingPoints] = useState<{ id: number, val: number, label: string }[]>([])
 
+    const DECAY_PER_MS = 0.05 // 50 points per second
+    const MAX_Q_POINTS = 1000
+    const [questionStartTime, setQuestionStartTime] = useState(Date.now())
+    const [currentPotentialScore, setCurrentPotentialScore] = useState(MAX_Q_POINTS)
+
     const showPoints = (val: number, label: string) => {
         const id = Date.now() + Math.random()
         setFloatingPoints(prev => [...prev, { id, val, label }])
@@ -57,6 +62,7 @@ export default function ITMatch() {
                         setCurrentIndex(parsed.currentIndex || 0)
                         setScore(parsed.score || 0)
                         setAnswers(parsed.answers || {})
+                        setQuestionStartTime(Date.now())
                     } catch (e) {
                         console.error('Failed to parse saved progress', e)
                     }
@@ -73,6 +79,18 @@ export default function ITMatch() {
         }
     }, [currentIndex, score, answers, user, questions, gameOver])
 
+    // Timer Effect (Per Question)
+    useEffect(() => {
+        if (gameOver || questions.length === 0) return
+
+        const interval = setInterval(() => {
+            const elapsed = Date.now() - questionStartTime
+            const scoreVal = Math.max(0, MAX_Q_POINTS - (elapsed * DECAY_PER_MS))
+            setCurrentPotentialScore(Math.floor(scoreVal))
+        }, 50)
+        return () => clearInterval(interval)
+    }, [questionStartTime, gameOver, questions])
+
     const handleSwipe = (direction: 'left' | 'right') => {
         const currentQ = questions[currentIndex]
         // logic: right = accept/safe (is_correct=true), left = reject/danger (is_correct=false)
@@ -80,12 +98,14 @@ export default function ITMatch() {
         const userChoiceSafe = direction === 'right'
 
         if (userChoiceSafe === isSafe) {
-            setScore(prev => prev + 100)
-            showPoints(100, "POPRAWNIE")
+            setScore(prev => prev + currentPotentialScore)
+            showPoints(currentPotentialScore, "POPRAWNIE")
         } else {
-            setScore(prev => Math.max(0, prev - 50)) // Penalty
-            showPoints(-50, "BŁĄD")
+            showPoints(0, "BŁĄD")
         }
+
+        setQuestionStartTime(Date.now())
+        setCurrentPotentialScore(MAX_Q_POINTS)
 
         // Record answer: '1' (Safe/Right) or '0' (Danger/Left)
         // Backend expects comparison with is_correct (bool/1/0)
@@ -155,8 +175,9 @@ export default function ITMatch() {
     return (
         <div className="min-h-screen bg-transparent flex flex-col items-center justify-between p-4 overflow-x-hidden relative">
             <header className="w-full max-w-lg mt-4 flex justify-between items-center z-10 font-mono text-white text-lg md:text-xl">
-                <div className="relative font-bold flex flex-col items-start">
+                <div className="relative font-bold flex flex-col items-start gap-1">
                     <div>WYNIK: <span className="text-accent">{score}</span></div>
+                    <div className="text-sm text-gray-400">PULA: <span className="text-white">{currentPotentialScore.toString().padStart(4, '0')}</span></div>
                     <AnimatePresence>
                         {floatingPoints.map(fp => (
                             <motion.div
