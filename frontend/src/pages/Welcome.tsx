@@ -91,7 +91,7 @@ export default function Welcome() {
                                         if (val.length <= 20) setNick(val)
                                     }}
                                     className="w-full bg-black/50 border border-gray-700 text-white pl-10 pr-4 py-3 rounded focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-mono"
-                                    placeholder="WPISZ NICK (max 20 znaków)"
+                                    placeholder="WPISZ NICK"
                                 />
                             </div>
                         </div>

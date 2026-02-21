@@ -97,8 +97,10 @@ export default function ITMatch() {
         const isSafe = currentQ.is_correct
         const userChoiceSafe = direction === 'right'
 
+        let pointsEarned = 0
         if (userChoiceSafe === isSafe) {
-            setScore(prev => prev + currentPotentialScore)
+            pointsEarned = currentPotentialScore
+            setScore(prev => prev + pointsEarned)
             showPoints(currentPotentialScore, "POPRAWNIE")
         } else {
             showPoints(0, "BŁĄD")
@@ -120,11 +122,11 @@ export default function ITMatch() {
         if (currentIndex < questions.length - 1) {
             setCurrentIndex(prev => prev + 1)
         } else {
-            finishGame()
+            finishGame(score + pointsEarned)
         }
     }
 
-    const finishGame = async () => {
+    const finishGame = async (finalScore: number) => {
         setGameOver(true)
         if (user) {
             localStorage.removeItem(`it_match_state_${user.id}`)
@@ -136,8 +138,9 @@ export default function ITMatch() {
             submitMutation.mutate({
                 user_id: user.id,
                 game_type: 'it_match',
-                answers: answers, // Backend will recalculate score based on this
-                duration_ms: duration
+                answers: answers,
+                duration_ms: duration,
+                score: finalScore
             })
         }
     }
