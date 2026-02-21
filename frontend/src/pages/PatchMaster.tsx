@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchPatchPanelState, submitGameScore, fetchPMQueue, joinPMQueue, leavePMQueue, startPMQueue, triggerTimeoutFlash } from '../lib/api'
 import { useGameStore } from '../hooks/useGameStore'
-import { Zap, Users, ShieldAlert, PlayCircle } from 'lucide-react'
+import { Zap, Users, ShieldAlert, PlayCircle, X } from 'lucide-react'
 import clsx from 'clsx'
 
 export default function PatchMaster() {
@@ -64,6 +64,16 @@ export default function PatchMaster() {
             navigate('/dashboard')
         }
     })
+
+    // Auto-leave queue on unmount
+    useEffect(() => {
+        return () => {
+            if (user && !gameStartedLocal && !isFinished) {
+                // Fire and forget upon leaving the page
+                leavePMQueue().catch(() => { })
+            }
+        }
+    }, [user, gameStartedLocal, isFinished])
 
     // Timer
     useEffect(() => {
@@ -273,9 +283,26 @@ export default function PatchMaster() {
         )
     }
 
+    const handleExit = () => {
+        if (isQueued || isMyTurn) {
+            if (window.confirm("UWAGA!\nWyjście z tej strony automatycznie usunie Cię z kolejki graczy!\nCzy na pewno chcesz wrócić do Dashboardu?")) {
+                leaveMutation.mutate()
+                navigate('/dashboard')
+            }
+        } else {
+            navigate('/dashboard')
+        }
+    }
 
     return (
-        <div className="min-h-screen bg-transparent p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden">
+        <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden touch-none overflow-hidden">
+            <button
+                onClick={handleExit}
+                className="absolute top-4 left-4 z-50 bg-red-900/60 hover:bg-red-900 text-white font-mono px-4 py-2 rounded-lg border border-red-500/50 transition-all flex items-center gap-2 shadow-lg backdrop-blur-md"
+            >
+                <X size={20} /> WYJDŹ
+            </button>
+
             {(gameStartedLocal || isPlaying) ? renderGameUI() : renderQueueUI()}
         </div>
     )

@@ -173,7 +173,7 @@ export default function ITMatch() {
     }
 
     return (
-        <div className="min-h-screen bg-transparent flex flex-col items-center justify-between p-4 overflow-x-hidden relative">
+        <div className="min-h-[100dvh] bg-transparent flex flex-col items-center justify-between p-4 relative touch-none overflow-hidden">
             <header className="w-full max-w-lg mt-2 md:mt-4 flex flex-row justify-between items-start z-10 font-mono text-white px-2">
                 <div className="relative font-bold flex flex-col items-start gap-1">
                     <div className="text-xl md:text-3xl text-gray-300">
@@ -202,7 +202,7 @@ export default function ITMatch() {
                 </div>
             </header>
 
-            <div className="w-full max-w-md h-[70vh] relative flex items-center justify-center mt-10">
+            <div className="flex-1 w-full max-w-md relative flex items-center justify-center my-4 min-h-[50dvh]">
                 <AnimatePresence>
                     {questions.length > 0 && currentIndex < questions.length && (
                         <Card

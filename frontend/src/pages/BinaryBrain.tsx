@@ -186,7 +186,7 @@ export default function BinaryBrain() {
     // GAME OVER SCREEN
     if (gameState === 'finished' && finalResult) {
         return (
-            <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-8 text-center">
+            <div className="min-h-[100dvh] bg-transparent p-8 flex flex-col justify-center items-center relative touch-none overflow-hidden">
                 <h1 className="text-5xl font-mono font-bold text-primary mb-8 glow-text">AKTUALIZACJA SYSTEMU ZAKOŃCZONA</h1>
 
                 <div className="mb-12">
@@ -213,7 +213,7 @@ export default function BinaryBrain() {
     }
 
     return (
-        <div className="min-h-screen bg-transparent flex flex-col p-2 md:p-6 relative overflow-x-hidden">
+        <div className="min-h-[100dvh] bg-transparent flex flex-col p-2 md:p-6 relative touch-none overflow-hidden">
             {/* HUD */}
             <div className="flex flex-col md:flex-row justify-between items-center mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2">
                 <h1 className="text-xl md:text-2xl font-mono text-primary flex items-center gap-2">
