@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { fetchITMatchQuestions, submitGameScore } from '../lib/api'
+import { fetchITMatchQuestions, submitGameScore, BACKEND_URL } from '../lib/api'
 import { useNavigate } from 'react-router-dom'
 import { Check, X, Info } from 'lucide-react'
 import { useGameStore } from '../hooks/useGameStore'
@@ -22,6 +22,13 @@ export default function ITMatch() {
     const [gameOver, setGameOver] = useState(false)
     const [startTime] = useState(Date.now())
     const [answers, setAnswers] = useState<Record<string, any>>({})
+    const [floatingPoints, setFloatingPoints] = useState<{ id: number, val: number }[]>([])
+
+    const showPoints = (val: number) => {
+        const id = Date.now() + Math.random()
+        setFloatingPoints(prev => [...prev, { id, val }])
+        setTimeout(() => setFloatingPoints(prev => prev.filter(p => p.id !== id)), 1000)
+    }
 
     const submitMutation = useMutation({
         mutationFn: submitGameScore,
@@ -50,8 +57,10 @@ export default function ITMatch() {
 
         if (userChoiceSafe === isSafe) {
             setScore(prev => prev + 100)
+            showPoints(100)
         } else {
             setScore(prev => Math.max(0, prev - 50)) // Penalty
+            showPoints(-50)
         }
 
         // Record answer: '1' (Safe/Right) or '0' (Danger/Left)
@@ -118,8 +127,24 @@ export default function ITMatch() {
 
     return (
         <div className="min-h-screen bg-transparent flex flex-col items-center justify-between p-4 overflow-x-hidden relative">
-            <header className="w-full max-w-lg mt-4 flex justify-between items-center z-10">
-                SCORE: {score} | PROG: {currentIndex + 1}/{questions.length}
+            <header className="w-full max-w-lg mt-4 flex justify-between items-center z-10 font-mono text-white text-lg md:text-xl">
+                <div className="relative font-bold">
+                    SCORE: <span className="text-accent">{score}</span>
+                    <AnimatePresence>
+                        {floatingPoints.map(fp => (
+                            <motion.div
+                                key={fp.id}
+                                initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                                animate={{ opacity: 1, y: -40, scale: 1.5 }}
+                                exit={{ opacity: 0 }}
+                                className={`absolute left-1/2 -top-4 transform -translate-x-1/2 font-bold z-50 pointer-events-none drop-shadow-md text-2xl ${fp.val > 0 ? 'text-green-400' : 'text-red-500'}`}
+                            >
+                                {fp.val > 0 ? `+${fp.val}` : fp.val}
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </div>
+                <div className="text-gray-400">PROG: {currentIndex + 1}/{questions.length}</div>
             </header>
 
             <div className="w-full max-w-md h-[70vh] relative flex items-center justify-center mt-10">
@@ -189,8 +214,8 @@ function Card({ question, onSwipe }: { question: Question, onSwipe: (dir: 'left'
 
             <div className="w-full h-48 bg-gray-800 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative z-10">
                 {question.image && question.image !== 'none' ? (
-                    // Placeholder image logic - in real app, fetch from assets
-                    <img src={`/assets/it_match/${question.image}`} alt="Quiz" className="object-cover w-full h-full" onError={(e) => e.currentTarget.style.display = 'none'} />
+                    // Image fetched from backend
+                    <img src={`${BACKEND_URL}/content/it_match/images/${question.image}`} alt="Quiz" className="object-cover w-full h-full" onError={(e) => e.currentTarget.style.display = 'none'} />
                 ) : (
                     <span className="text-gray-600 font-mono">NO IMAGE</span>
                 )}
