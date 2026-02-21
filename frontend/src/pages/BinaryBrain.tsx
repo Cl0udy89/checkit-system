@@ -150,7 +150,7 @@ export default function BinaryBrain() {
             const detail = activeError?.response?.data?.detail
             if (detail === "ALREADY_PLAYED") {
                 return (
-                    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
+                    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
                         <h1 className="text-4xl font-bold mb-4">GRA ZAKOŃCZONA</h1>
                         <p className="mb-8 text-xl">Masz już zapisany wynik dla tej gry. Dozwolona jest tylko jedna gra w każdej kategorii!</p>
                         <button onClick={() => navigate('/dashboard')} className="border border-red-500 text-red-500 px-6 py-3 hover:bg-red-900/20">POWRÓT</button>
@@ -159,14 +159,14 @@ export default function BinaryBrain() {
             }
             const isBreak = detail === "PRZERWA_TECHNICZNA"
             return (
-                <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
+                <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
                     <h1 className="text-4xl font-bold mb-4">{isBreak ? "PRZERWA TECHNICZNA" : "ZAWODY ZAKOŃCZONE"}</h1>
                     <p className="mb-8 text-xl">{isBreak ? "System chwilowo niedostępny. Zostań na stanowisku!" : "System został zablokowany przez administratora."}</p>
                     <button onClick={() => navigate('/dashboard')} className="border border-red-500 text-red-500 px-6 py-3 hover:bg-red-900/20">POWRÓT</button>
                 </div>
             )
         }
-        return <div className="p-10 text-center text-red-500">SYSTEM_ERROR: {(error as any).message}</div>
+        return <div className="p-10 text-center text-red-500">SYSTEM_ERROR: {(activeError as any)?.message || "Unknown error"}</div>
     }
 
     if (!questions || questions.length === 0) return <div className="p-10 text-center text-red-500">NO_DATA_FOUND</div>
@@ -177,7 +177,7 @@ export default function BinaryBrain() {
     // GAME OVER SCREEN
     if (gameState === 'finished' && finalResult) {
         return (
-            <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 text-center">
+            <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8 text-center">
                 <h1 className="text-5xl font-mono font-bold text-primary mb-8 glow-text">SYSTEM UPDATE COMPLETE</h1>
 
                 <div className="mb-12">
