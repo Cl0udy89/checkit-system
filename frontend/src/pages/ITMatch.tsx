@@ -22,12 +22,12 @@ export default function ITMatch() {
     const [gameOver, setGameOver] = useState(false)
     const [startTime] = useState(Date.now())
     const [answers, setAnswers] = useState<Record<string, any>>({})
-    const [floatingPoints, setFloatingPoints] = useState<{ id: number, val: number }[]>([])
+    const [floatingPoints, setFloatingPoints] = useState<{ id: number, val: number, label: string }[]>([])
 
-    const showPoints = (val: number) => {
+    const showPoints = (val: number, label: string) => {
         const id = Date.now() + Math.random()
-        setFloatingPoints(prev => [...prev, { id, val }])
-        setTimeout(() => setFloatingPoints(prev => prev.filter(p => p.id !== id)), 1000)
+        setFloatingPoints(prev => [...prev, { id, val, label }])
+        setTimeout(() => setFloatingPoints(prev => prev.filter(p => p.id !== id)), 1200)
     }
 
     const submitMutation = useMutation({
@@ -46,8 +46,32 @@ export default function ITMatch() {
     })
 
     useEffect(() => {
-        if (data) setQuestions(data)
-    }, [data])
+        if (data) {
+            setQuestions(data)
+            // Load saved progress if available
+            if (user) {
+                const savedProgress = localStorage.getItem(`it_match_state_${user.id}`)
+                if (savedProgress) {
+                    try {
+                        const parsed = JSON.parse(savedProgress)
+                        setCurrentIndex(parsed.currentIndex || 0)
+                        setScore(parsed.score || 0)
+                        setAnswers(parsed.answers || {})
+                    } catch (e) {
+                        console.error('Failed to parse saved progress', e)
+                    }
+                }
+            }
+        }
+    }, [data, user])
+
+    // Save progress continuously
+    useEffect(() => {
+        if (user && questions.length > 0 && !gameOver) {
+            const stateToSave = { currentIndex, score, answers }
+            localStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))
+        }
+    }, [currentIndex, score, answers, user, questions, gameOver])
 
     const handleSwipe = (direction: 'left' | 'right') => {
         const currentQ = questions[currentIndex]
@@ -57,10 +81,10 @@ export default function ITMatch() {
 
         if (userChoiceSafe === isSafe) {
             setScore(prev => prev + 100)
-            showPoints(100)
+            showPoints(100, "POPRAWNIE")
         } else {
             setScore(prev => Math.max(0, prev - 50)) // Penalty
-            showPoints(-50)
+            showPoints(-50, "BŁĄD")
         }
 
         // Record answer: '1' (Safe/Right) or '0' (Danger/Left)
@@ -82,6 +106,9 @@ export default function ITMatch() {
 
     const finishGame = async () => {
         setGameOver(true)
+        if (user) {
+            localStorage.removeItem(`it_match_state_${user.id}`)
+        }
         const endTime = Date.now()
         const duration = endTime - startTime
 
@@ -128,23 +155,23 @@ export default function ITMatch() {
     return (
         <div className="min-h-screen bg-transparent flex flex-col items-center justify-between p-4 overflow-x-hidden relative">
             <header className="w-full max-w-lg mt-4 flex justify-between items-center z-10 font-mono text-white text-lg md:text-xl">
-                <div className="relative font-bold">
-                    SCORE: <span className="text-accent">{score}</span>
+                <div className="relative font-bold flex flex-col items-start">
+                    <div>WYNIK: <span className="text-accent">{score}</span></div>
                     <AnimatePresence>
                         {floatingPoints.map(fp => (
                             <motion.div
                                 key={fp.id}
-                                initial={{ opacity: 0, y: 0, scale: 0.5 }}
-                                animate={{ opacity: 1, y: -40, scale: 1.5 }}
+                                initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                                animate={{ opacity: 1, y: 30, scale: 1.1 }}
                                 exit={{ opacity: 0 }}
-                                className={`absolute left-1/2 -top-4 transform -translate-x-1/2 font-bold z-50 pointer-events-none drop-shadow-md text-2xl ${fp.val > 0 ? 'text-green-400' : 'text-red-500'}`}
+                                className={`absolute left-0 top-full mt-2 font-bold z-50 pointer-events-none drop-shadow-md text-xl md:text-2xl whitespace-nowrap ${fp.val > 0 ? 'text-green-400' : 'text-red-500'}`}
                             >
-                                {fp.val > 0 ? `+${fp.val}` : fp.val}
+                                {fp.val > 0 ? `+${fp.val}` : fp.val} <span className="text-sm opacity-80">({fp.label})</span>
                             </motion.div>
                         ))}
                     </AnimatePresence>
                 </div>
-                <div className="text-gray-400">PROG: {currentIndex + 1}/{questions.length}</div>
+                <div className="text-gray-400">PROG: {currentIndex}/{questions.length}</div>
             </header>
 
             <div className="w-full max-w-md h-[70vh] relative flex items-center justify-center mt-10">
