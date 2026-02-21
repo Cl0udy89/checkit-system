@@ -178,14 +178,14 @@ export default function BinaryBrain() {
     if (gameState === 'finished' && finalResult) {
         return (
             <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-8 text-center">
-                <h1 className="text-5xl font-mono font-bold text-primary mb-8 glow-text">SYSTEM UPDATE COMPLETE</h1>
+                <h1 className="text-5xl font-mono font-bold text-primary mb-8 glow-text">AKTUALIZACJA SYSTEMU ZAKOŃCZONA</h1>
 
                 <div className="mb-12">
-                    <div className="text-gray-400 text-xl font-mono mb-2">FINAL SCORE</div>
+                    <div className="text-gray-400 text-xl font-mono mb-2">WYNIK KOŃCOWY</div>
                     <div className="text-7xl font-bold text-white mb-8">{finalResult.score}</div>
 
                     <div className={`text-3xl font-bold p-4 border-2 rounded-xl ${finalResult.boxOpened ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-red-500 text-red-400 bg-red-500/10'}`}>
-                        {finalResult.boxOpened ? "ACCESS GRANTED - BOX OPENING..." : "ACCESS DENIED - SCORE TOO LOW"}
+                        {finalResult.boxOpened ? "DOSTĘP PRZYZNANY - OTWIERANIE SKRYTKI..." : "BRAK DOSTĘPU - ZBYT MAŁO PUNKTÓW"}
                     </div>
                     {!finalResult.boxOpened && <div className="text-gray-500 mt-2 font-mono text-sm">Target: 5000 pts</div>}
                 </div>
@@ -195,7 +195,7 @@ export default function BinaryBrain() {
                         onClick={() => navigate('/dashboard')}
                         className="bg-gray-800 hover:bg-gray-700 text-white px-8 py-4 rounded-lg font-bold font-mono text-xl transition-colors"
                     >
-                        RETURN TO DASHBOARD
+                        POWRÓT DO BAZY
                     </button>
                     {!user && <div className="text-red-500 mt-4">Warning: User not logged in. Score not saved.</div>}
                 </div>
