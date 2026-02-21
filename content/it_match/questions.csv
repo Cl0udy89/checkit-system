@@ -1,51 +1,41 @@
 id,question,image,is_correct
-1,"Twoje hasło to: 'M4k0w13c!2024'. Czy jest bezpieczne?","password_strong.jpg",1
-2,"Dostałeś maila od 'PayPaI' z prośbą o hasło. Klikasz?","phishing_email.jpg",0
-3,"Znalazłeś pendrive na parkingu. Podłączasz go do służbowego PC?","usb_found.jpg",0
-4,"Masz włączone uwierzytelnianie dwuskładnikowe (2FA).","2fa_enable.jpg",1
-5,"Logujesz się do banku przez otwarte Wi-Fi w kawiarni.","public_wifi.jpg",0
-6,"System antywirusowy zaktualizował się dzisiaj rano.","antivirus.jpg",1
-7,"Strona banku ma kłódkę i zaczyna się od https://.","https_lock.jpg",1
-8,"Kolega prosi o Twoje hasło 'tylko na chwilę'. Podajesz?","share_pass.jpg",0
-9,"Odchodzisz od biurka i blokujesz ekran (Win+L).","screen_lock.jpg",1
-10,"Instalujesz 'Darmowy Minecraft' z nieznanego forum.","malware_download.jpg",0
-11,"Używasz tego samego hasła do wszystkich kont.","password_reuse.jpg",0
-12,"Klikasz w link z SMS: 'Masz nieopłaconą fakturę'.","sms_phishing.jpg",0
-13,"Zasłaniasz kamerkę w laptopie.","webcam_cover.jpg",1
-14,"Robisz backup danych na dysk zewnętrzny.","backup.jpg",1
-15,"Podajesz PIN do karty przez telefon.","pin_phone.jpg",0
-16,"Używasz menedżera haseł.","password_manager.jpg",1
-17,"Aktualizujesz system operacyjny regularnie.","update.jpg",1
-18,"Pobierasz załącznik 'faktura.exe' od nieznajomego.","exe_attachment.jpg",0
-19,"Ustawiasz hasło '123456' bo łatwo zapamiętać.","easy_pass.jpg",0
-20,"Wylogowujesz się z publicznego komputera.","logout.jpg",1
-21,"Skanujesz pendrive przed otwarciem plików.","scan_usb.jpg",1
-22,"Wpisujesz dane karty na stronie bez kłódki.","no_https.jpg",0
-23,"Ignorujesz ostrzeżenie przeglądarki o niebezpiecznej stronie.","ignore_warn.jpg",0
-24,"Używasz trybu incognito do logowania w banku (to nie chroni!).","incognito.jpg",0
-25,"Sprawdzasz adres nadawcy maila przed kliknięciem.","check_sender.jpg",1
-26,"Akceptujesz zaproszenie do znajomych od nieznajomego bota.","fake_friend.jpg",0
-27,"Szyfrujesz swój dysk twardy (BitLocker).","encrypt.jpg",1
-28,"Zostawiasz laptopa w samochodzie na widoku.","laptop_car.jpg",0
-29,"Używasz nakładki prywatyzującej na ekran w pociągu.","privacy_screen.jpg",1
-30,"Wyłączasz firewall, bo blokuje grę.","disable_firewall.jpg",0
-31,"Wrzucasz zdjęcie karty kredytowej na Facebooka.","credit_card_fb.jpg",0
-32,"Używasz legalnego oprogramowania.","legal_soft.jpg",1
-33,"Reagujesz na alerty antywirusa.","av_alert.jpg",1
-34,"Podłączasz telefon do nieznanej ładowarki USB w galerii.","juice_jacking.jpg",0
-35,"Czytasz regulamin przed kliknięciem 'Akceptuję'.","tos.jpg",1
-36,"Używasz biometrii (odcisk palca) zamiast PINu.","biometry.jpg",1
-37,"Zapisujesz hasła w pliku 'hasla.txt' na pulpicie.","txt_pass.jpg",0
-38,"Wierzysz, że wygrałeś iPhone w losowaniu w internecie.","fake_win.jpg",0
-39,"Usuwasz stare konta, których nie używasz.","delete_account.jpg",1
-40,"Sprawdzasz uprawnienia aplikacji w telefonie.","app_perms.jpg",1
-41,"Klikasz 'Wypisz się' w spamie (to potwierdza Twój mail!).","unsubscribe_spam.jpg",0
-42,"Korzystasz z VPN w publicznych sieciach.","vpn_use.jpg",1
-43,"Zaklejasz mikrofon w telefonie.","mic_cover.jpg",1
-44,"Podajesz PESEL w ankiecie telefonicznej.","pesel_phone.jpg",0
-45,"Wyrzucasz dokumenty z danymi do kosza bez niszczenia.","trash_data.jpg",0
-46,"Używasz różnych haseł do banku i Facebooka.","diff_pass.jpg",1
-47,"Blokujesz reklamy w przeglądarce.","adblock.jpg",1
-48,"Otwierasz linki skrócone (bit.ly) bez sprawdzania.","short_link.jpg",0
-49,"Dajesz dziecku telefon bez kontroli rodzicielskiej.","kids_phone.jpg",0
-50,"Zgłaszasz podejrzane maile do działu IT.","report_phishing.jpg",1
+1,"Otrzymujesz maila od prezesa z prośbą o pilny przelew na nowe konto w piątek o 16:00.","pyt_1.webp",0
+2,"Używasz menedżera haseł do generowania i przechowywania unikalnych ciągów dla każdego serwisu.","pyt_2.webp",1
+3,"Link do logowania do twojego banku wygląda tak: www.twoj-bank.bezpieczenstwo-logowanie.xyz.","pyt_3.webp",0
+4,"Włączasz uwierzytelnianie dwuskładnikowe na wszystkich ważnych kontach.","pyt_4.webp",1
+5,"Podajesz swój numer PESEL na stronie z darmowymi grami na telefon.","pyt_5.webp",0
+6,"Aktualizujesz system operacyjny natychmiast po pojawieniu się krytycznej łatki bezpieczeństwa.","pyt_6.webp",1
+7,"Znajdujesz na parkingu pendrive z napisem ""Poufne Wynagrodzenia"" i od razu wpinasz go do firmowego laptopa.","pyt_7.webp",0
+8,"Zawsze sprawdzasz czy strona ma certyfikat SSL przed podaniem danych karty płatniczej.","pyt_8.webp",1
+9,"Otwierasz załącznik o nazwie ""faktura_VAT.exe"" od całkowicie nieznanego nadawcy.","pyt_9.webp",0
+10,"Twoje hasło do głównego serwera firmowego to ""Admin12345"".","pyt_10.webp",0
+11,"Próbujesz wcisnąć kabel HDMI do portu DisplayPort przy użyciu ogromnej siły.","pyt_11.webp",0
+12,"Przed czyszczeniem wnętrza komputera stacjonarnego odłączasz go całkowicie od zasilania.","pyt_12.webp",1
+13,"Zostawiasz włączonego laptopa na miękkiej kołdrze, zasłaniając wszystkie otwory wentylacyjne.","pyt_13.webp",0
+14,"Zabezpieczasz kable sieciowe w serwerowni opaskami na rzepy, aby uniknąć totalnej plątaniny.","pyt_14.webp",1
+15,"Podłączasz 10 urządzeń o bardzo dużej mocy do jednego starego i cienkiego przedłużacza.","pyt_15.webp",0
+16,"Regularnie wydmuchujesz kurz z radiatorów i wentylatorów przy użyciu sprężonego powietrza.","pyt_16.webp",1
+17,"Dysk twardy HDD wydaje głośne, mechaniczne dźwięki klikania podczas normalnej pracy.","pyt_17.webp",0
+18,"Używasz zasilacza UPS, aby chronić cenny sprzęt przed nagłymi przerwami w dostawie prądu.","pyt_18.webp",1
+19,"Wtyczka kabla sieciowego RJ45 ma wyłamany plastikowy klips, ale trzyma się na słowo honoru.","pyt_19.webp",0
+20,"Zakładasz opaskę antystatyczną podczas wymiany kości pamięci RAM w nowej płycie głównej.","pyt_20.webp",1
+21,"Pushujesz nowy, niesprawdzony kod prosto na produkcję w piątek o godzinie 16:55.","pyt_21.webp",0
+22,"Robisz regularne commity z jasnymi i zrozumiałymi opisami w systemie kontroli wersji.","pyt_22.webp",1
+23,"Nazywasz kluczowe zmienne literami ""a"", ""b"", ""c"" i ""x1"" w całym wielkim projekcie korporacyjnym.","pyt_23.webp",0
+24,"Korzystasz z Dockera, aby zapewnić w pełni spójne środowisko developerskie dla całego zespołu.","pyt_24.webp",1
+25,"Przechowujesz hasła do bazy danych w jawnym tekście w publicznym repozytorium na GitHubie.","pyt_25.webp",0
+26,"Dodajesz obszerne i czytelne komentarze do najbardziej skomplikowanych fragmentów logiki biznesowej.","pyt_26.webp",1
+27,"Zapominasz o dodaniu średnika na końcu instrukcji w języku C++ co psuje całą kompilację.","pyt_27.webp",0
+28,"Używasz ciemnego motywu w swoim edytorze kodu podczas nocnego maratonu programowania.","pyt_28.webp",1
+29,"Twój kod w Pythonie miesza spacje i tabulatory w jednym pliku, co powoduje sypanie błędami.","pyt_29.webp",0
+30,"Piszesz jednostkowe testy automatyczne przed oddaniem ważnej funkcjonalności do sprawdzenia.","pyt_30.webp",1
+31,"Firmowa szafa rackowa wygląda jak gigantyczna miska splątanego, kolorowego makaronu spaghetti.","pyt_31.webp",0
+32,"Masz na biurku żółtą, gumową kaczuszkę, której tłumaczysz linijka po linijce swój zepsuty kod.","pyt_32.webp",1
+33,"Pytasz na forum o rozwiązanie trudnego problemu i odpisujesz ""nieważne, sam rozwiązałem"" bez podania odpowiedzi.","pyt_33.webp",0
+34,"Widzisz idealnie uporządkowaną serwerownię, gdzie każdy kabel jest starannie opisany i oflagowany.","pyt_34.webp",1
+35,"Używasz głośnej, mechanicznej klawiatury z niebieskimi przełącznikami w zatłoczonym open space.","pyt_35.webp",0
+36,"Pamiętasz, że najlepszym pierwszym krokiem w naprawie komputera jest komunikat ""Spróbuj wyłączyć i włączyć ponownie"".","pyt_36.webp",1
+37,"Ktoś z działu HR mówi ci prosto w twarz, że HTML to przecież jego ulubiony język programowania.","pyt_37.webp",0
+38,"Piątkowe popołudnie w biurze to zarezerwowany czas na wspólną integrację i granie w planszówki.","pyt_38.webp",1
+39,"Szef każe ci natychmiast naprawić zaciętą drukarkę, bo przecież jesteś z zawodu programistą.","pyt_39.webp",0
+40,"Odkrywasz kubek z niedopitą kawą sprzed trzech tygodni zapomniany gdzieś za twoim monitorem.","pyt_40.webp",0
