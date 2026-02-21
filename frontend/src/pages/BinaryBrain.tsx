@@ -128,8 +128,6 @@ export default function BinaryBrain() {
         }
     }
 
-    if (isLoading) return <div className="p-10 text-center animate-pulse">LOADING_NEURAL_LINK...</div>
-
     // Mid-game status polling
     const { isError: isPollError, error: pollError } = useQuery({
         queryKey: ['gameStatusPoll'],
@@ -142,6 +140,8 @@ export default function BinaryBrain() {
 
     const activeError = isError ? error : (isPollError ? pollError : null)
     const hasError = isError || isPollError
+
+    if (isLoading) return <div className="p-10 text-center animate-pulse">LOADING_NEURAL_LINK...</div>
 
     if (hasError) {
         // @ts-ignore
