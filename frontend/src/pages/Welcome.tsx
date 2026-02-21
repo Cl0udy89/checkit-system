@@ -55,7 +55,7 @@ export default function Welcome() {
                     <h1 className="text-5xl font-mono font-bold text-white mb-2 tracking-tighter">
                         CHECK<span className="text-primary">IT</span>
                     </h1>
-                    <p className="text-gray-400 font-mono text-sm tracking-widest">SYSTEM GOTOWY // OCZEKIWANIE NA UŻYTKOWNIKA</p>
+                    <p className="text-gray-400 font-mono text-sm tracking-widest uppercase">Rozpal innowację z SparkSomeVenture // Dołącz do gry!</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="bg-surface border border-gray-800 p-8 rounded-xl shadow-2xl backdrop-blur-sm relative group">
@@ -110,8 +110,8 @@ export default function Welcome() {
                     </div>
                 </form>
 
-                <div className="mt-8 text-center text-gray-600 text-xs font-mono">
-                    SECURED BY CHECKIT_CORP // V1.0.4
+                <div className="mt-8 text-center text-gray-600 text-xs font-mono uppercase">
+                    POWERED BY SPARKSOMEVENTURE // CHECKIT V1.0.4
                 </div>
             </div>
         </div>
