@@ -174,25 +174,32 @@ export default function ITMatch() {
 
     return (
         <div className="min-h-screen bg-transparent flex flex-col items-center justify-between p-4 overflow-x-hidden relative">
-            <header className="w-full max-w-lg mt-4 flex justify-between items-center z-10 font-mono text-white text-lg md:text-xl">
+            <header className="w-full max-w-lg mt-2 md:mt-4 flex flex-row justify-between items-start z-10 font-mono text-white px-2">
                 <div className="relative font-bold flex flex-col items-start gap-1">
-                    <div>WYNIK: <span className="text-accent">{score}</span></div>
-                    <div className="text-sm text-gray-400">PULA: <span className="text-white">{currentPotentialScore.toString().padStart(4, '0')}</span></div>
+                    <div className="text-xl md:text-3xl text-gray-300">
+                        WYNIK: <span className="text-3xl md:text-4xl text-accent drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]">{score}</span>
+                    </div>
+                    <div className="text-base md:text-xl text-gray-400">
+                        PULA: <span className="text-xl md:text-2xl text-white font-bold tracking-widest">{currentPotentialScore.toString().padStart(4, '0')}</span>
+                    </div>
                     <AnimatePresence>
                         {floatingPoints.map(fp => (
                             <motion.div
                                 key={fp.id}
-                                initial={{ opacity: 0, y: 10, scale: 0.8 }}
-                                animate={{ opacity: 1, y: 30, scale: 1.1 }}
+                                initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                                animate={{ opacity: 1, y: -40, scale: 1.2 }}
                                 exit={{ opacity: 0 }}
-                                className={`absolute left-0 top-full mt-2 font-bold z-50 pointer-events-none drop-shadow-md text-xl md:text-2xl whitespace-nowrap ${fp.val > 0 ? 'text-green-400' : 'text-red-500'}`}
+                                className={`absolute left-full top-0 ml-4 font-bold z-50 pointer-events-none drop-shadow-md text-2xl md:text-3xl whitespace-nowrap ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.8)]' : 'text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]'}`}
                             >
-                                {fp.val > 0 ? `+${fp.val}` : fp.val} <span className="text-sm opacity-80">({fp.label})</span>
+                                {fp.val > 0 ? `+${fp.val}` : fp.val} <span className="text-base opacity-80">({fp.label})</span>
                             </motion.div>
                         ))}
                     </AnimatePresence>
                 </div>
-                <div className="text-gray-400">PROG: {currentIndex}/{questions.length}</div>
+                <div className="text-2xl md:text-3xl text-gray-400 font-bold tracking-widest">
+                    <span className="text-sm md:text-lg block text-right text-gray-500 font-normal">PROG</span>
+                    {currentIndex + 1}&nbsp;/&nbsp;{questions.length}
+                </div>
             </header>
 
             <div className="w-full max-w-md h-[70vh] relative flex items-center justify-center mt-10">
