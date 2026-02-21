@@ -42,6 +42,32 @@ export default function BinaryBrain() {
 
     const currentQ = questions ? questions[currentQIndex] : null
 
+    // Load saved progress if available
+    useEffect(() => {
+        if (questions && user) {
+            const savedProgress = localStorage.getItem(`binary_brain_state_${user.id}`)
+            if (savedProgress) {
+                try {
+                    const parsed = JSON.parse(savedProgress)
+                    setCurrentQIndex(parsed.currentQIndex || 0)
+                    setTotalScore(parsed.totalScore || 0)
+                    setAnswers(parsed.answers || {})
+                    if (parsed.questionStartTime) setQuestionStartTime(parsed.questionStartTime)
+                } catch (e) {
+                    console.error('Failed to parse saved progress', e)
+                }
+            }
+        }
+    }, [questions, user])
+
+    // Save progress continuously
+    useEffect(() => {
+        if (user && questions && gameState !== 'finished') {
+            const stateToSave = { currentQIndex, totalScore, answers, questionStartTime }
+            localStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify(stateToSave))
+        }
+    }, [currentQIndex, totalScore, answers, questionStartTime, user, questions, gameState])
+
     // Shuffle options immediately during render when question changes
     const shuffledOptions = useMemo(() => {
         if (!currentQ) return []
@@ -127,6 +153,7 @@ export default function BinaryBrain() {
         setFinalResult({ score: finalScore, boxOpened })
 
         if (user) {
+            localStorage.removeItem(`binary_brain_state_${user.id}`)
             submitMutation.mutate({
                 user_id: user.id,
                 game_type: 'binary_brain',
