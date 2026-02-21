@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { api } from '../lib/api'
@@ -14,9 +14,17 @@ const registerUser = async (userData: { nick: string, email: string }) => {
 export default function Welcome() {
     const navigate = useNavigate()
     const login = useGameStore(state => state.login)
+    const user = useGameStore(state => state.user)
     const [nick, setNick] = useState('')
     const [email, setEmail] = useState('')
     const [error, setError] = useState('')
+
+    // Auto-login redirect
+    useEffect(() => {
+        if (user) {
+            navigate('/dashboard')
+        }
+    }, [user, navigate])
 
     const mutation = useMutation({
         mutationFn: registerUser,

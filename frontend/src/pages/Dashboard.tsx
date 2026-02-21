@@ -5,9 +5,12 @@ import { Zap, Cpu, Search, Trophy, CheckCircle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../hooks/useGameStore'
 
+import { LogOut } from 'lucide-react'
+
 export default function Dashboard() {
     const navigate = useNavigate()
     const user = useGameStore(state => state.user)
+    const logout = useGameStore(state => state.logout)
 
     const { data: gameStatus } = useQuery({
         queryKey: ['gameStatus', user?.id],
@@ -18,6 +21,11 @@ export default function Dashboard() {
     useEffect(() => {
         if (!user) navigate('/')
     }, [user, navigate])
+
+    const handleLogout = () => {
+        logout()
+        navigate('/')
+    }
 
     const gamesLeft = useMemo(() => {
         if (!gameStatus) return 3
@@ -56,82 +64,116 @@ export default function Dashboard() {
     ]
 
     return (
-        <div className="min-h-screen p-4 md:p-8 flex flex-col relative overflow-x-hidden bg-transparent">
+        <div className="min-h-screen p-4 md:p-8 flex flex-col relative overflow-x-hidden bg-transparent max-w-6xl mx-auto">
             {/* Header */}
-            <header className="flex justify-between items-center mb-12 z-10">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 z-10 gap-4 mt-4">
                 <div>
-                    <h1 className="text-3xl font-mono font-bold text-white">DASHBOARD</h1>
-                    <p className="text-gray-400 font-mono">USER: <span className="text-primary">{user?.nick || 'GUEST'}</span></p>
+                    <h1 className="text-4xl font-mono font-bold text-white tracking-widest">DASHBOARD</h1>
+                    <p className="text-gray-400 font-mono mt-2 flex items-center gap-2">
+                        <span className="bg-primary/20 text-primary px-2 py-0.5 rounded text-sm border border-primary/30">USER</span>
+                        <span className="text-xl text-white font-bold">{user?.nick || 'GUEST'}</span>
+                    </p>
                 </div>
-                <button
-                    onClick={() => navigate('/leaderboard')}
-                    className="flex items-center gap-2 bg-surface border border-gray-700 hover:border-primary px-6 py-3 font-mono transition-all"
-                >
-                    <Trophy size={20} />
-                    LEADERBOARD
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => navigate('/leaderboard')}
+                        className="flex items-center gap-2 bg-surface/50 backdrop-blur-md border border-gray-700 hover:border-primary hover:text-primary px-6 py-3 font-mono transition-all rounded-lg"
+                    >
+                        <Trophy size={20} />
+                        RANKING
+                    </button>
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 bg-red-900/20 backdrop-blur-md border border-red-900/50 text-red-400 hover:bg-red-900/40 hover:text-red-300 px-4 py-3 font-mono transition-all rounded-lg"
+                        title="Wyloguj"
+                    >
+                        <LogOut size={20} />
+                        <span className="hidden md:inline">WYLOGUJ</span>
+                    </button>
+                </div>
             </header>
 
             {/* Grandmaster Progress Banner */}
-            <div className="mb-8 z-10 w-full max-w-4xl mx-auto">
-                <div className={`p-6 rounded-xl border-2 ${gamesLeft === 0 ? 'bg-accent/20 border-accent' : 'bg-surface border-gray-700'} flex items-center justify-between shadow-lg transition-all`}>
-                    <div>
-                        <h2 className={`text-2xl font-mono font-bold ${gamesLeft === 0 ? 'text-accent' : 'text-white'}`}>
-                            {gamesLeft === 0 ? "STATUS: GRANDMASTER ELIGIBLE" : `ZOSTAŁY ${gamesLeft} GRY DO STATUSU GRANDMASTER`}
+            <div className="mb-12 z-10 w-full">
+                <div className={`p-8 rounded-2xl border-2 ${gamesLeft === 0 ? 'bg-gradient-to-r from-accent/20 to-accent/5 border-accent' : 'bg-surface/80 backdrop-blur-xl border-gray-700/50'} flex flex-col md:flex-row items-center justify-between shadow-2xl transition-all relative overflow-hidden group`}>
+
+                    {/* Background glow on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+
+                    <div className="relative z-10 text-center md:text-left mb-6 md:mb-0">
+                        <h2 className={`text-3xl font-mono font-bold ${gamesLeft === 0 ? 'text-accent' : 'text-white'} mb-2 tracking-tight`}>
+                            {gamesLeft === 0 ? "STATUS: GRANDMASTER ELIGIBLE" : `MISJA: UKOŃCZ ${gamesLeft} GRY`}
                         </h2>
-                        <p className="text-gray-400 font-mono text-sm mt-1">
-                            {gamesLeft === 0 ? "Ukończyłeś wszystkie wyzwania! Sprawdź swoją pozycję w rankingu." : "Ukończ wszystkie 3 gry, aby walczyć o nagrodę główną."}
+                        <p className="text-gray-400 font-mono text-sm max-w-lg">
+                            {gamesLeft === 0 ? "Wszystkie systemy odblokowane! Sprawdź swoją ostateczną pozycję w rankingu głównym." : "Zagraj w pozostałe gry, aby zdobyć maksymalną ilość punktów APP i odblokować status Grandmastera."}
                         </p>
                     </div>
-                    <div className="text-4xl font-bold font-mono text-white">
-                        {gamesLeft === 0 ? <Trophy size={48} className="text-accent animate-bounce" /> : `${3 - gamesLeft}/3`}
+                    <div className="relative z-10 flex items-center justify-center bg-black/40 rounded-full w-24 h-24 border border-gray-700/50 shadow-inner">
+                        <div className="text-3xl font-bold font-mono text-white">
+                            {gamesLeft === 0 ? <Trophy size={40} className="text-accent drop-shadow-[0_0_15px_rgba(255,215,0,0.5)] animate-pulse" /> : `${3 - gamesLeft}/3`}
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 z-10 flex-1 max-w-6xl mx-auto w-full">
-                {games.map(game => {
+            {/* New asymmetric grid layout */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 z-10 flex-1 w-full">
+                {games.map((game, index) => {
                     const status = gameStatus?.[game.id.replace('-', '_')]
                     const isPlayed = status?.played
                     const score = status?.score || 0
 
+                    // First card spans 12 cols on mobile, 8 on desktop. Others span 12 and 6. Creates a featured look.
+                    const spanClass = index === 0 ? "md:col-span-12 lg:col-span-8" : "md:col-span-6 lg:col-span-4"
+
                     return (
                         <div
                             key={game.id}
-                            onClick={() => !isPlayed ? navigate(game.path) : null} // Prevent replay? Or allow replay for better score? User said "completed and cannot more times".
-                            // Let's allow replay but visually mark it. Or disable.
-                            // User request: "wiecej ni emozna razy jak cos" (cannot play more times).
-                            // So disable click if isPlayed.
-                            className={`bg-surface p-8 border-t-4 ${isPlayed ? 'border-gray-600 opacity-80' : game.color} ${!isPlayed ? 'hover:bg-surface-light cursor-pointer hover:scale-105' : 'cursor-default'} transition-all group relative overflow-hidden rounded-lg shadow-xl`}
+                            onClick={() => !isPlayed ? navigate(game.path) : null}
+                            className={`
+                                ${spanClass} 
+                                bg-surface/60 backdrop-blur-lg border border-gray-800 p-8 rounded-2xl
+                                ${isPlayed ? 'opacity-70 grayscale-[30%]' : `hover:border-${game.color.replace('border-', '')} cursor-pointer hover:-translate-y-1 hover:shadow-2xl hover:shadow-${game.color.replace('border-', '')}/20`} 
+                                transition-all duration-300 group relative overflow-hidden flex flex-col
+                            `}
                         >
-                            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500">
+                            {/* Color accent bar top */}
+                            <div className={`absolute top-0 left-0 w-full h-1 ${game.color.replace('border', 'bg')} ${isPlayed ? 'opacity-30' : 'opacity-80'}`}></div>
+
+                            {/* Background Icon */}
+                            <div className={`absolute -bottom-4 -right-4 p-4 opacity-5 group-hover:opacity-10 transition-all transform group-hover:scale-125 duration-700 rotate-12`}>
                                 {game.icon}
                             </div>
 
                             <div className="relative z-10 flex flex-col h-full">
                                 <div className="mb-6 flex justify-between items-start">
-                                    {game.icon}
-                                    {isPlayed && <CheckCircle className="text-green-500" size={32} />}
+                                    <div className={`p-4 rounded-xl bg-black/40 border border-gray-800 ${!isPlayed && 'group-hover:border-gray-600'} transition-colors`}>
+                                        {game.icon}
+                                    </div>
+                                    {isPlayed && <div className="bg-green-500/10 text-green-500 p-2 rounded-full border border-green-500/30"><CheckCircle size={24} /></div>}
                                 </div>
 
-                                <h2 className="text-2xl font-mono font-bold text-white mb-2 group-hover:text-primary transition-colors">{game.title}</h2>
-                                <p className="text-gray-400 font-mono text-sm mb-6 flex-1">{game.desc}</p>
+                                <h2 className="text-3xl font-mono font-bold text-white mb-3 tracking-tight">{game.title}</h2>
+                                <p className="text-gray-400 font-mono text-base mb-8 flex-1 leading-relaxed max-w-md">{game.desc}</p>
 
                                 {isPlayed ? (
-                                    <div className="mt-auto pt-4 border-t border-gray-700">
-                                        <div className="text-xs text-gray-500 font-mono mb-1">WYNIK KOŃCOWY</div>
-                                        <div className="text-3xl font-mono font-bold text-green-400">{score} APP</div>
+                                    <div className="mt-auto">
+                                        <div className="flex items-end gap-3">
+                                            <div className="text-5xl font-mono font-bold text-white">{score}</div>
+                                            <div className="text-sm text-gray-500 font-mono mb-2">APP</div>
+                                        </div>
                                     </div>
                                 ) : (
-                                    <div className="mt-auto inline-block bg-primary/10 text-primary px-3 py-1 text-xs font-mono rounded border border-primary/30">
-                                        DOSTĘPNA
+                                    <div className="mt-auto flex items-center justify-between">
+                                        <div className={`inline-block bg-${game.color.replace('border-', '')}/10 text-${game.color.replace('border-', '')} px-4 py-2 text-sm font-mono rounded-lg border border-${game.color.replace('border-', '')}/30 uppercase tracking-widest`}>
+                                            Rozpocznij Moduł
+                                        </div>
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-gray-800 group-hover:bg-${game.color.replace('border-', '')} transition-colors`}>
+                                            <Zap size={18} className="text-white" />
+                                        </div>
                                     </div>
                                 )}
                             </div>
-
-                            {/* Hover Effect Line (only if active) */}
-                            {!isPlayed && <div className="absolute bottom-0 left-0 w-0 h-1 bg-white group-hover:w-full transition-all duration-300"></div>}
                         </div>
                     )
                 })}
