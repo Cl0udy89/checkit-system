@@ -34,10 +34,18 @@ export default function InteractiveBackground() {
         let animationFrameId: number
         let particles: Array<{ x: number, y: number, size: number, speedX: number, speedY: number, color: string }> = []
 
+        let lastWidth = window.innerWidth
+
         const resize = () => {
+            if (!canvas) return
             canvas.width = window.innerWidth
             canvas.height = window.innerHeight
-            initParticles()
+            // Only re-init particles if width changes (orientation flip/desktop resize)
+            // Mobile URL bars change height on scroll and would glitch if reset constantly
+            if (window.innerWidth !== lastWidth || particles.length === 0) {
+                initParticles()
+                lastWidth = window.innerWidth
+            }
         }
 
         const colors = ['rgba(0, 255, 65, 0.5)', 'rgba(243, 234, 95, 0.4)', 'rgba(56, 189, 248, 0.5)']
