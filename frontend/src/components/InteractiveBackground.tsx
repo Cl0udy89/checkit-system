@@ -90,8 +90,8 @@ export default function InteractiveBackground() {
                     ctx.beginPath()
                     ctx.moveTo(p.x, p.y)
                     ctx.lineTo(mouseX, mouseY)
-                    ctx.strokeStyle = `rgba(0, 255, 65, ${0.15 - distance / 1200})`
-                    ctx.lineWidth = 0.5
+                    ctx.strokeStyle = `rgba(0, 255, 65, ${0.4 - distance / 450})` // Brighter lines, slower fade
+                    ctx.lineWidth = 1.0 // Thicker lines
                     ctx.stroke()
 
                     // Subtle repel
@@ -165,7 +165,7 @@ export default function InteractiveBackground() {
             </svg>
 
             {/* Glowing Blobs layer under the glass */}
-            <div ref={blobsRef} className="absolute inset-0 w-full h-full opacity-60 mix-blend-screen transition-transform duration-[200ms] ease-out">
+            <div ref={blobsRef} className="absolute inset-0 w-full h-full opacity-35 mix-blend-screen transition-transform duration-[200ms] ease-out">
                 <div className="absolute top-[10%] left-[20%] w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] bg-primary rounded-full blur-[100px]" />
                 <div className="absolute bottom-[10%] right-[10%] w-[50vw] h-[50vw] max-w-[600px] max-h-[600px] bg-blue-600 rounded-full blur-[120px]" />
                 <div className="absolute top-[40%] right-[40%] w-[30vw] h-[30vw] max-w-[400px] max-h-[400px] bg-purple-600 rounded-full blur-[90px]" />
