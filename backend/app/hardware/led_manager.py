@@ -74,6 +74,8 @@ class LEDManager:
             self._set_solid_color("green")
         elif effect_name == "police":
             self._bg_task = asyncio.create_task(self._fx_police())
+        elif effect_name == "timeout_red":
+            self._bg_task = asyncio.create_task(self._fx_timeout_red())
         elif effect_name.startswith("#") and len(effect_name) == 7:
             try:
                 r = int(effect_name[1:3], 16)
@@ -164,6 +166,22 @@ class LEDManager:
                     await asyncio.sleep(0.1)
                     self._set_solid_color("black")
                     await asyncio.sleep(0.1)
+        except asyncio.CancelledError:
+            pass
+
+    async def _fx_timeout_red(self):
+        Color = self.color_lib
+        try:
+            # Flash red for 5 seconds
+            for _ in range(25): # 25 iterations of 0.2s = 5 seconds
+                self._set_solid_color("red")
+                await asyncio.sleep(0.1)
+                self._set_solid_color("black")
+                await asyncio.sleep(0.1)
+            
+            # Return to solid red block representation
+            self.current_state = "blocked"
+            self._set_solid_color("red")
         except asyncio.CancelledError:
             pass
 

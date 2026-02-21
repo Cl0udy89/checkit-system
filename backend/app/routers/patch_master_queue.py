@@ -103,6 +103,19 @@ async def start_game(user: User = Depends(get_current_user)):
     queue_state["status"] = "playing"
     return {"message": "Game started"}
 
+@router.post("/timeout-flash")
+async def trigger_timeout_flash(user: User = Depends(get_current_user)):
+    # Flashes the physical LED red for 5 seconds when a user runs out of time
+    from app.hardware.led_manager import led_manager
+    led_manager.play_effect("timeout_red")
+    
+    # Also kick the user and free the game
+    if queue_state["current_player"] and queue_state["current_player"]["id"] == user.id:
+        queue_state["current_player"] = None
+        queue_state["status"] = "available"
+        
+    return {"message": "LED timeout flash triggered and game reset"}
+
 # --- Admin Endpoints ---
 
 class AdminStatusUpdate(BaseModel):

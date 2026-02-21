@@ -116,6 +116,7 @@ export const fetchPMQueue = async () => (await api.get('/game/patch-master/queue
 export const joinPMQueue = async () => (await api.post('/game/patch-master/queue/join')).data
 export const leavePMQueue = async () => (await api.post('/game/patch-master/queue/leave')).data
 export const startPMQueue = async () => (await api.post('/game/patch-master/queue/start')).data
+export const triggerTimeoutFlash = async () => (await api.post('/game/patch-master/queue/timeout-flash')).data
 
 export const adminPMQueueNext = async () => (await api.post('/game/patch-master/queue/admin/next')).data
 export const adminPMQueueSetStatus = async (status: string) => (await api.post('/game/patch-master/queue/admin/set_status', { status })).data

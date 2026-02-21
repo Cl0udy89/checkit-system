@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchPatchPanelState, submitGameScore, fetchPMQueue, joinPMQueue, leavePMQueue, startPMQueue } from '../lib/api'
+import { fetchPatchPanelState, submitGameScore, fetchPMQueue, joinPMQueue, leavePMQueue, startPMQueue, triggerTimeoutFlash } from '../lib/api'
 import { useGameStore } from '../hooks/useGameStore'
 import { Zap, Users, ShieldAlert, PlayCircle } from 'lucide-react'
 import clsx from 'clsx'
@@ -57,17 +57,6 @@ export default function PatchMaster() {
         enabled: gameStartedLocal && !isFinished
     })
 
-    // Timer
-    useEffect(() => {
-        if (!gameStartedLocal || isFinished || !startTime) return
-        const interval = setInterval(() => {
-            const elapsed = Date.now() - startTime
-            const score = Math.max(0, 10000 - (elapsed * 0.1))
-            setCurrentScore(Math.floor(score))
-        }, 100)
-        return () => clearInterval(interval)
-    }, [startTime, isFinished, gameStartedLocal])
-
     const submitMutation = useMutation({
         mutationFn: submitGameScore,
         onSuccess: (data) => {
@@ -75,6 +64,32 @@ export default function PatchMaster() {
             navigate('/dashboard')
         }
     })
+
+    // Timer
+    useEffect(() => {
+        if (!gameStartedLocal || isFinished || !startTime) return
+        const interval = setInterval(() => {
+            const elapsed = Date.now() - startTime
+            const score = Math.max(0, 10000 - (elapsed * 0.1))
+
+            if (score <= 0) {
+                clearInterval(interval)
+                setCurrentScore(0)
+                setIsFinished(true)
+                triggerTimeoutFlash().catch(console.error)
+                submitMutation.mutate({
+                    user_id: user?.id || 0,
+                    game_type: 'patch_master',
+                    answers: {},
+                    duration_ms: elapsed
+                })
+                alert("CZAS MINĄŁ! Podłączanie nieudane.")
+            } else {
+                setCurrentScore(Math.floor(score))
+            }
+        }, 100)
+        return () => clearInterval(interval)
+    }, [startTime, isFinished, gameStartedLocal, submitMutation, user])
 
     // Check win condition
     useEffect(() => {

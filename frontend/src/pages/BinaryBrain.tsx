@@ -59,12 +59,21 @@ export default function BinaryBrain() {
         if (gameState !== 'playing') return
 
         const interval = setInterval(() => {
+            if (gameState !== 'playing') return
+
             const elapsed = Date.now() - questionStartTime
             const score = Math.max(0, MAX_Q_POINTS - (elapsed * DECAY_PER_MS))
-            setCurrentPotentialScore(Math.floor(score))
+
+            if (score <= 0) {
+                clearInterval(interval)
+                setCurrentPotentialScore(0)
+                handleAnswer({ isCorrect: false, text: "TIMEOUT" })
+            } else {
+                setCurrentPotentialScore(Math.floor(score))
+            }
         }, 50)
         return () => clearInterval(interval)
-    }, [questionStartTime, gameState])
+    }, [questionStartTime, gameState, handleAnswer])
 
     const submitMutation = useMutation({
         mutationFn: submitGameScore,
@@ -78,7 +87,7 @@ export default function BinaryBrain() {
         }
     })
 
-    const handleAnswer = (option: any) => {
+    function handleAnswer(option: any) {
         if (!questions || gameState !== 'playing') return
         const currentQ = questions[currentQIndex]
 
@@ -112,7 +121,7 @@ export default function BinaryBrain() {
         }, 1500)
     }
 
-    const finishGame = (finalScore: number) => {
+    function finishGame(finalScore: number) {
         setGameState('finished')
         const boxOpened = finalScore >= 5000
         setFinalResult({ score: finalScore, boxOpened })
