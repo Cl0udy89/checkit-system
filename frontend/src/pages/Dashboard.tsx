@@ -71,8 +71,8 @@ export default function Dashboard() {
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 z-10 gap-4 mt-4 w-full">
                 <div>
                     <h1 className="text-3xl md:text-4xl font-mono font-bold text-white tracking-widest leading-tight">
-                        SPARK<span className="text-primary">IT</span> LBN
-                        <span className="text-xs md:text-sm text-gray-500 tracking-widest block mt-1">POWERED BY SPARKOSFERA</span>
+                        ZAWODY CHECK<span className="text-primary">IT</span> LUBLIN
+                        <span className="text-xs md:text-sm text-gray-500 tracking-widest block mt-1">POWERED BY SPARKOSTREFA</span>
                     </h1>
                     <p className="text-gray-400 font-mono mt-2 flex items-center gap-2">
                         <span className="bg-primary/20 text-primary px-2 py-0.5 rounded text-sm border border-primary/30">USER</span>
@@ -182,7 +182,7 @@ export default function Dashboard() {
 
             {/* Footer */}
             <div className="mt-8 text-center text-xs text-gray-700 font-mono">
-                SYSTEM_ID: CHECKIT_NODE_01 // SECURE_CONNECTION // POWERED BY SPARKSOMEVENTURE
+                SYSTEM_ID: CHECKIT_NODE_01 // SECURE_CONNECTION // POWERED BY SPARKOSTREFA
             </div>
         </div>
     )
