@@ -50,16 +50,27 @@ export default function BinaryBrain() {
             if (savedProgress) {
                 try {
                     const parsed = JSON.parse(savedProgress)
-                    setCurrentQIndex(parsed.currentQIndex || 0)
-                    setTotalScore(parsed.totalScore || 0)
-                    setAnswers(parsed.answers || {})
+                    const loadedIndex = parsed.currentQIndex || 0
+                    const loadedScore = parsed.totalScore || 0
+                    const loadedAnswers = parsed.answers || {}
+
+                    setCurrentQIndex(loadedIndex)
+                    setTotalScore(loadedScore)
+                    setAnswers(loadedAnswers)
                     if (parsed.questionStartTime) setQuestionStartTime(parsed.questionStartTime)
+
+                    if (loadedIndex >= questions.length) {
+                        finishGame(loadedScore, loadedAnswers)
+                        setHasLoaded(true)
+                        return
+                    }
                 } catch (e) {
                     console.error('Failed to parse saved progress', e)
                 }
             }
             setHasLoaded(true)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [questions, user, hasLoaded])
 
     // Save progress continuously
@@ -133,7 +144,19 @@ export default function BinaryBrain() {
         }
 
         // Record Answer
-        setAnswers(prev => ({ ...prev, [currentQ.id]: option.text }))
+        const newAnswers = { ...answers, [currentQ.id]: option.text }
+        setAnswers(newAnswers)
+
+        // Force anti-cheat save immediately for the next state
+        if (hasLoaded && user) {
+            const nextState = {
+                currentQIndex: currentQIndex + 1,
+                totalScore: totalScore + pointsEarned,
+                answers: newAnswers,
+                questionStartTime: Date.now()
+            }
+            localStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify(nextState))
+        }
 
         // Wait a bit then move on
         setTimeout(() => {
@@ -149,7 +172,7 @@ export default function BinaryBrain() {
         }, 1500)
     }
 
-    function finishGame(finalScore: number) {
+    function finishGame(finalScore: number, finalAnswers?: Record<string, string>) {
         setGameState('finished')
         const boxOpened = finalScore >= 5000
         setFinalResult({ score: finalScore, boxOpened })
@@ -159,7 +182,7 @@ export default function BinaryBrain() {
             submitMutation.mutate({
                 user_id: user.id,
                 game_type: 'binary_brain',
-                answers: answers, // Note: this might miss the last one if updated in state async, but for saving score explicitly we use 'score' param
+                answers: finalAnswers || answers,
                 duration_ms: Date.now() - gameStartTime,
                 score: finalScore
             })
