@@ -32,7 +32,7 @@ export default function Dashboard() {
         {
             id: 'binary-brain',
             title: 'BINARY_BRAIN',
-            desc: 'Quiz wiedzy IT + Hardware Trigger',
+            desc: 'Podejmij wyzwanie IT i zgarnij punkty! Masz wiedzę? Rozwal system!',
             icon: <Cpu size={48} className="text-secondary" />,
             color: 'border-secondary',
             path: '/game/binary-brain'
@@ -40,7 +40,7 @@ export default function Dashboard() {
         {
             id: 'patch-master',
             title: 'PATCH_MASTER',
-            desc: 'Fizyczne łączenie portów RJ45',
+            desc: 'Zostań mistrzem serwerowni! Połącz wszystkie kable i pokaż szybkość!',
             icon: <Zap size={48} className="text-accent" />,
             color: 'border-accent',
             path: '/game/patch-master'
@@ -48,7 +48,7 @@ export default function Dashboard() {
         {
             id: 'it-match',
             title: 'IT_MATCH',
-            desc: 'Szybkie decydowanie: TAK/NIE',
+            desc: 'Szybkie tak/nie pod presją czasu. Intuicja i wiedza! Zagraj',
             icon: <Search size={48} className="text-primary" />,
             color: 'border-primary',
             path: '/game/it-match'
@@ -139,7 +139,7 @@ export default function Dashboard() {
 
             {/* Footer */}
             <div className="mt-8 text-center text-xs text-gray-700 font-mono">
-                SYSTEM_ID: CHECKIT_NODE_01 // SECURE_CONNECTION
+                SYSTEM_ID: CHECKIT_NODE_01 // SECURE_CONNECTION // POWERED BY SPARKSOMEVENTURE
             </div>
         </div>
     )
