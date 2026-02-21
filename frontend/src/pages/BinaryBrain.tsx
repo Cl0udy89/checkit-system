@@ -24,6 +24,7 @@ export default function BinaryBrain() {
     const [currentPotentialScore, setCurrentPotentialScore] = useState(1000)
     const [questionStartTime, setQuestionStartTime] = useState(Date.now())
     const [gameStartTime] = useState(Date.now())
+    const [hasLoaded, setHasLoaded] = useState(false)
 
     // UI State
     const [gameState, setGameState] = useState<'playing' | 'feedback' | 'finished'>('playing')
@@ -44,7 +45,7 @@ export default function BinaryBrain() {
 
     // Load saved progress if available
     useEffect(() => {
-        if (questions && user) {
+        if (questions && user && !hasLoaded) {
             const savedProgress = localStorage.getItem(`binary_brain_state_${user.id}`)
             if (savedProgress) {
                 try {
@@ -57,16 +58,17 @@ export default function BinaryBrain() {
                     console.error('Failed to parse saved progress', e)
                 }
             }
+            setHasLoaded(true)
         }
-    }, [questions, user])
+    }, [questions, user, hasLoaded])
 
     // Save progress continuously
     useEffect(() => {
-        if (user && questions && gameState !== 'finished') {
+        if (hasLoaded && user && questions && gameState !== 'finished') {
             const stateToSave = { currentQIndex, totalScore, answers, questionStartTime }
             localStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify(stateToSave))
         }
-    }, [currentQIndex, totalScore, answers, questionStartTime, user, questions, gameState])
+    }, [hasLoaded, currentQIndex, totalScore, answers, questionStartTime, user, questions, gameState])
 
     // Shuffle options immediately during render when question changes
     const shuffledOptions = useMemo(() => {
