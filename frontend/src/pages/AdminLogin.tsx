@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+
 import { loginAdmin } from '../lib/api'
 import { Lock } from 'lucide-react'
 
 export default function AdminLogin() {
-    const navigate = useNavigate()
+
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')

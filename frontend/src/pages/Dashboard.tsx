@@ -9,7 +9,7 @@ export default function Dashboard() {
     const navigate = useNavigate()
     const user = useGameStore(state => state.user)
 
-    const { data: gameStatus, isLoading } = useQuery({
+    const { data: gameStatus } = useQuery({
         queryKey: ['gameStatus', user?.id],
         queryFn: () => user ? fetchGameStatus(user.id) : Promise.reject('No user'),
         enabled: !!user

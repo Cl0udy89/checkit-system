@@ -130,11 +130,34 @@ export default function BinaryBrain() {
 
     if (isLoading) return <div className="p-10 text-center animate-pulse">LOADING_NEURAL_LINK...</div>
 
-    if (isError) {
+    // Mid-game status polling
+    const { isError: isPollError, error: pollError } = useQuery({
+        queryKey: ['gameStatusPoll'],
+        queryFn: () => fetchGameContent('binary_brain'),
+        // We poll the content endpoint which throws 403 if blocked
+        refetchInterval: 5000,
+        retry: false,
+        enabled: gameState === 'playing' || gameState === 'feedback'
+    })
+
+    const activeError = isError ? error : (isPollError ? pollError : null)
+    const hasError = isError || isPollError
+
+    if (hasError) {
         // @ts-ignore
-        if (error?.response?.status === 403) {
+        if (activeError?.response?.status === 403) {
             // @ts-ignore
-            const isBreak = error?.response?.data?.detail === "PRZERWA_TECHNICZNA"
+            const detail = activeError?.response?.data?.detail
+            if (detail === "ALREADY_PLAYED") {
+                return (
+                    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
+                        <h1 className="text-4xl font-bold mb-4">GRA ZAKOŃCZONA</h1>
+                        <p className="mb-8 text-xl">Masz już zapisany wynik dla tej gry. Dozwolona jest tylko jedna gra w każdej kategorii!</p>
+                        <button onClick={() => navigate('/dashboard')} className="border border-red-500 text-red-500 px-6 py-3 hover:bg-red-900/20">POWRÓT</button>
+                    </div>
+                )
+            }
+            const isBreak = detail === "PRZERWA_TECHNICZNA"
             return (
                 <div className="min-h-screen bg-black flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
                     <h1 className="text-4xl font-bold mb-4">{isBreak ? "PRZERWA TECHNICZNA" : "ZAWODY ZAKOŃCZONE"}</h1>
@@ -218,7 +241,7 @@ export default function BinaryBrain() {
                         <h2 className="text-lg md:text-2xl font-bold mb-4 md:mb-8 text-white pr-12 md:pr-16">{q?.question}</h2>
 
                         {/* Image Logic */}
-                        {q?.image && gameState !== 'feedback' && (
+                        {q?.image && (
                             <div className="mb-4 md:mb-6 flex justify-center mx-auto w-full">
                                 <img
                                     src={`${BACKEND_URL}/content/binary_brain/images/${q.image}`}
