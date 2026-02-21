@@ -116,25 +116,21 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* New asymmetric grid layout */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 z-10 flex-1 w-full">
-                {games.map((game, index) => {
+            {/* Symmetric Grid Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 z-10 flex-1 w-full">
+                {games.map((game) => {
                     const status = gameStatus?.[game.id.replace('-', '_')]
                     const isPlayed = status?.played
                     const score = status?.score || 0
-
-                    // First card spans 12 cols on mobile, 8 on desktop. Others span 12 and 6. Creates a featured look.
-                    const spanClass = index === 0 ? "md:col-span-12 lg:col-span-8" : "md:col-span-6 lg:col-span-4"
 
                     return (
                         <div
                             key={game.id}
                             onClick={() => !isPlayed ? navigate(game.path) : null}
                             className={`
-                                ${spanClass} 
-                                bg-surface/60 backdrop-blur-lg border border-gray-800 p-8 rounded-2xl
+                                bg-surface/60 backdrop-blur-lg border border-gray-800 p-6 md:p-8 rounded-2xl
                                 ${isPlayed ? 'opacity-70 grayscale-[30%]' : `hover:border-${game.color.replace('border-', '')} cursor-pointer hover:-translate-y-1 hover:shadow-2xl hover:shadow-${game.color.replace('border-', '')}/20`} 
-                                transition-all duration-300 group relative overflow-hidden flex flex-col
+                                transition-all duration-300 group relative overflow-hidden flex flex-col h-full
                             `}
                         >
                             {/* Color accent bar top */}
