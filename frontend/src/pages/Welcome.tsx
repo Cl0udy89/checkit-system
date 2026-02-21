@@ -86,9 +86,12 @@ export default function Welcome() {
                                 <input
                                     type="text"
                                     value={nick}
-                                    onChange={e => setNick(e.target.value)}
+                                    onChange={e => {
+                                        const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '')
+                                        if (val.length <= 20) setNick(val)
+                                    }}
                                     className="w-full bg-black/50 border border-gray-700 text-white pl-10 pr-4 py-3 rounded focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-mono"
-                                    placeholder="WPISZ NICK"
+                                    placeholder="WPISZ NICK (max 20 znaków)"
                                 />
                             </div>
                         </div>

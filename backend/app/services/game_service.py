@@ -64,9 +64,10 @@ class GameService:
                 logger.info("Patch Master solved verified.")
 
         elif game_type == "it_match":
-            # If client provides score, maybe trust it too? 
-            # But let's fix calculation first.
-            final_score = await self._calculate_it_match(answers, duration_ms)
+            if score is not None:
+                final_score = score
+            else:
+                final_score = await self._calculate_it_match(answers, duration_ms)
 
         # 2. Save Score
         game_score = GameScore(

@@ -14,6 +14,9 @@ export default function Leaderboard() {
 
     // Auto-scroll logic for TV
     useEffect(() => {
+        const isTV = new URLSearchParams(window.location.search).get('tv') === '1'
+        if (!isTV) return
+
         const interval = setInterval(() => {
             if (window.scrollY + window.innerHeight >= document.body.scrollHeight) {
                 window.scrollTo({ top: 0, behavior: 'smooth' })

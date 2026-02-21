@@ -23,8 +23,10 @@ export default function Dashboard() {
     }, [user, navigate])
 
     const handleLogout = () => {
-        logout()
-        navigate('/')
+        if (window.confirm("Czy na pewno chcesz się wylogować?")) {
+            logout()
+            navigate('/')
+        }
     }
 
     const gamesLeft = useMemo(() => {
@@ -66,15 +68,18 @@ export default function Dashboard() {
     return (
         <div className="min-h-screen p-4 md:p-8 flex flex-col relative overflow-x-hidden bg-transparent max-w-6xl mx-auto">
             {/* Header */}
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 z-10 gap-4 mt-4">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 z-10 gap-4 mt-4 w-full">
                 <div>
-                    <h1 className="text-4xl font-mono font-bold text-white tracking-widest">DASHBOARD</h1>
+                    <h1 className="text-3xl md:text-4xl font-mono font-bold text-white tracking-widest leading-tight">
+                        SPARK<span className="text-primary">IT</span> LBN
+                        <span className="text-xs md:text-sm text-gray-500 tracking-widest block mt-1">POWERED BY SPARKOSFERA</span>
+                    </h1>
                     <p className="text-gray-400 font-mono mt-2 flex items-center gap-2">
                         <span className="bg-primary/20 text-primary px-2 py-0.5 rounded text-sm border border-primary/30">USER</span>
                         <span className="text-xl text-white font-bold">{user?.nick || 'GUEST'}</span>
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 w-full md:w-auto justify-end">
                     <button
                         onClick={() => navigate('/leaderboard')}
                         className="flex items-center gap-2 bg-surface/50 backdrop-blur-md border border-gray-700 hover:border-primary hover:text-primary px-6 py-3 font-mono transition-all rounded-lg"

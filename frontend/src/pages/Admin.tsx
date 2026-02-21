@@ -359,7 +359,7 @@ export default function Admin() {
                                 <th className="p-3">GRACZ</th>
                                 <th className="p-3">GRA</th>
                                 <th className="p-3">WYNIK</th>
-                                <th className="p-3">CZAS (ms)</th>
+                                <th className="p-3">CZAS</th>
                                 <th className="p-3">DATA</th>
                             </tr>
                         </thead>
@@ -370,8 +370,8 @@ export default function Admin() {
                                     <td className="p-3 font-bold text-white">{s.nick}</td>
                                     <td className="p-3 text-accent">{s.score.game_type}</td>
                                     <td className="p-3 font-bold">{s.score.score}</td>
-                                    <td className="p-3 text-gray-400">{s.score.duration_ms}</td>
-                                    <td className="p-3">{s.score.played_at}</td>
+                                    <td className="p-3 text-gray-400">{s.score.duration_ms ? (s.score.duration_ms / 1000).toFixed(2) + " s" : "-"}</td>
+                                    <td className="p-3">{new Date(s.score.played_at).toLocaleString()}</td>
                                 </tr>
                             ))}
                         </tbody>
