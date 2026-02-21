@@ -56,7 +56,7 @@ export default function Dashboard() {
         {
             id: 'it-match',
             title: 'IT_MATCH',
-            desc: 'Szybkie tak/nie pod presją czasu. Intuicja i wiedza! Zagraj',
+            desc: 'Szybkie tak/nie! Przesuń w prawo = BEZPIECZNE, w lewo = ZAGROŻENIE.',
             icon: <Search size={48} className="text-primary" />,
             color: 'border-primary',
             path: '/game/it-match'

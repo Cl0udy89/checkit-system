@@ -215,18 +215,13 @@ function Card({ question, onSwipe }: { question: Question, onSwipe: (dir: 'left'
             <div className="w-full aspect-square md:aspect-[4/5] bg-gray-800 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative z-10">
                 {question.image && question.image !== 'none' ? (
                     // Image fetched from backend
-                    <img src={`${BACKEND_URL}/content/it_match/images/${question.image}`} alt="Quiz" className="object-cover w-full h-full" onError={(e) => e.currentTarget.style.display = 'none'} />
+                    <img src={`${BACKEND_URL}/content/it_match/images/${question.image}`} alt="Quiz" draggable={false} className="object-cover w-full h-full pointer-events-none" onError={(e) => e.currentTarget.style.display = 'none'} />
                 ) : (
                     <span className="text-gray-600 font-mono">BRAK ZDJĘCIA</span>
                 )}
             </div>
 
-            <h3 className="text-xl md:text-2xl font-bold text-white mb-4 z-10">{question.question}</h3>
-
-            <div className="mt-auto text-gray-400 text-sm font-mono z-10">
-                Przesuń w PRAWO jeśli BEZPIECZNE<br />
-                Przesuń w LEWO jeśli ZAGROŻENIE
-            </div>
+            <h3 className="text-xl md:text-2xl font-bold text-white mb-4 z-10 select-none pointer-events-none">{question.question}</h3>
         </motion.div>
     )
 }
