@@ -15,7 +15,7 @@ id,question,image,is_correct
 14,"Zabezpieczasz kable sieciowe w serwerowni opaskami na rzepy, aby uniknąć totalnej plątaniny.","pyt_14.webp",1
 15,"Podłączasz 10 urządzeń o bardzo dużej mocy do jednego starego i cienkiego przedłużacza.","pyt_15.webp",0
 16,"Regularnie wydmuchujesz kurz z radiatorów i wentylatorów przy użyciu sprężonego powietrza.","pyt_16.webp",1
-17,"Dysk twardy HDD wydaje głośne, mechaniczne dźwięki klikania podczas normalnej pracy.","pyt_17.webp",0
+17,"Wyrzucasz stary, firmowy dysk twardy prosto do kosza na śmieci bez wcześniejszego wymazania i zniszczenia danych.","pyt_17.webp",0
 18,"Używasz zasilacza UPS, aby chronić cenny sprzęt przed nagłymi przerwami w dostawie prądu.","pyt_18.webp",1
 19,"Wtyczka kabla sieciowego RJ45 ma wyłamany plastikowy klips, ale trzyma się na słowo honoru.","pyt_19.webp",0
 20,"Zakładasz opaskę antystatyczną podczas wymiany kości pamięci RAM w nowej płycie głównej.","pyt_20.webp",1
@@ -24,14 +24,14 @@ id,question,image,is_correct
 23,"Nazywasz kluczowe zmienne literami ""a"", ""b"", ""c"" i ""x1"" w całym wielkim projekcie korporacyjnym.","pyt_23.webp",0
 24,"Korzystasz z Dockera, aby zapewnić w pełni spójne środowisko developerskie dla całego zespołu.","pyt_24.webp",1
 25,"Przechowujesz hasła do bazy danych w jawnym tekście w publicznym repozytorium na GitHubie.","pyt_25.webp",0
-26,"Dodajesz obszerne i czytelne komentarze do najbardziej skomplikowanych fragmentów logiki biznesowej.","pyt_26.webp",1
-27,"Zapominasz o dodaniu średnika na końcu instrukcji w języku C++ co psuje całą kompilację.","pyt_27.webp",0
+26,"Przed wysłaniem logów z błędem do pomocy technicznej, starannie usuwasz z nich wszystkie hasła i dane osobowe klientów.","pyt_26.webp",1
+27,"Ufasz na ślepo danym wpisanym przez użytkownika i łączysz je bezpośrednio w zapytaniach do bazy danych, ryzykując atakiem SQL Injection.","pyt_27.webp",0
 28,"Używasz ciemnego motywu w swoim edytorze kodu podczas nocnego maratonu programowania.","pyt_28.webp",1
-29,"Twój kod w Pythonie miesza spacje i tabulatory w jednym pliku, co powoduje sypanie błędami.","pyt_29.webp",0
+29,"Kopiujesz niezrozumiały skrypt z losowego forum w sieci i od razu uruchamiasz go w swojej konsoli z uprawnieniami administratora.","pyt_29.webp",0
 30,"Piszesz jednostkowe testy automatyczne przed oddaniem ważnej funkcjonalności do sprawdzenia.","pyt_30.webp",1
 31,"Firmowa szafa rackowa wygląda jak gigantyczna miska splątanego, kolorowego makaronu spaghetti.","pyt_31.webp",0
 32,"Masz na biurku żółtą, gumową kaczuszkę, której tłumaczysz linijka po linijce swój zepsuty kod.","pyt_32.webp",1
-33,"Pytasz na forum o rozwiązanie trudnego problemu i odpisujesz ""nieważne, sam rozwiązałem"" bez podania odpowiedzi.","pyt_33.webp",0
+33,"Szukając pomocy na publicznym forum programistycznym, wklejasz zrzut ekranu kodu, na którym wyraźnie widać prywatne klucze API twojej aplikacji.","pyt_33.webp",0
 34,"Widzisz idealnie uporządkowaną serwerownię, gdzie każdy kabel jest starannie opisany i oflagowany.","pyt_34.webp",1
 35,"Używasz głośnej, mechanicznej klawiatury z niebieskimi przełącznikami w zatłoczonym open space.","pyt_35.webp",0
 36,"Pamiętasz, że najlepszym pierwszym krokiem w naprawie komputera jest komunikat ""Spróbuj wyłączyć i włączyć ponownie"".","pyt_36.webp",1
