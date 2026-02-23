@@ -59,8 +59,8 @@ export default function PatchMaster() {
     const { data: hardwareState } = useQuery({
         queryKey: ['patch_panel'],
         queryFn: fetchPatchPanelState,
-        refetchInterval: 150,
-        enabled: gameStartedLocal && !isFinished
+        refetchInterval: 500, // Poll enough to see connections
+        enabled: (gameStartedLocal && !isFinished) || qState?.status === 'resetting' || qState?.status === 'waiting_for_player'
     })
 
     const submitMutation = useMutation({
@@ -200,7 +200,15 @@ export default function PatchMaster() {
                         <div className="text-yellow-500 flex flex-col items-center animate-pulse mb-8">
                             <ShieldAlert size={64} className="mb-4" />
                             <h2 className="text-3xl font-mono font-bold mb-2">PRZERWA TECHNICZNA</h2>
-                            <p className="text-gray-400 font-mono">Administrator resetuje kable. Proszę czekać...</p>
+                            <p className="text-gray-400 font-mono mb-6">Administrator oczekuje na reset kabli.</p>
+
+                            {hardwareState?.solved && (
+                                <div className="bg-red-900/50 border border-red-500 text-red-200 px-6 py-4 rounded-lg font-mono text-center shadow-[0_0_20px_rgba(255,0,0,0.5)]">
+                                    <strong>UWAGA ZAWODNIKU:</strong><br />
+                                    Kable wciąż są podłączone w maszynie.<br />
+                                    <strong>ODŁĄCZ WSZYSTKIE KABLE</strong> zanim system wpuści kolejną osobę!
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -225,20 +233,18 @@ export default function PatchMaster() {
                         <div className="text-green-500 flex flex-col items-center mb-8 animate-pulse shadow-[0_0_50px_rgba(0,255,0,0.2)] p-4 rounded-xl border border-green-500/50">
                             <h2 className="text-4xl font-mono font-bold mb-2">TO TWOJA KOLEJ!</h2>
                             <p className="text-white font-mono text-xl mb-6">Podejdź do skrzynki i kliknij start.</p>
-                            {hardwareState?.solved ? (
-                                <div className="bg-red-900/50 border border-red-500 text-red-200 px-6 py-4 rounded-lg font-mono text-center">
-                                    <strong>UWAGA:</strong><br />
-                                    Kable są obecnie podłączone przez poprzedniego gracza.<br />
-                                    <strong>Odłącz wszystkie kable</strong> aby móc rozpocząć grę!
+                            <button
+                                onClick={() => startMutation.mutate()}
+                                className="bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded font-mono font-bold text-2xl flex items-center gap-2 transition-all"
+                            >
+                                <PlayCircle size={32} />
+                                START GRY
+                            </button>
+
+                            {hardwareState?.solved && (
+                                <div className="mt-4 text-red-400 font-mono text-sm border border-red-500/50 p-2 rounded bg-red-900/20">
+                                    Pamiętaj o odłączeniu kabli po poprzedniku!
                                 </div>
-                            ) : (
-                                <button
-                                    onClick={() => startMutation.mutate()}
-                                    className="bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded font-mono font-bold text-2xl flex items-center gap-2 transition-all"
-                                >
-                                    <PlayCircle size={32} />
-                                    START GRY
-                                </button>
                             )}
                         </div>
                     )}
