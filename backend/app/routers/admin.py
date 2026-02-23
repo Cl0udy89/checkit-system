@@ -72,6 +72,16 @@ async def trigger_solenoid():
     await solenoid.open_box()
     return {"status": "triggered"}
 
+@router.post("/hardware/patch_panel/force/{index}")
+async def force_patch_panel_pair(index: int, state: bool = True):
+    patch_panel.set_force_state(index, state)
+    return {"status": "forced", "index": index, "state": state}
+
+@router.delete("/hardware/patch_panel/force")
+async def clear_patch_panel_forces():
+    patch_panel.clear_force_state()
+    return {"status": "cleared"}
+
 @router.get("/hardware/status")
 async def get_hardware_status():
     # Check if RPi is online

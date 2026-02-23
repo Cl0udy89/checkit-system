@@ -37,8 +37,8 @@ class PatchPanel:
             gpio_manager.setup_input(pair["gpio"], GPIO.PUD_UP)
             
         # Remote State Storage (for Server Mode)
-        # We store the last known state from the agent
         self._remote_state = []
+        self._forced_state = {} # index -> bool
         # Fallback initial state (all disconnected)
         for pair in self.pin_mapping:
             self._remote_state.append({
@@ -46,6 +46,17 @@ class PatchPanel:
                 "gpio": pair["gpio"],
                 "connected": False
             })
+
+    def set_force_state(self, index: int, state: bool):
+        """Forces a specific port to a simulated state (for Admin override)."""
+        self._forced_state[index] = state
+
+    def clear_force_state(self, index: int = None):
+        """Clears the forced state for a specific port or all if None."""
+        if index is None:
+            self._forced_state.clear()
+        elif index in self._forced_state:
+            del self._forced_state[index]
 
     def update_remote_state(self, state: List[Dict[str, any]]):
         """Called by the API when Agent sends an update."""
@@ -61,22 +72,33 @@ class PatchPanel:
         If on Server (no RPi GPIO), returns last known remote state.
         If on Client (RPi), reads local GPIO.
         """
+        state_list = []
         if not gpio_manager.is_rpi_mode():
              # Server Mode (or Dev PC) - Return what the Agent sent us
-             return self._remote_state
+             state_list = self._remote_state
+        else:
+            # Client Mode - Read Hardware
+            results = []
+            for pair in self.pin_mapping:
+                state = gpio_manager.read(pair["gpio"])
+                # LOW (0) means connected to GND -> True
+                is_connected = (state == GPIO.LOW)
+                results.append({
+                    "label": pair["label"],
+                    "gpio": pair["gpio"],
+                    "connected": is_connected
+                })
+            state_list = results
+        
+        # Apply Overrides
+        for i, pair in enumerate(state_list):
+            if i in self._forced_state:
+                pair["connected"] = self._forced_state[i]
+                pair["forced"] = True
+            else:
+                pair["forced"] = False
 
-        # Client Mode - Read Hardware
-        results = []
-        for pair in self.pin_mapping:
-            state = gpio_manager.read(pair["gpio"])
-            # LOW (0) means connected to GND -> True
-            is_connected = (state == GPIO.LOW)
-            results.append({
-                "label": pair["label"],
-                "gpio": pair["gpio"],
-                "connected": is_connected
-            })
-        return results
+        return state_list
 
     def is_solved(self) -> bool:
         """Returns True if ALL pairs are connected."""

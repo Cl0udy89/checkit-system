@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api, fetchAdminUsers, fetchAdminScores, deleteUser, fetchSystemConfig, setSystemConfig, fetchEmailTemplates, updateEmailTemplate, sendAllEmails, clearLogs, resetDatabase, fetchPMQueue, adminPMQueueNext, adminPMQueueSetStatus, adminPMQueueKick } from '../lib/api'
 import { useNavigate } from 'react-router-dom'
 import { Shield, Zap, RefreshCw, Lock, LogOut, Settings, Mail } from 'lucide-react'
@@ -11,6 +11,7 @@ const triggerLed = async (effect: string) => api.post('/admin/hardware/led', { e
 const fetchHardwareStatus = async () => (await api.get('/admin/hardware/status')).data
 
 export default function Admin() {
+    const queryClient = useQueryClient()
     const navigate = useNavigate()
     const token = localStorage.getItem('admin_token')
     const [activeTab, setActiveTab] = useState<'hardware' | 'users' | 'scores' | 'logs' | 'settings' | 'email'>('hardware')
@@ -129,6 +130,16 @@ export default function Admin() {
         onSuccess: () => refetchQueue()
     })
 
+    const forcePatchPanelMutation = useMutation({
+        mutationFn: async ({ index, state }: { index: number, state: boolean }) => api.post(`/admin/hardware/patch_panel/force/${index}?state=${state}`),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin_hardware'] })
+    })
+
+    const clearPatchPanelMutation = useMutation({
+        mutationFn: async () => api.delete('/admin/hardware/patch_panel/force'),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin_hardware'] })
+    })
+
     return (
         <div className="min-h-screen bg-black text-green-500 font-mono p-4 md:p-8 border-x-0 md:border-4 border-green-900 overflow-x-hidden">
             <header className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-green-800 pb-4 gap-4">
@@ -210,12 +221,39 @@ export default function Admin() {
 
                     {/* GPIO Status */}
                     <div className="border border-green-800 p-6 bg-green-900/10">
-                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><RefreshCw /> BRIDGE_STATUS</h2>
+                        <h2 className="text-xl font-bold mb-4 flex items-center justify-between">
+                            <div className="flex items-center gap-2"><RefreshCw /> BRIDGE_STATUS</div>
+                            <div className="flex gap-2 text-sm">
+                                <button
+                                    onClick={() => {
+                                        for (let i = 0; i < 8; i++) forcePatchPanelMutation.mutate({ index: i, state: true })
+                                    }}
+                                    className="bg-green-700 hover:bg-green-600 px-3 py-1 rounded transition-colors"
+                                >
+                                    ROZWIĄŻ
+                                </button>
+                                <button
+                                    onClick={() => clearPatchPanelMutation.mutate()}
+                                    className="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded transition-colors"
+                                >
+                                    WYŻERUJ
+                                </button>
+                            </div>
+                        </h2>
                         <div className="grid grid-cols-4 gap-2">
                             {status?.patch_panel?.pairs?.map((p: any, idx: number) => (
-                                <div key={idx} className={`text-center p-2 border ${p.connected ? 'bg-green-500 text-black border-green-500' : 'border-red-900 text-red-900'}`}>
-                                    {idx + 1}: {p.connected ? 'OK' : 'ERR'}
-                                </div>
+                                <button
+                                    key={idx}
+                                    onClick={() => forcePatchPanelMutation.mutate({ index: idx, state: !p.connected })}
+                                    className={`text-center p-2 border transition-colors cursor-pointer ${p.forced
+                                        ? 'bg-green-500 text-black border-green-500 font-bold'
+                                        : p.connected
+                                            ? 'bg-green-900/50 text-green-400 border-green-500'
+                                            : 'bg-red-900/20 border-red-900 text-red-700'
+                                        }`}
+                                >
+                                    {idx + 1}: {p.forced ? 'FORCE' : p.connected ? 'OK' : 'ERR'}
+                                </button>
                             ))}
                         </div>
                         <div className="mt-4 text-center font-bold">
