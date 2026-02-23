@@ -235,11 +235,10 @@ export default function BinaryBrain() {
     const q = questions ? questions[currentQIndex] : null
     if (!q && gameState !== 'finished') return <div className="p-10 text-center text-red-500">ERROR_LOADING_QUESTION</div>
 
-    // GAME OVER SCREEN
     if (gameState === 'finished' && finalResult) {
         return (
             <div className="min-h-[100dvh] bg-transparent p-8 flex flex-col justify-center items-center relative touch-none overflow-hidden">
-                <h1 className="text-5xl font-mono font-bold text-primary mb-8 glow-text">AKTUALIZACJA SYSTEMU ZAKOŃCZONA</h1>
+                <h1 className="text-5xl font-mono font-bold text-primary mb-8 glow-text text-center">WERYFIKACJA UMIEJĘTNOŚCI ZAKOŃCZONA</h1>
 
                 <div className="mb-12">
                     <div className="text-gray-400 text-xl font-mono mb-2">WYNIK KOŃCOWY</div>

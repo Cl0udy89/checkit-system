@@ -20,6 +20,7 @@ export default function ITMatch() {
     const [currentIndex, setCurrentIndex] = useState(0)
     const [score, setScore] = useState(0)
     const [gameOver, setGameOver] = useState(false)
+    const [gameState, setGameState] = useState<'playing' | 'feedback'>('playing')
     const [startTime] = useState(Date.now())
     const [answers, setAnswers] = useState<Record<string, any>>({})
     const [floatingPoints, setFloatingPoints] = useState<{ id: number, val: number, label: string }[]>([])
@@ -62,7 +63,11 @@ export default function ITMatch() {
                         setCurrentIndex(parsed.currentIndex || 0)
                         setScore(parsed.score || 0)
                         setAnswers(parsed.answers || {})
-                        setQuestionStartTime(Date.now())
+                        if (parsed.questionStartTime) {
+                            setQuestionStartTime(parsed.questionStartTime)
+                        } else {
+                            setQuestionStartTime(Date.now())
+                        }
                     } catch (e) {
                         console.error('Failed to parse saved progress', e)
                     }
@@ -74,14 +79,14 @@ export default function ITMatch() {
     // Save progress continuously
     useEffect(() => {
         if (user && questions.length > 0 && !gameOver) {
-            const stateToSave = { currentIndex, score, answers }
+            const stateToSave = { currentIndex, score, answers, questionStartTime }
             localStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))
         }
-    }, [currentIndex, score, answers, user, questions, gameOver])
+    }, [currentIndex, score, answers, questionStartTime, user, questions, gameOver])
 
     // Timer Effect (Per Question)
     useEffect(() => {
-        if (gameOver || questions.length === 0) return
+        if (gameOver || questions.length === 0 || gameState !== 'playing') return
 
         const interval = setInterval(() => {
             const elapsed = Date.now() - questionStartTime
@@ -89,41 +94,51 @@ export default function ITMatch() {
             setCurrentPotentialScore(Math.floor(scoreVal))
         }, 50)
         return () => clearInterval(interval)
-    }, [questionStartTime, gameOver, questions])
+    }, [questionStartTime, gameOver, questions, gameState])
 
     const handleSwipe = (direction: 'left' | 'right') => {
+        if (gameState !== 'playing') return
+
         const currentQ = questions[currentIndex]
-        // logic: right = accept/safe (is_correct=true), left = reject/danger (is_correct=false)
         const isSafe = currentQ.is_correct
         const userChoiceSafe = direction === 'right'
 
         let pointsEarned = 0
         if (userChoiceSafe === isSafe) {
             pointsEarned = currentPotentialScore
-            setScore(prev => prev + pointsEarned)
             showPoints(currentPotentialScore, "POPRAWNIE")
         } else {
             showPoints(0, "BŁĄD")
         }
 
-        setQuestionStartTime(Date.now())
-        setCurrentPotentialScore(MAX_Q_POINTS)
+        const newScore = score + pointsEarned
+        const newAnswers = { ...answers, [currentQ.id]: userChoiceSafe }
 
-        // Record answer: '1' (Safe/Right) or '0' (Danger/Left)
-        // Backend expects comparison with is_correct (bool/1/0)
-        // Let's send what the user chose as "safe" logic?
-        // Actually backend ContentService checks: correct and ans == correct.
-        // If question is_correct=True (Safe).
-        // User swipes Right (Safe).
-        // We should send "True" or "1"?
-        // Let's assume we send boolean of "User thinks it is safe".
-        setAnswers(prev => ({ ...prev, [currentQ.id]: userChoiceSafe }))
+        setScore(newScore)
+        setAnswers(newAnswers)
+        setGameState('feedback')
 
-        if (currentIndex < questions.length - 1) {
-            setCurrentIndex(prev => prev + 1)
-        } else {
-            finishGame(score + pointsEarned)
+        // Force anti-cheat save immediately for the next state
+        if (user) {
+            const stateToSave = {
+                currentIndex: currentIndex + 1,
+                score: newScore,
+                answers: newAnswers,
+                questionStartTime: Date.now()
+            }
+            localStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))
         }
+
+        setTimeout(() => {
+            if (currentIndex < questions.length - 1) {
+                setCurrentIndex(prev => prev + 1)
+                setQuestionStartTime(Date.now())
+                setCurrentPotentialScore(MAX_Q_POINTS)
+                setGameState('playing')
+            } else {
+                finishGame(newScore)
+            }
+        }, 1200)
     }
 
     const finishGame = async (finalScore: number) => {
@@ -193,6 +208,9 @@ export default function ITMatch() {
             </header>
 
             <div className="flex-1 w-full max-w-md relative flex items-center justify-center my-4 min-h-[50dvh]">
+                {gameState === 'feedback' && (
+                    <div className="absolute inset-0 bg-black/70 z-40 rounded-2xl pointer-events-none backdrop-blur-sm transition-all duration-300"></div>
+                )}
                 <AnimatePresence>
                     {floatingPoints.map(fp => (
                         <motion.div
@@ -213,6 +231,7 @@ export default function ITMatch() {
                             key={questions[currentIndex].id}
                             question={questions[currentIndex]}
                             onSwipe={handleSwipe}
+                            gameState={gameState}
                         />
                     )}
                 </AnimatePresence>
@@ -241,7 +260,7 @@ export default function ITMatch() {
     )
 }
 
-function Card({ question, onSwipe }: { question: Question, onSwipe: (dir: 'left' | 'right') => void }) {
+function Card({ question, onSwipe, gameState }: { question: Question, onSwipe: (dir: 'left' | 'right') => void, gameState: string }) {
     const x = useMotionValue(0)
     const rotate = useTransform(x, [-200, 200], [-30, 30])
     const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0])
@@ -249,23 +268,24 @@ function Card({ question, onSwipe }: { question: Question, onSwipe: (dir: 'left'
 
     useEffect(() => {
         const handler = (e: any) => {
+            if (gameState !== 'playing') return
             const dir = e.detail
-            if (dir === 'left') x.set(-250) // Animate out
-            if (dir === 'right') x.set(250)
-            setTimeout(() => onSwipe(dir), 200)
+            onSwipe(dir)
         }
         document.addEventListener('manual-swipe', handler)
         return () => document.removeEventListener('manual-swipe', handler)
-    }, [onSwipe, x])
+    }, [onSwipe, gameState])
 
     return (
         <motion.div
             style={{ x, rotate, opacity }}
-            drag="x"
+            drag={gameState === 'playing' ? "x" : false}
             dragConstraints={{ left: 0, right: 0 }}
             onDragEnd={(_, info) => {
+                if (gameState !== 'playing') return
                 if (info.offset.x > 100) onSwipe('right')
                 else if (info.offset.x < -100) onSwipe('left')
+                x.set(0)
             }}
             className="absolute w-full h-full bg-black border border-gray-700 rounded-2xl shadow-2xl p-6 flex flex-col items-center text-center cursor-grab active:cursor-grabbing select-none"
         >
