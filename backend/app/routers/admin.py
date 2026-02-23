@@ -82,6 +82,11 @@ async def clear_patch_panel_forces():
     patch_panel.clear_force_state()
     return {"status": "cleared"}
 
+@router.delete("/hardware/patch_panel/force/{index}")
+async def clear_patch_panel_force_single(index: int):
+    patch_panel.clear_force_state(index)
+    return {"status": "cleared", "index": index}
+
 @router.get("/hardware/status")
 async def get_hardware_status():
     # Check if RPi is online

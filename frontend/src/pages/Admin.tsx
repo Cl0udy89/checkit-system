@@ -140,6 +140,11 @@ export default function Admin() {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin_hardware'] })
     })
 
+    const clearIndividualPatchPanelMutation = useMutation({
+        mutationFn: async (index: number) => api.delete(`/admin/hardware/patch_panel/force/${index}`),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin_hardware'] })
+    })
+
     return (
         <div className="min-h-screen bg-black text-green-500 font-mono p-4 md:p-8 border-x-0 md:border-4 border-green-900 overflow-x-hidden">
             <header className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-green-800 pb-4 gap-4">
@@ -244,7 +249,9 @@ export default function Admin() {
                             {status?.patch_panel?.pairs?.map((p: any, idx: number) => (
                                 <button
                                     key={idx}
-                                    onClick={() => forcePatchPanelMutation.mutate({ index: idx, state: !p.connected })}
+                                    onClick={() => p.forced
+                                        ? clearIndividualPatchPanelMutation.mutate(idx)
+                                        : forcePatchPanelMutation.mutate({ index: idx, state: !p.connected })}
                                     className={`text-center p-2 border transition-colors cursor-pointer ${p.forced
                                         ? 'bg-green-500 text-black border-green-500 font-bold'
                                         : p.connected
