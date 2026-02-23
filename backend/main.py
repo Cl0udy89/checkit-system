@@ -11,6 +11,13 @@ import logging
 logging.basicConfig(level=settings.log_level)
 logger = logging.getLogger("checkit")
 
+# Filter out spammy agent sync logs
+class EndpointFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return "/api/v1/agent/sync" not in record.getMessage()
+
+logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info(f"System Node ID: {settings.node_id}")
