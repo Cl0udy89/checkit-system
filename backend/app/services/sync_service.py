@@ -113,12 +113,15 @@ class SyncService:
         pp_state = patch_panel.get_state()
         
         # Log state changes for better observability
+        state_changed = False
         if not hasattr(self, '_last_pp_state'):
             self._last_pp_state = pp_state
+            state_changed = True
         else:
             for i, current in enumerate(pp_state):
                 last = self._last_pp_state[i]
                 if current['connected'] != last['connected']:
+                    state_changed = True
                     status_text = "PODŁĄCZONY" if current['connected'] else "ODŁĄCZONY"
                     logger.info(f"PATCH PANEL: Kabel na porcie {current['label']} (Pin {current['gpio']}) został {status_text}!")
                     
@@ -139,6 +142,16 @@ class SyncService:
                         
             self._last_pp_state = pp_state
         
+        # Only sync with server if state changed, or every 0.5s to get commands (solenoid, led)
+        now = time.time()
+        if not hasattr(self, '_last_sync_time'):
+            self._last_sync_time = 0
+            
+        if not state_changed and (now - self._last_sync_time) < 0.5:
+            return
+            
+        self._last_sync_time = now
+
         # 2. Prepare Payload
         payload = {
             "node_id": settings.node_id,
