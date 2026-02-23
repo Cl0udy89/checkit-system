@@ -74,9 +74,13 @@ export default function ITMatch() {
 
                         // Load elapsed time instead of absolute start time to prevent massive jumps when offline
                         if (parsed.elapsed !== undefined) {
-                            setQuestionStartTime(Date.now() - parsed.elapsed)
+                            const timePassed = parsed.elapsed
+                            setQuestionStartTime(Date.now() - timePassed)
+                            const activeScore = Math.max(0, MAX_Q_POINTS - (timePassed * DECAY_PER_MS))
+                            setCurrentPotentialScore(Math.floor(activeScore))
                         } else {
                             setQuestionStartTime(Date.now())
+                            setCurrentPotentialScore(MAX_Q_POINTS)
                         }
                     } catch (e) {
                         console.error('Failed to parse saved progress', e)
@@ -207,10 +211,10 @@ export default function ITMatch() {
 
     if (gameOver) {
         return (
-            <div className="min-h-screen bg-transparent flex flex-col items-center justify-center font-mono text-white p-4">
-                <h1 className="text-4xl font-bold text-primary mb-4">LICZENIE PUNKTÓW...</h1>
-                <div className="text-2xl mb-8">TWÓJ WYNIK: {score}</div>
-                <button onClick={() => navigate('/dashboard')} className="bg-primary text-black px-8 py-3 rounded font-bold hover:bg-green-400">
+            <div className="min-h-[100dvh] bg-transparent flex flex-col items-center justify-center font-mono text-white p-4">
+                <h1 className="text-5xl md:text-7xl font-bold text-primary mb-8 text-center drop-shadow-[0_0_15px_rgba(74,222,128,0.8)]">LICZENIE PUNKTÓW...</h1>
+                <div className="text-4xl md:text-6xl mb-12 text-center text-gray-300">TWÓJ WYNIK: <span className="text-accent font-bold drop-shadow-[0_0_10px_rgba(255,215,0,0.8)]">{score}</span></div>
+                <button onClick={() => navigate('/dashboard')} className="bg-primary text-black text-xl md:text-2xl px-10 py-4 rounded font-bold hover:bg-green-400 transition-all shadow-[0_0_20px_rgba(74,222,128,0.5)]">
                     POWRÓT DO BAZY
                 </button>
             </div>
