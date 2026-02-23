@@ -53,7 +53,7 @@ export default function PatchMaster() {
     const { data: hardwareState } = useQuery({
         queryKey: ['patch_panel'],
         queryFn: fetchPatchPanelState,
-        refetchInterval: 500,
+        refetchInterval: 150,
         enabled: gameStartedLocal && !isFinished
     })
 

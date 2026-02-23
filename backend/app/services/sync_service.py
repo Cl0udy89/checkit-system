@@ -29,15 +29,22 @@ class SyncService:
         logger.info("Sync Service stopped.")
 
     async def _loop(self):
+        import time
+        last_score_sync = 0
         while self.running:
             try:
                 # Hardware Sync (High Frequency if possible, or just same loop)
                 await self._sync_hardware()
-                await self._sync_scores()
+                
+                now = time.time()
+                if now - last_score_sync > settings.api.sync_interval_seconds:
+                    await self._sync_scores()
+                    last_score_sync = now
             except Exception as e:
                 logger.error(f"Error in Sync loop: {e}")
             
-            await asyncio.sleep(settings.api.sync_interval_seconds)
+            # Very fast hardware polling for responsive Patch Master UI
+            await asyncio.sleep(0.1)
 
     async def _sync_scores(self):
         async for session in get_session(): # Context manager usage from generator
