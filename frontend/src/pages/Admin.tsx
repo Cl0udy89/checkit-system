@@ -124,6 +124,11 @@ export default function Admin() {
     const setQueueStatusMutation = useMutation({ mutationFn: adminPMQueueSetStatus, onSuccess: () => refetchQueue() })
     const kickPlayerMutation = useMutation({ mutationFn: adminPMQueueKick, onSuccess: () => refetchQueue() })
 
+    const forceSolveMutation = useMutation({
+        mutationFn: async () => api.post('/game/patch-master/queue/admin/force_solve'),
+        onSuccess: () => refetchQueue()
+    })
+
     return (
         <div className="min-h-screen bg-black text-green-500 font-mono p-4 md:p-8 border-x-0 md:border-4 border-green-900 overflow-x-hidden">
             <header className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-green-800 pb-4 gap-4">
@@ -244,6 +249,13 @@ export default function Admin() {
                                         className="bg-yellow-700 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition-colors"
                                     >
                                         TRYB PRZERWY
+                                    </button>
+                                    <button
+                                        onClick={() => forceSolveMutation.mutate()}
+                                        className="bg-green-700 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors"
+                                        title="Wymusza wygraną dla aktualnie grającej osoby (awaria sprzętu z kablami)"
+                                    >
+                                        WYMUŚ ZALICZENIE
                                     </button>
                                     <button
                                         onClick={() => setQueueStatusMutation.mutate('available')}

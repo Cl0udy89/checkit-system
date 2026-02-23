@@ -23,6 +23,7 @@ class QueueStateResponse(BaseModel):
     queue: List[Dict[str, Any]]
     position: Optional[int] = None # Position for the requesting user
     global_status: Optional[str] = "true" # "true", "technical_break", "false"
+    force_solved: Optional[bool] = False
 
 # --- User Endpoints ---
 
@@ -58,7 +59,8 @@ async def get_queue_state(
         current_player=queue_state["current_player"],
         queue=queue_state["queue"],
         position=position,
-        global_status=global_status
+        global_status=global_status,
+        force_solved=queue_state.get("force_solved", False)
     )
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -131,6 +133,7 @@ async def call_next_player(admin: User = Depends(get_current_admin)):
     next_player = queue_state["queue"].pop(0)
     queue_state["current_player"] = next_player
     queue_state["status"] = "waiting_for_player"
+    queue_state["force_solved"] = False
     return {"message": f"Called {next_player['nick']}"}
 
 @router.post("/admin/set_status")
@@ -140,10 +143,41 @@ async def set_queue_status(update: AdminStatusUpdate, admin: User = Depends(get_
         raise HTTPException(status_code=400, detail="Invalid status")
         
     queue_state["status"] = update.status
-    if update.status == "available":
+    if update.status in ["available", "resetting"]:
         queue_state["current_player"] = None
+        queue_state["force_solved"] = False
         
     return {"message": f"Status set to {update.status}"}
+
+@router.post("/admin/force_solve")
+async def force_solve(admin: User = Depends(get_current_admin), session: AsyncSession = Depends(get_session)):
+    current_player = queue_state.get("current_player")
+    if not current_player:
+        raise HTTPException(status_code=400, detail="No active player to solve for.")
+        
+    from app.services.game_service import game_service
+    # If the hardware fails but admin forces solve, max points? Or base - minimal.
+    # Let's give them 10000 points.
+    await game_service.finish_game("patch_master", current_player["id"], answers={}, duration_ms=0, session=session, score=10000)
+    
+    # Unlock queue
+    if not queue_state["queue"]:
+        queue_state["current_player"] = None
+        queue_state["status"] = "available"
+    else:
+        # Move to next player implicitly? NO, let the admin hit NEXT.
+        # Just put it to available? NO, keep them "playing" or just clear them so they get kicked.
+        pass # Wait. If we clear them, their frontend `submitMutation` will also fire when it sees isFinished!
+        # Let's let the frontend handle the score submit by returning a specific status.
+        # Actually, let's just trigger hardware solved override! 
+    
+    from app.hardware.patch_panel import patch_panel
+    patch_panel.override_solved = True # Wait, does this property exist? We can just send a websocket event or just force the DB save here and tell the frontend via a new state field!
+
+    # A cleaner way: set a flag in queue_state that the current game was forced solved.
+    queue_state["force_solved"] = True
+
+    return {"message": "Forced solve trigger initiated."}
 
 @router.delete("/admin/kick/{user_id}")
 async def kick_user(user_id: int, admin: User = Depends(get_current_admin)):

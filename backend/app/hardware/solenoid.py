@@ -12,6 +12,7 @@ class Solenoid:
         self.duration = settings.hardware.solenoid_open_time_sec
         self._is_active = False # Tracks if we're sending current
         self._is_open = False   # Tracks physical box state
+        self._command_queue = [] # Queue for commands from Server to Agent
         
         # Setup GPIO
         if gpio_manager.is_rpi_mode():

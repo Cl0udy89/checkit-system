@@ -103,7 +103,7 @@ export default function PatchMaster() {
 
     // Check win condition
     useEffect(() => {
-        if (hardwareState?.solved && !isFinished && gameStartedLocal && startTime) {
+        if ((hardwareState?.solved || qState?.force_solved) && !isFinished && gameStartedLocal && startTime) {
             setIsFinished(true)
             const duration = Date.now() - startTime
             submitMutation.mutate({
@@ -112,9 +112,17 @@ export default function PatchMaster() {
                 answers: {},
                 duration_ms: duration
             })
-            // Reset queue local state so we see the finish screen or dashboard
         }
-    }, [hardwareState, isFinished, startTime, user, submitMutation, gameStartedLocal])
+    }, [hardwareState, qState?.force_solved, isFinished, startTime, user, submitMutation, gameStartedLocal])
+
+    // Check Interrupt Condition
+    useEffect(() => {
+        if (qState?.status === 'resetting' && gameStartedLocal && !isFinished) {
+            setIsFinished(true)
+            alert("GRA PRZERWANA PRZEZ ADMINISTRATORA. Punkty nie zostały naliczone.")
+            navigate('/dashboard')
+        }
+    }, [qState?.status, gameStartedLocal, isFinished, navigate])
 
 
     // Derived UI States
@@ -203,7 +211,7 @@ export default function PatchMaster() {
                     )}
 
                     {/* QUEUE ACTIONS */}
-                    {(!isMyTurn && !someoneElsePlaying && !someoneElseWaiting) || isGlobalBreak || isResetting ? (
+                    {!isMyTurn && (
                         <div className="flex flex-col items-center border-t border-gray-700 pt-8 mt-4">
                             <Users size={48} className="text-gray-500 mb-4" />
                             <h3 className="text-xl font-mono text-white mb-6">KOLEJKA GRACZY ({qState?.queue?.length || 0})</h3>
@@ -220,7 +228,7 @@ export default function PatchMaster() {
                                     </button>
                                 </div>
                             ) : (
-                                !isGlobalBreak && !isResetting ? (
+                                !isGlobalBreak && !isResetting && !gameStartedLocal && !someoneElsePlaying ? (
                                     <button
                                         onClick={() => joinMutation.mutate()}
                                         className="bg-accent hover:bg-yellow-400 text-black px-8 py-4 rounded font-mono font-bold text-xl transition-all shadow-[0_0_20px_rgba(243,234,95,0.4)]"
@@ -228,11 +236,13 @@ export default function PatchMaster() {
                                         DOŁĄCZ DO KOLEJKI
                                     </button>
                                 ) : (
-                                    <p className="text-gray-500 font-mono">Dołączanie zablokowane na czas przerwy.</p>
+                                    <p className="text-gray-500 font-mono">
+                                        {gameStartedLocal || someoneElsePlaying ? 'Trwa gra.' : 'Dołączanie zablokowane na czas przerwy.'}
+                                    </p>
                                 )
                             )}
                         </div>
-                    ) : null}
+                    )}
                 </div>
             </div>
         )
@@ -242,13 +252,13 @@ export default function PatchMaster() {
         const pairs = hardwareState?.pairs || []
         return (
             <div className="flex-1 flex flex-col w-full max-w-4xl mx-auto z-10">
-                <div className="w-full flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
-                    <h1 className="text-2xl font-mono text-accent flex items-center gap-2">
-                        <Zap size={24} /> GRA ROZPOCZĘTA
+                <div className="w-full flex justify-between items-center mb-8 border-b border-gray-800 pb-4 gap-4 flex-wrap">
+                    <h1 className="text-xl md:text-2xl font-mono text-accent flex items-center gap-2">
+                        <Zap size={24} className="shrink-0" /> GRA ROZPOCZĘTA
                     </h1>
-                    <div className="text-right">
+                    <div className="text-right whitespace-nowrap">
                         <div className="text-xs text-gray-500 font-mono">AKTUALNY WYNIK</div>
-                        <div className="text-4xl font-mono font-bold text-white tracking-widest text-shadow-neon">
+                        <div className="text-3xl md:text-4xl font-mono font-bold text-white tracking-widest text-shadow-neon">
                             {currentScore.toString().padStart(5, '0')}
                         </div>
                     </div>
