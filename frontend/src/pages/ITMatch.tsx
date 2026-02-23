@@ -176,7 +176,7 @@ export default function ITMatch() {
     }
 
     return (
-        <div className="min-h-[100dvh] bg-transparent flex flex-col items-center justify-between p-4 relative touch-none overflow-hidden">
+        <div className="min-h-[100dvh] bg-transparent flex flex-col items-center justify-between p-4 relative touch-none select-none overflow-hidden">
             <header className="w-full max-w-lg mt-2 md:mt-4 flex flex-row justify-between items-start z-10 font-mono text-white px-2">
                 <div className="relative font-bold flex flex-col items-start gap-1">
                     <div className="text-xl md:text-3xl text-gray-300">
@@ -185,19 +185,6 @@ export default function ITMatch() {
                     <div className="text-base md:text-xl text-gray-400">
                         PULA: <span className="text-xl md:text-2xl text-white font-bold tracking-widest">{currentPotentialScore.toString().padStart(4, '0')}</span>
                     </div>
-                    <AnimatePresence>
-                        {floatingPoints.map(fp => (
-                            <motion.div
-                                key={fp.id}
-                                initial={{ opacity: 0, y: 0, scale: 0.5 }}
-                                animate={{ opacity: 1, y: -40, scale: 1.2 }}
-                                exit={{ opacity: 0 }}
-                                className={`absolute left-full top-0 ml-4 font-bold z-50 pointer-events-none drop-shadow-md text-2xl md:text-3xl whitespace-nowrap ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.8)]' : 'text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]'}`}
-                            >
-                                {fp.val > 0 ? `+${fp.val}` : fp.val} <span className="text-base opacity-80">({fp.label})</span>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
                 </div>
                 <div className="text-2xl md:text-3xl text-gray-400 font-bold tracking-widest">
                     <span className="text-sm md:text-lg block text-right text-gray-500 font-normal">PROG</span>
@@ -206,6 +193,20 @@ export default function ITMatch() {
             </header>
 
             <div className="flex-1 w-full max-w-md relative flex items-center justify-center my-4 min-h-[50dvh]">
+                <AnimatePresence>
+                    {floatingPoints.map(fp => (
+                        <motion.div
+                            key={fp.id}
+                            initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, y: -100, scale: 1.5 }}
+                            exit={{ opacity: 0 }}
+                            className={`absolute z-50 font-bold pointer-events-none text-4xl md:text-5xl whitespace-nowrap drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
+                        >
+                            {fp.val > 0 ? `+${fp.val}` : fp.val}
+                            <div className="text-xl md:text-2xl text-center opacity-90 mt-2">{fp.label}</div>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
                 <AnimatePresence>
                     {questions.length > 0 && currentIndex < questions.length && (
                         <Card

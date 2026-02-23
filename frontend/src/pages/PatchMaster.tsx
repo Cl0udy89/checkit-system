@@ -17,6 +17,12 @@ export default function PatchMaster() {
     const [currentScore, setCurrentScore] = useState(10000)
     const [isFinished, setIsFinished] = useState(false)
 
+    // --- STATS STATE ---
+    const [timeDeltas, setTimeDeltas] = useState<{ port: string, deltaMs: number, label: string }[]>([])
+    const [lastPlugTime, setLastPlugTime] = useState<number | null>(null)
+    const [lastKnownPairs, setLastKnownPairs] = useState<any[] | null>(null)
+    const [finalDuration, setFinalDuration] = useState<number | null>(null)
+
     // --- QUEUE DATA ---
     const { data: qState } = useQuery({
         queryKey: ['pm_queue'],
@@ -59,9 +65,8 @@ export default function PatchMaster() {
 
     const submitMutation = useMutation({
         mutationFn: submitGameScore,
-        onSuccess: (data) => {
-            alert(`Udało się! Twój wynik to: ${data.score}`)
-            navigate('/dashboard')
+        onSuccess: () => {
+            // Stats UI will handle display; don't navigate
         }
     })
 
@@ -85,6 +90,7 @@ export default function PatchMaster() {
             if (score <= 0) {
                 clearInterval(interval)
                 setCurrentScore(0)
+                setFinalDuration(elapsed)
                 setIsFinished(true)
                 triggerTimeoutFlash().catch(console.error)
                 submitMutation.mutate({
@@ -93,7 +99,6 @@ export default function PatchMaster() {
                     answers: {},
                     duration_ms: elapsed
                 })
-                alert("CZAS MINĄŁ! Podłączanie nieudane.")
             } else {
                 setCurrentScore(Math.floor(score))
             }
@@ -106,6 +111,7 @@ export default function PatchMaster() {
         if ((hardwareState?.solved || qState?.force_solved) && !isFinished && gameStartedLocal && startTime) {
             setIsFinished(true)
             const duration = Date.now() - startTime
+            setFinalDuration(duration)
             submitMutation.mutate({
                 user_id: user?.id || 0,
                 game_type: 'patch_master',
@@ -114,6 +120,26 @@ export default function PatchMaster() {
             })
         }
     }, [hardwareState, qState?.force_solved, isFinished, startTime, user, submitMutation, gameStartedLocal])
+
+    // Hardware Pair Plug Tracking
+    useEffect(() => {
+        if (!gameStartedLocal || isFinished || !startTime || !hardwareState?.pairs) return
+
+        if (!lastPlugTime) setLastPlugTime(startTime)
+
+        if (lastKnownPairs) {
+            hardwareState.pairs.forEach((currentPair: any, idx: number) => {
+                const prevPair = lastKnownPairs[idx]
+                if (!prevPair.connected && currentPair.connected) {
+                    const now = Date.now()
+                    const deltaMs = now - (lastPlugTime || startTime)
+                    setTimeDeltas(prev => [...prev, { port: currentPair.gpio, deltaMs, label: currentPair.label }])
+                    setLastPlugTime(now)
+                }
+            })
+        }
+        setLastKnownPairs(hardwareState.pairs)
+    }, [hardwareState?.pairs, gameStartedLocal, isFinished, startTime, lastPlugTime])
 
     // Check Interrupt Condition
     useEffect(() => {
@@ -248,6 +274,64 @@ export default function PatchMaster() {
         )
     }
 
+    const renderStatsUI = () => {
+        const fastestPlug = timeDeltas.length > 0 ? timeDeltas.reduce((min, p) => p.deltaMs < min.deltaMs ? p : min, timeDeltas[0]) : null
+        const slowestPlug = timeDeltas.length > 0 ? timeDeltas.reduce((max, p) => p.deltaMs > max.deltaMs ? p : max, timeDeltas[0]) : null
+        const avgPlug = timeDeltas.length > 0 ? Math.round(timeDeltas.reduce((sum, p) => sum + p.deltaMs, 0) / timeDeltas.length) : 0
+        const isSuccess = currentScore > 0
+
+        return (
+            <div className="flex-1 flex flex-col items-center justify-center w-full max-w-4xl mx-auto z-10 p-2 md:p-4">
+                <h1 className={`text-4xl md:text-5xl font-mono font-bold mb-4 md:mb-8 text-center drop-shadow-md ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>
+                    {isSuccess ? 'ZADANIE UKOŃCZONE' : 'CZAS MINĄŁ'}
+                </h1>
+
+                <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-4 md:mb-8">
+                        <div className="text-center p-4 md:p-6 border border-gray-700 rounded-lg bg-black/50">
+                            <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">WYNIK KOŃCOWY</div>
+                            <div className="text-4xl md:text-5xl font-bold text-accent font-mono">{currentScore}</div>
+                        </div>
+                        <div className="text-center p-4 md:p-6 border border-gray-700 rounded-lg bg-black/50">
+                            <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">CAŁKOWITY CZAS</div>
+                            <div className="text-4xl md:text-5xl font-bold text-white font-mono">{finalDuration ? (finalDuration / 1000).toFixed(2) : '---'}s</div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-8">
+                        <div className="p-3 md:p-4 border border-green-900/50 bg-green-900/10 rounded-lg flex flex-col items-center text-center">
+                            <div className="text-[10px] md:text-xs text-green-500/80 mb-2 font-mono">NAJSZYBSZE WPIĘCIE</div>
+                            <div className="text-xl md:text-2xl font-bold text-green-400 font-mono mb-1">{fastestPlug ? (fastestPlug.deltaMs / 1000).toFixed(2) + 's' : '---'}</div>
+                            <div className="text-[10px] md:text-sm text-gray-500 font-mono">{fastestPlug ? `Port: ${fastestPlug.label}` : ''}</div>
+                        </div>
+                        <div className="p-3 md:p-4 border border-red-900/50 bg-red-900/10 rounded-lg flex flex-col items-center text-center">
+                            <div className="text-[10px] md:text-xs text-red-500/80 mb-2 font-mono">NAJDŁUŻSZE ZASTANOWIENIE</div>
+                            <div className="text-xl md:text-2xl font-bold text-red-400 font-mono mb-1">{slowestPlug ? (slowestPlug.deltaMs / 1000).toFixed(2) + 's' : '---'}</div>
+                            <div className="text-[10px] md:text-sm text-gray-500 font-mono">{slowestPlug ? `Port: ${slowestPlug.label}` : ''}</div>
+                        </div>
+                        <div className="p-3 md:p-4 border border-blue-900/50 bg-blue-900/10 rounded-lg flex flex-col items-center text-center">
+                            <div className="text-[10px] md:text-xs text-blue-500/80 mb-2 font-mono">ŚREDNI CZAS AKCJI</div>
+                            <div className="text-xl md:text-2xl font-bold text-blue-400 font-mono mb-1">{avgPlug ? (avgPlug / 1000).toFixed(2) + 's' : '---'}</div>
+                            <div className="text-[10px] md:text-sm text-gray-500 font-mono">na pojedynczy port</div>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-center mt-6 md:mt-8">
+                        <button
+                            onClick={() => {
+                                queryClient.invalidateQueries({ queryKey: ['pm_queue'] })
+                                navigate('/dashboard')
+                            }}
+                            className="bg-gray-800 hover:bg-gray-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-lg font-bold font-mono text-lg md:text-xl transition-colors border border-gray-600"
+                        >
+                            POWRÓT DO BAZY
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     const renderGameUI = () => {
         const pairs = hardwareState?.pairs || []
         return (
@@ -306,14 +390,16 @@ export default function PatchMaster() {
 
     return (
         <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden touch-none overflow-hidden">
-            <button
-                onClick={handleExit}
-                className="absolute top-4 left-4 z-50 bg-red-900/60 hover:bg-red-900 text-white font-mono px-4 py-2 rounded-lg border border-red-500/50 transition-all flex items-center gap-2 shadow-lg backdrop-blur-md"
-            >
-                <X size={20} /> WYJDŹ
-            </button>
+            {!isFinished && (
+                <button
+                    onClick={handleExit}
+                    className="absolute top-4 left-4 z-50 bg-red-900/60 hover:bg-red-900 text-white font-mono px-4 py-2 rounded-lg border border-red-500/50 transition-all flex items-center gap-2 shadow-lg backdrop-blur-md"
+                >
+                    <X size={20} /> WYJDŹ
+                </button>
+            )}
 
-            {(gameStartedLocal || isPlaying) ? renderGameUI() : renderQueueUI()}
+            {isFinished ? renderStatsUI() : (gameStartedLocal || isPlaying) ? renderGameUI() : renderQueueUI()}
         </div>
     )
 }
