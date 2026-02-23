@@ -9,7 +9,7 @@ class Solenoid:
     def __init__(self):
         self.pin = settings.hardware.solenoid_pin
         self.sensor_pin = settings.hardware.solenoid_sensor_pin
-        self.duration = settings.hardware.solenoid_open_time_sec
+        self.duration = 1.0 # Forced to 1s safety limit
         self._is_active = False # Tracks if we're sending current
         self._is_open = False   # Tracks physical box state
         self._command_queue = [] # Queue for commands from Server to Agent

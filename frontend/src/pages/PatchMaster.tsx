@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchPatchPanelState, submitGameScore, fetchPMQueue, joinPMQueue, leavePMQueue, startPMQueue, triggerTimeoutFlash } from '../lib/api'
+import { fetchPatchPanelState, submitGameScore, fetchPMQueue, joinPMQueue, leavePMQueue, startPMQueue, triggerTimeoutFlash, finishPMGame } from '../lib/api'
 import { useGameStore } from '../hooks/useGameStore'
 import { Zap, Users, ShieldAlert, PlayCircle, X } from 'lucide-react'
 import clsx from 'clsx'
@@ -66,7 +66,14 @@ export default function PatchMaster() {
     const submitMutation = useMutation({
         mutationFn: submitGameScore,
         onSuccess: () => {
-            // Stats UI will handle display; don't navigate
+            // Stats UI will handle display; don't navigate yet
+            // Free the queue for the next player!
+            finishPMGame().catch((e) => console.error("Failed to finish PM game", e))
+        },
+        onError: (err: any) => {
+            if (err?.response?.status === 403) {
+                alert(err?.response?.data?.detail === "PRZERWA_TECHNICZNA" ? "PRZERWA TECHNICZNA: Czekaj." : "ZAWODY ZAKOŃCZONE");
+            }
         }
     })
 
@@ -218,13 +225,21 @@ export default function PatchMaster() {
                         <div className="text-green-500 flex flex-col items-center mb-8 animate-pulse shadow-[0_0_50px_rgba(0,255,0,0.2)] p-4 rounded-xl border border-green-500/50">
                             <h2 className="text-4xl font-mono font-bold mb-2">TO TWOJA KOLEJ!</h2>
                             <p className="text-white font-mono text-xl mb-6">Podejdź do skrzynki i kliknij start.</p>
-                            <button
-                                onClick={() => startMutation.mutate()}
-                                className="bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded font-mono font-bold text-2xl flex items-center gap-2 transition-all"
-                            >
-                                <PlayCircle size={32} />
-                                START GRY
-                            </button>
+                            {hardwareState?.solved ? (
+                                <div className="bg-red-900/50 border border-red-500 text-red-200 px-6 py-4 rounded-lg font-mono text-center">
+                                    <strong>UWAGA:</strong><br />
+                                    Kable są obecnie podłączone przez poprzedniego gracza.<br />
+                                    <strong>Odłącz wszystkie kable</strong> aby móc rozpocząć grę!
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => startMutation.mutate()}
+                                    className="bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded font-mono font-bold text-2xl flex items-center gap-2 transition-all"
+                                >
+                                    <PlayCircle size={32} />
+                                    START GRY
+                                </button>
+                            )}
                         </div>
                     )}
 

@@ -69,6 +69,9 @@ export const deleteUser = async (userId: number) => {
     return res.data
 }
 
+export const fetchUserScores = async (id: number) => (await api.get(`/admin/users/${id}/scores`)).data
+export const deleteUserScore = async (id: number, gameType: string) => (await api.delete(`/admin/users/${id}/scores/${gameType}`)).data
+
 export const fetchAdminUsers = async () => (await api.get('/admin/users')).data
 export const fetchAdminScores = async () => (await api.get('/admin/scores')).data
 
@@ -84,9 +87,15 @@ export const fetchGameContent = async (gameType: string) => {
     return data
 }
 
-export const submitGameScore = async (payload: { user_id: number, game_type: string, answers: any, duration_ms: number, score?: number }) => {
-    const { data } = await api.post('/games/submit', payload)
-    return data
+// Game Submit
+export const submitGameScore = async (data: { user_id: number; game_type: string; score?: number; answers?: any; duration_ms: number }) => {
+    const res = await api.post('/games/submit', data)
+    return res.data
+}
+
+export const finishPMGame = async () => {
+    const res = await api.post('/queue/patch-master/finish')
+    return res.data
 }
 
 export const fetchGameStatus = async (userId: number) => {

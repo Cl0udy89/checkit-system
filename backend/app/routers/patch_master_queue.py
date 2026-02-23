@@ -105,6 +105,16 @@ async def start_game(user: User = Depends(get_current_user)):
     queue_state["status"] = "playing"
     return {"message": "Game started"}
 
+@router.post("/finish")
+async def finish_player_game(user: User = Depends(get_current_user)):
+    # Called by frontend right after successful game score submission
+    if queue_state["current_player"] and queue_state["current_player"]["id"] == user.id:
+        queue_state["current_player"] = None
+        queue_state["status"] = "available"
+        queue_state["force_solved"] = False
+        return {"message": "Game finished, queue freed"}
+    return {"message": "No active game to finish"}
+
 @router.post("/timeout-flash")
 async def trigger_timeout_flash(user: User = Depends(get_current_user)):
     # Flashes the physical LED red for 5 seconds when a user runs out of time

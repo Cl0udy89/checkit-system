@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { api, fetchAdminUsers, fetchAdminScores, deleteUser, fetchSystemConfig, setSystemConfig, fetchEmailTemplates, updateEmailTemplate, sendAllEmails, clearLogs, resetDatabase, fetchPMQueue, adminPMQueueNext, adminPMQueueSetStatus, adminPMQueueKick } from '../lib/api'
+import { api, fetchAdminUsers, fetchAdminScores, deleteUser, fetchSystemConfig, setSystemConfig, fetchEmailTemplates, updateEmailTemplate, sendAllEmails, clearLogs, resetDatabase, fetchPMQueue, adminPMQueueNext, adminPMQueueSetStatus, adminPMQueueKick, fetchUserScores, deleteUserScore } from '../lib/api'
 import { useNavigate } from 'react-router-dom'
 import { Shield, Zap, RefreshCw, Lock, LogOut, Settings, Mail } from 'lucide-react'
 import AdminLogin from './AdminLogin'
-import { useState } from 'react'
+import React, { useState } from 'react'
 
 // Direct axios calls for admin to save time updating api.ts
 const triggerSolenoid = async () => api.post('/admin/solenoid/trigger')
@@ -16,6 +16,7 @@ export default function Admin() {
     const token = localStorage.getItem('admin_token')
     const [activeTab, setActiveTab] = useState<'hardware' | 'users' | 'scores' | 'logs' | 'settings' | 'email'>('hardware')
     const [emailSuccess, setEmailSuccess] = useState('')
+    const [expandedUser, setExpandedUser] = useState<number | null>(null)
 
     if (!token) return <AdminLogin />
 
@@ -30,6 +31,12 @@ export default function Admin() {
         queryKey: ['admin_users'],
         queryFn: fetchAdminUsers,
         enabled: activeTab === 'users'
+    })
+
+    const { data: userScores, refetch: refetchUserScores } = useQuery({
+        queryKey: ['admin_user_scores', expandedUser],
+        queryFn: () => fetchUserScores(expandedUser!),
+        enabled: activeTab === 'users' && expandedUser !== null
     })
 
     const { data: scores } = useQuery({
@@ -377,30 +384,74 @@ export default function Admin() {
                         </thead>
                         <tbody>
                             {users?.map((u: any) => (
-                                <tr key={u.id} className="border-b border-green-900 hover:bg-green-900/10">
-                                    <td className="p-3">{u.id}</td>
-                                    <td className="p-3 font-bold text-white">{u.nick}</td>
-                                    <td className="p-3 text-gray-400">{u.email}</td>
-                                    <td className="p-3">{u.created_at}</td>
-                                    <td className="p-3">
-                                        <button
-                                            onClick={async () => {
-                                                if (confirm(`Czy na pewno chcesz usunąć użytkownika ${u.nick}? To usunie również jego wyniki.`)) {
-                                                    try {
-                                                        await deleteUser(u.id)
-                                                        alert("Użytkownik usunięty")
-                                                        window.location.reload()
-                                                    } catch (e) {
-                                                        alert("Błąd usuwania")
+                                <React.Fragment key={u.id}>
+                                    <tr
+                                        onClick={() => setExpandedUser(expandedUser === u.id ? null : u.id)}
+                                        className="border-b border-green-900 hover:bg-green-900/10 cursor-pointer transition-colors"
+                                    >
+                                        <td className="p-3">{u.id}</td>
+                                        <td className="p-3 font-bold text-white max-w-[150px] truncate">{u.nick}</td>
+                                        <td className="p-3 text-gray-400 max-w-[200px] truncate">{u.email}</td>
+                                        <td className="p-3">{new Date(u.created_at).toLocaleDateString()}</td>
+                                        <td className="p-3">
+                                            <button
+                                                onClick={async (e) => {
+                                                    e.stopPropagation()
+                                                    if (confirm(`Czy na pewno chcesz usunąć użytkownika ${u.nick}? To usunie również jego wyniki.`)) {
+                                                        try {
+                                                            await deleteUser(u.id)
+                                                            alert("Użytkownik usunięty")
+                                                            window.location.reload()
+                                                        } catch (e) {
+                                                            alert("Błąd usuwania")
+                                                        }
                                                     }
-                                                }
-                                            }}
-                                            className="bg-red-900/50 hover:bg-red-600 text-red-200 hover:text-white px-2 py-1 rounded text-xs border border-red-800 transition-colors"
-                                        >
-                                            USUŃ
-                                        </button>
-                                    </td>
-                                </tr>
+                                                }}
+                                                className="bg-red-900/50 hover:bg-red-600 text-red-200 hover:text-white px-2 py-1 rounded text-xs border border-red-800 transition-colors"
+                                            >
+                                                USUŃ
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {expandedUser === u.id && (
+                                        <tr className="bg-black/40 border-b border-green-900/50">
+                                            <td colSpan={5} className="p-4">
+                                                <div className="flex flex-col gap-2">
+                                                    <h4 className="text-green-400 font-bold mb-2 text-xs uppercase tracking-wider">ROZGRANE MODUŁY:</h4>
+                                                    {!userScores || userScores.length === 0 ? (
+                                                        <span className="text-gray-500 text-sm">Brak rozegranych gier.</span>
+                                                    ) : (
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {userScores.map((score: any) => (
+                                                                <div key={score.id} className="flex items-center justify-between bg-green-900/20 border border-green-800/50 p-2 rounded w-full max-w-sm">
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-white font-bold">{score.game_type}</span>
+                                                                        <span className="text-gray-400 text-xs text-left">Wynik: {score.score} | Czas: {score.duration_ms ? (score.duration_ms / 1000).toFixed(2) + "s" : "-"}</span>
+                                                                    </div>
+                                                                    <button
+                                                                        onClick={async () => {
+                                                                            if (confirm(`Zresetować wynik z gry ${score.game_type} dla gracza ${u.nick}? Gracz będzie mógł zagrać ponownie.`)) {
+                                                                                try {
+                                                                                    await deleteUserScore(u.id, score.game_type)
+                                                                                    refetchUserScores()
+                                                                                } catch (e) {
+                                                                                    alert("Błąd podczas usuwania wyniku")
+                                                                                }
+                                                                            }
+                                                                        }}
+                                                                        className="ml-4 bg-orange-900/40 hover:bg-orange-700 text-orange-200 hover:text-white px-2 py-1 rounded border border-orange-800 text-xs transition-colors shrink-0"
+                                                                    >
+                                                                        ZRESETUJ WYNIK
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </React.Fragment>
                             ))}
                         </tbody>
                     </table>

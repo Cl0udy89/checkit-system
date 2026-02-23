@@ -164,6 +164,21 @@ async def delete_user(user_id: int, session: AsyncSession = Depends(get_session)
     await session.commit()
     return {"status": "deleted", "user_id": user_id}
 
+@router.get("/users/{user_id}/scores")
+async def get_user_scores(user_id: int, session: AsyncSession = Depends(get_session)):
+    from app.models import GameScore
+    from sqlmodel import select
+    result = await session.execute(select(GameScore).where(GameScore.user_id == user_id))
+    return result.scalars().all()
+
+@router.delete("/users/{user_id}/scores/{game_type}")
+async def delete_user_game_score(user_id: int, game_type: str, session: AsyncSession = Depends(get_session)):
+    from app.models import GameScore
+    from sqlmodel import delete
+    await session.execute(delete(GameScore).where(GameScore.user_id == user_id, GameScore.game_type == game_type))
+    await session.commit()
+    return {"status": "deleted", "user_id": user_id, "game_type": game_type}
+
 @router.get("/scores")
 async def get_scores(session: AsyncSession = Depends(get_session)):
     from app.models import GameScore, User
