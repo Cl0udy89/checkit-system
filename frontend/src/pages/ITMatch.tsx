@@ -53,18 +53,28 @@ export default function ITMatch() {
 
     useEffect(() => {
         if (data) {
-            setQuestions(data)
+            let loadedQuestions = [...data]
+            // Default: shuffle them if it's a fresh game
+            let shouldShuffle = true
+
             // Load saved progress if available
             if (user) {
                 const savedProgress = localStorage.getItem(`it_match_state_${user.id}`)
                 if (savedProgress) {
                     try {
                         const parsed = JSON.parse(savedProgress)
+                        if (parsed.questions && parsed.questions.length > 0) {
+                            loadedQuestions = parsed.questions
+                            shouldShuffle = false // We already have a saved randomized order
+                        }
+
                         setCurrentIndex(parsed.currentIndex || 0)
                         setScore(parsed.score || 0)
                         setAnswers(parsed.answers || {})
-                        if (parsed.questionStartTime) {
-                            setQuestionStartTime(parsed.questionStartTime)
+
+                        // Load elapsed time instead of absolute start time to prevent massive jumps when offline
+                        if (parsed.elapsed !== undefined) {
+                            setQuestionStartTime(Date.now() - parsed.elapsed)
                         } else {
                             setQuestionStartTime(Date.now())
                         }
@@ -73,16 +83,32 @@ export default function ITMatch() {
                     }
                 }
             }
+
+            if (shouldShuffle) {
+                // Fisher-Yates shuffle
+                for (let i = loadedQuestions.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [loadedQuestions[i], loadedQuestions[j]] = [loadedQuestions[j], loadedQuestions[i]];
+                }
+            }
+            setQuestions(loadedQuestions)
         }
     }, [data, user])
 
     // Save progress continuously
     useEffect(() => {
-        if (user && questions.length > 0 && !gameOver) {
-            const stateToSave = { currentIndex, score, answers, questionStartTime }
+        if (user && questions.length > 0 && !gameOver && gameState === 'playing') {
+            const currentElapsed = Date.now() - questionStartTime
+            const stateToSave = {
+                currentIndex,
+                score,
+                answers,
+                elapsed: currentElapsed,
+                questions
+            }
             localStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))
         }
-    }, [currentIndex, score, answers, questionStartTime, user, questions, gameOver])
+    }, [currentIndex, score, answers, questionStartTime, user, questions, gameOver, gameState])
 
     // Timer Effect (Per Question)
     useEffect(() => {
@@ -124,7 +150,8 @@ export default function ITMatch() {
                 currentIndex: currentIndex + 1,
                 score: newScore,
                 answers: newAnswers,
-                questionStartTime: Date.now()
+                elapsed: 0, // Reset elapsed for the next question
+                questions: questions
             }
             localStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))
         }
@@ -207,10 +234,7 @@ export default function ITMatch() {
                 </div>
             </header>
 
-            <div className="flex-1 w-full max-w-md relative flex items-center justify-center my-4 min-h-[50dvh]">
-                {gameState === 'feedback' && (
-                    <div className="absolute inset-0 bg-black/70 z-40 rounded-2xl pointer-events-none backdrop-blur-sm transition-all duration-300"></div>
-                )}
+            <div className="flex-1 w-full max-w-md relative flex justify-center items-center my-4 min-h-[50dvh]">
                 <AnimatePresence>
                     {floatingPoints.map(fp => (
                         <motion.div
@@ -218,7 +242,7 @@ export default function ITMatch() {
                             initial={{ opacity: 0, y: 0, scale: 0.5 }}
                             animate={{ opacity: 1, y: -100, scale: 1.5 }}
                             exit={{ opacity: 0 }}
-                            className={`absolute z-50 font-bold pointer-events-none text-4xl md:text-5xl whitespace-nowrap drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
+                            className={`absolute z-[60] font-bold pointer-events-none text-4xl md:text-5xl whitespace-nowrap drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
                         >
                             {fp.val > 0 ? `+${fp.val}` : fp.val}
                             <div className="text-xl md:text-2xl text-center opacity-90 mt-2">{fp.label}</div>
@@ -287,9 +311,14 @@ function Card({ question, onSwipe, gameState }: { question: Question, onSwipe: (
                 else if (info.offset.x < -100) onSwipe('left')
                 x.set(0)
             }}
-            className="absolute w-full h-full bg-black border border-gray-700 rounded-2xl shadow-2xl p-6 flex flex-col items-center text-center cursor-grab active:cursor-grabbing select-none"
+            className="absolute w-full h-full bg-black border border-gray-700 rounded-2xl shadow-2xl p-6 flex flex-col items-center text-center cursor-grab active:cursor-grabbing select-none relative overflow-hidden"
         >
             <motion.div className="absolute inset-0 rounded-2xl pointer-events-none z-0" style={{ backgroundColor: bg }} />
+
+            {/* Feedback overlay INSIDE the card so only the card darkens */}
+            {gameState === 'feedback' && (
+                <div className="absolute inset-0 bg-black/70 z-40 rounded-2xl pointer-events-none backdrop-blur-sm transition-all duration-300"></div>
+            )}
 
             <div className="w-full aspect-square md:aspect-[4/5] bg-gray-800 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative z-10">
                 {question.image && question.image !== 'none' ? (
