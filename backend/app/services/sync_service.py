@@ -125,7 +125,10 @@ class SyncService:
                     status_text = "PODŁĄCZONY" if current['connected'] else "ODŁĄCZONY"
                     logger.info(f"PATCH PANEL: Kabel na porcie {current['label']} (Pin {current['gpio']}) został {status_text}!")
                     
-                    # LED Interactions
+                    # LED Interactions (Removed hardware-level effects, letting API handle it)
+                    is_now_solved = patch_panel.is_solved()
+                    was_solved = all(p['connected'] for p in self._last_pp_state)
+
                     if is_now_solved:
                         # let frontend decide what to do
                         logger.info("🟢 PANEL ROZWIĄZANY 🟢")
@@ -134,7 +137,6 @@ class SyncService:
                         logger.info("🔴 PANEL PRZERWANY 🔴")
                     elif current['connected']:  # Just a single connection, not yet solved
                         logger.info("✨ IMPULS (WYKRYTO KABEL) ✨")
-                        # asyncio.create_task(led_manager.trigger_connection_pulse())
                         
             self._last_pp_state = pp_state
         
