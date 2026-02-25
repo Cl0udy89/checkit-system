@@ -41,27 +41,22 @@ class GameService:
             else:
                 final_score, _ = await self._calculate_binary_brain(answers, duration_ms)
             
-            # Solenoid Trigger: Score >= 5000
-            if final_score >= 5000:
-                logger.info(f"Binary Brain passed! Score: {final_score}. Triggering Solenoid.")
-                import asyncio
-                asyncio.create_task(solenoid.open_box())
-                
-                # Log Event
-                session.add(GameLog(event_type="SOLENOID", details=f"Open Triggered by User {user_id} (Score: {final_score})"))
-            else:
-                logger.info(f"Binary Brain finished but score {final_score} < 5000. No box.")
+            # Solenoid trigger removed from Binary Brain per user request.
+            # It now only opens for Patch Master.
 
         elif game_type == "patch_master":
             final_score = await self._calculate_patch_master(duration_ms)
             # Patch Master validation is checking hardware state
             # Assuming client calls finish when it Thinks it's done.
             # Double check hardware:
-            if not patch_panel.is_solved():
+            if not patch_panel.is_solved() and score != 10000: # Admin force solve grants 10k
                 logger.warning("Patch Master finish requested but hardware not solved.")
                 final_score = 0 # Penalty?
             else:
-                logger.info("Patch Master solved verified.")
+                logger.info("Patch Master solved verified. Triggering Solenoid.")
+                import asyncio
+                asyncio.create_task(solenoid.open_box())
+                session.add(GameLog(event_type="SOLENOID", details=f"Open Triggered by User {user_id} (Patch Master)"))
 
         elif game_type == "it_match":
             if score is not None:

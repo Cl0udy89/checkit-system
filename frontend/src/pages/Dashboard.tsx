@@ -42,37 +42,42 @@ export default function Dashboard() {
         {
             id: 'binary-brain',
             title: 'BINARY_BRAIN',
-            desc: 'Podejmij wyzwanie IT i zgarnij punkty! Masz wiedzę? Rozwal system!',
+            desc: 'Sprawdź, jak szybko myślisz w systemie zero-jedynkowym. Rozwiąż 10 zagadek logicznych i powalcz o nagrodę! Podejmiesz wyzwanie?',
             icon: <Cpu size={48} className="text-secondary" />,
             color: 'border-secondary',
-            path: '/game/binary-brain'
+            path: '/game/binary-brain',
+            cta: 'PODEJMIJ WYZWANIE'
         },
         {
             id: 'patch-master',
             title: 'PATCH_MASTER',
-            desc: 'Zostań mistrzem serwerowni! Połącz wszystkie kable i pokaż szybkość!',
+            desc: 'Masz pewną rękę i sokoli wzrok? Pokaż, że kable to Twoja specjalność i wepnij je wszystkie w rekordowym czasie. Startuj!',
             icon: <Zap size={48} className="text-accent" />,
             color: 'border-accent',
-            path: '/game/patch-master'
+            path: '/game/patch-master',
+            cta: 'SPRAWDŹ PRECYZJĘ'
         },
         {
             id: 'it-match',
             title: 'IT_MATCH',
-            desc: 'Szybkie tak/nie! Przesuń w prawo = BEZPIECZNE, w lewo = ZAGROŻENIE.',
+            desc: 'Czy potrafisz rozpoznać cyfrowe zagrożenie w ułamku sekundy? Przesuwaj karty i udowodnij, że nic Cię nie zaskoczy. Sprawdź się!',
             icon: <Search size={48} className="text-primary" />,
             color: 'border-primary',
-            path: '/game/it-match'
+            path: '/game/it-match',
+            cta: 'ROZPOCZNIJ ANALIZĘ'
         },
     ]
 
     return (
-        <div className="min-h-screen p-4 md:p-8 flex flex-col relative overflow-x-hidden bg-transparent max-w-6xl mx-auto">
+        <div className="min-h-screen p-4 md:p-8 flex flex-col relative overflow-x-hidden bg-gradient-to-b from-black to-gray-900 max-w-6xl mx-auto">
             {/* Header */}
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 z-10 gap-4 mt-4 w-full">
                 <div>
                     <h1 className="text-3xl md:text-4xl font-mono font-bold text-white tracking-widest leading-tight">
-                        ZAWODY CHECK<span className="text-primary">IT</span> LUBLIN
-                        <span className="text-xs md:text-sm text-gray-500 tracking-widest block mt-1">POWERED BY SPARKOSTREFA</span>
+                        SYSTEM_ROOT: CHECK_IT_LUBLIN_2026
+                        <span className="text-xs md:text-sm text-gray-500 tracking-widest block mt-3 flex items-center gap-2">
+                            <img src="/src/assets/sparkSomeLogoSVGblack_white_2.png" alt="SparkSome Logo" className="h-5 opacity-80" />
+                        </span>
                     </h1>
                     <p className="text-gray-400 font-mono mt-2 flex items-center gap-2">
                         <span className="bg-primary/20 text-primary px-2 py-0.5 rounded text-sm border border-primary/30">USER</span>
@@ -109,9 +114,15 @@ export default function Dashboard() {
                         <h2 className={`text-3xl font-mono font-bold ${gamesLeft === 0 ? 'text-accent' : 'text-white'} mb-2 tracking-tight`}>
                             {gamesLeft === 0 ? "STATUS: GRANDMASTER ELIGIBLE" : `MISJA: UKOŃCZ ${gamesLeft} GRY`}
                         </h2>
-                        <p className="text-gray-400 font-mono text-sm max-w-lg">
-                            {gamesLeft === 0 ? "Wszystkie systemy odblokowane! Sprawdź swoją ostateczną pozycję w rankingu głównym." : "Zagraj w pozostałe gry, aby zdobyć maksymalną ilość punktów APP i odblokować status Grandmastera."}
-                        </p>
+                        {gamesLeft === 0 ? (
+                            <button onClick={() => navigate('/leaderboard')} className="text-accent underline font-mono text-sm max-w-lg hover:text-white transition-colors text-left">
+                                Wszystkie systemy odblokowane! Sprawdź swoją ostateczną pozycję w rankingu głównym.
+                            </button>
+                        ) : (
+                            <p className="text-gray-400 font-mono text-sm max-w-lg">
+                                Zagraj w pozostałe gry, aby zdobyć maksymalną ilość punktów APP i odblokować status Grandmastera.
+                            </p>
+                        )}
                     </div>
                     <div className="relative z-10 flex items-center justify-center bg-black/40 rounded-full w-24 h-24 border border-gray-700/50 shadow-inner">
                         <div className="text-3xl font-bold font-mono text-white">
@@ -133,9 +144,9 @@ export default function Dashboard() {
                             key={game.id}
                             onClick={() => !isPlayed ? navigate(game.path) : null}
                             className={`
-                                bg-surface/60 backdrop-blur-lg border border-gray-800 p-6 md:p-8 rounded-2xl
-                                ${isPlayed ? 'opacity-70 grayscale-[30%]' : `hover:border-${game.color.replace('border-', '')} cursor-pointer hover:-translate-y-1 hover:shadow-2xl hover:shadow-${game.color.replace('border-', '')}/20`} 
-                                transition-all duration-300 group relative overflow-hidden flex flex-col h-full
+                                bg-gray-800/80 backdrop-blur-xl border-2 border-gray-700 p-6 md:p-8 rounded-2xl
+                                ${isPlayed ? 'opacity-70 grayscale-[30%]' : `hover:border-${game.color.replace('border-', '')} cursor-pointer hover:-translate-y-1 hover:shadow-2xl hover:shadow-${game.color.replace('border-', '')}/30`} 
+                                transition-all duration-300 group relative overflow-hidden flex flex-col h-full shadow-lg
                             `}
                         >
                             {/* Color accent bar top */}
@@ -160,16 +171,15 @@ export default function Dashboard() {
                                 {isPlayed ? (
                                     <div className="mt-auto">
                                         <div className="flex items-end gap-3">
-                                            <div className="text-5xl font-mono font-bold text-white">{score}</div>
-                                            <div className="text-sm text-gray-500 font-mono mb-2">APP</div>
+                                            <div className="text-3xl md:text-4xl font-mono font-bold text-white">SCORE: {score}</div>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="mt-auto flex items-center justify-between">
-                                        <div className={`inline-block bg-${game.color.replace('border-', '')}/10 text-${game.color.replace('border-', '')} px-4 py-2 text-sm font-mono rounded-lg border border-${game.color.replace('border-', '')}/30 uppercase tracking-widest`}>
-                                            Rozpocznij Moduł
+                                        <div className={`inline-block bg-${game.color.replace('border-', '')}/20 text-${game.color.replace('border-', '')} px-4 py-2 text-sm md:text-xs font-mono font-bold rounded-lg border border-${game.color.replace('border-', '')}/50 uppercase tracking-widest`}>
+                                            {game.cta}
                                         </div>
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-gray-800 group-hover:bg-${game.color.replace('border-', '')} transition-colors`}>
+                                        <div className={`w-10 h-10 rounded-full flex shrink-0 items-center justify-center bg-gray-700 group-hover:bg-${game.color.replace('border-', '')} transition-colors ml-2`}>
                                             <Zap size={18} className="text-white" />
                                         </div>
                                     </div>
@@ -181,8 +191,8 @@ export default function Dashboard() {
             </div>
 
             {/* Footer */}
-            <div className="mt-8 text-center text-xs text-gray-700 font-mono">
-                SYSTEM_ID: CHECKIT_NODE_01 // SECURE_CONNECTION // POWERED BY SPARKOSTREFA
+            <div className="mt-8 text-center text-sm text-gray-400 font-mono">
+                SYSTEM_ID: CHECKIT_NODE_01 // SECURE_CONNECTION // POWERED BY SPARKS.ENGINE
             </div>
         </div>
     )

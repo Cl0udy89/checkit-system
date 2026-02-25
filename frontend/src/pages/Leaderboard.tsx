@@ -39,7 +39,7 @@ export default function Leaderboard() {
                             <span className={`font-bold ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
                             {entry.nick}
                         </span>
-                        <span className="text-white font-bold text-xl">{entry.score}</span>
+                        <span className="text-white font-bold text-xl">{entry.score} PTS</span>
                     </div>
                 ))}
                 {(!list || list.length === 0) && <div className="text-gray-600 text-sm">BRAK DANYCH</div>}
@@ -56,8 +56,8 @@ export default function Leaderboard() {
                 <ArrowLeft size={20} /> POWRÓT
             </button>
 
-            <h1 className="text-5xl font-mono font-bold text-white mb-12 text-center flex justify-center items-center gap-4">
-                <Trophy className="text-accent" size={56} /> GLOBALNY RANKING
+            <h1 className="text-4xl font-mono font-bold text-white mb-12 text-center flex justify-center items-center gap-4">
+                <Trophy className="text-accent" size={48} /> GLOBALNY RANKING
             </h1>
 
             {/* Grandmaster Section - Full Width on Top */}
@@ -65,39 +65,20 @@ export default function Leaderboard() {
                 <div className="bg-surface border-4 border-accent rounded-xl p-8 shadow-[0_0_50px_rgba(243,234,95,0.2)] relative overflow-hidden transform hover:scale-[1.01] transition-transform">
                     <div className="absolute top-0 right-0 p-32 bg-accent/10 rounded-full blur-[100px] transform translate-x-1/2 -translate-y-1/2"></div>
                     <div className="relative z-10">
-                        <h3 className="text-4xl font-mono font-bold text-accent mb-8 border-b-2 border-accent/30 pb-4 flex justify-between items-center">
+                        <h3 className="text-3xl font-mono font-bold text-accent mb-8 border-b-2 border-accent/30 pb-4 flex justify-between items-center">
                             <span>MISTRZOWIE (SUMA PUNKTÓW)</span>
-                            <Trophy size={48} />
+                            <Trophy size={40} />
                         </h3>
-                        <div className="flex flex-col md:flex-row gap-x-12 gap-y-4">
-                            {/* Column 1: Top half */}
-                            <div className="flex-1 flex flex-col gap-4">
-                                {data?.grandmaster?.slice(0, Math.ceil(data.grandmaster.length / 2)).map((entry: any, idx: number) => (
-                                    <div key={idx} className="flex justify-between items-center font-mono text-2xl border-b border-accent/20 pb-2 hover:bg-accent/5 px-4 py-2 rounded transition-colors">
-                                        <span className="text-gray-100 flex items-center gap-4">
-                                            <span className={`font-black text-3xl w-12 ${idx === 0 ? 'text-yellow-400' : idx === 1 ? 'text-gray-400' : idx === 2 ? 'text-amber-700' : 'text-accent'}`}>#{idx + 1}</span>
-                                            {entry.nick}
-                                        </span>
-                                        <span className="text-accent font-black text-3xl">{entry.score}</span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Column 2: Bottom half */}
-                            <div className="flex-1 flex flex-col gap-4">
-                                {data?.grandmaster?.slice(Math.ceil(data.grandmaster.length / 2)).map((entry: any, i: number) => {
-                                    const realIdx = Math.ceil(data.grandmaster.length / 2) + i;
-                                    return (
-                                        <div key={realIdx} className="flex justify-between items-center font-mono text-2xl border-b border-accent/20 pb-2 hover:bg-accent/5 px-4 py-2 rounded transition-colors">
-                                            <span className="text-gray-100 flex items-center gap-4">
-                                                <span className={`font-black text-3xl w-12 ${realIdx === 0 ? 'text-yellow-400' : realIdx === 1 ? 'text-gray-400' : realIdx === 2 ? 'text-amber-700' : 'text-accent'}`}>#{realIdx + 1}</span>
-                                                {entry.nick}
-                                            </span>
-                                            <span className="text-accent font-black text-3xl">{entry.score}</span>
-                                        </div>
-                                    )
-                                })}
-                            </div>
+                        <div className="flex flex-col gap-4 max-w-3xl mx-auto">
+                            {data?.grandmaster?.map((entry: any, idx: number) => (
+                                <div key={idx} className={`flex justify-between items-center font-mono ${idx === 0 ? 'text-3xl border-2 border-yellow-400/50 shadow-[0_0_30px_rgba(255,215,0,0.3)] bg-yellow-400/10 mb-4' : 'text-2xl border-b border-accent/20'} pb-2 px-4 py-3 rounded transition-colors hover:bg-accent/10`}>
+                                    <span className="text-gray-100 flex items-center gap-4">
+                                        <span className={`font-black w-16 ${idx === 0 ? 'text-yellow-400 text-4xl' : idx === 1 ? 'text-gray-400 text-3xl' : idx === 2 ? 'text-amber-700 text-3xl' : 'text-accent text-3xl'}`}>#{idx + 1}</span>
+                                        {entry.nick}
+                                    </span>
+                                    <span className={`${idx === 0 ? 'text-yellow-400' : 'text-accent'} font-black text-3xl`}>{entry.score} PTS</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

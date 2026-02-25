@@ -18,6 +18,9 @@ export default function Welcome() {
     const [nick, setNick] = useState('')
     const [email, setEmail] = useState('')
     const [error, setError] = useState('')
+    const [agreeRules, setAgreeRules] = useState(false)
+    const [agreeAge, setAgreeAge] = useState(false)
+    const [agreeData, setAgreeData] = useState(false)
 
     // Auto-login redirect
     useEffect(() => {
@@ -45,7 +48,11 @@ export default function Welcome() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         if (!nick || !email) {
-            setError('All fields are required')
+            setError('Wszystkie pola są wymagane.')
+            return
+        }
+        if (!agreeRules || !agreeAge || !agreeData) {
+            setError('Musisz zaakceptować wszystkie zgody, aby wziąć udział.')
             return
         }
         // Basic profanity filter check could be here or backend
@@ -110,6 +117,25 @@ export default function Welcome() {
                             </div>
                         </div>
 
+                        <div className="space-y-3 mt-4 text-xs text-gray-400 font-sans">
+                            <p className="text-[10px] leading-tight text-gray-500 mb-4">
+                                Administratorem Twoich danych osobowych jest SparkSome Venture Sp. z o.o. z siedzibą w Krakowie (ul. Szlak 77/222). Dane (np. nick i e-mail) przetwarzamy w celu organizacji i rozstrzygnięcia konkursu oraz wydania nagród (art. 6 ust. 1 lit. b RODO).
+                                Podanie danych jest dobrowolne, ale konieczne do udziału. Przysługuje Ci prawo dostępu do danych, ich poprawiania, usunięcia oraz złożenia skargi do Prezesa UODO. Szczegóły znajdziesz w <a href="https://sparksome.pl/assets/Polityka%20prywatno%C5%9Bci%20SparkSome.pdf" target="_blank" rel="noreferrer" className="text-primary hover:underline font-bold">Polityce prywatności</a>.
+                            </p>
+                            <label className="flex items-start gap-2 cursor-pointer">
+                                <input type="checkbox" checked={agreeRules} onChange={e => setAgreeRules(e.target.checked)} className="mt-0.5 accent-primary shrink-0" />
+                                <span>Zapoznałem/am się z Regulaminem konkursów i aktywacji organizowanych przez SparkSome Venture Sp. z o.o. i akceptuję jego postanowienia.</span>
+                            </label>
+                            <label className="flex items-start gap-2 cursor-pointer">
+                                <input type="checkbox" checked={agreeAge} onChange={e => setAgreeAge(e.target.checked)} className="mt-0.5 accent-primary shrink-0" />
+                                <span>Oświadczam, że mam ukończone 18 lat lub posiadam zgodę opiekuna prawnego na udział w konkursie/aktywacji.</span>
+                            </label>
+                            <label className="flex items-start gap-2 cursor-pointer">
+                                <input type="checkbox" checked={agreeData} onChange={e => setAgreeData(e.target.checked)} className="mt-0.5 accent-primary shrink-0" />
+                                <span className="text-[10px] leading-tight">Przyjmuję do wiadomości, że moje dane osobowe (nick, adres e-mail) będą przetwarzane przez SparkSome Venture Sp. z o.o. w celu organizacji i przeprowadzenia konkursu, publikacji wyników oraz wydania nagród, zgodnie z Regulaminem i Polityką prywatności.</span>
+                            </label>
+                        </div>
+
                         <button
                             type="submit"
                             disabled={mutation.isPending}
@@ -121,8 +147,9 @@ export default function Welcome() {
                     </div>
                 </form>
 
-                <div className="mt-8 text-center text-gray-600 text-xs font-mono uppercase">
-                    POWERED BY SPARKOSTREFA // CHECKIT V1.0.4
+                <div className="mt-8 flex flex-col items-center gap-4 text-gray-600 text-xs font-mono uppercase">
+                    <img src="/src/assets/sparkSomeLogoSVGblack_white_2.png" alt="SparkSome Logo" className="h-6 opacity-60 hover:opacity-100 transition-opacity" />
+                    CHECKIT V1.0.4
                 </div>
             </div>
         </div>
