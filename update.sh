@@ -9,6 +9,10 @@ git pull
 
 echo ""
 echo "2. Przebudowywanie i uruchamianie kontenerów..."
+# Zapobiega ostrzeżeniom o brakującym pliku .env w Docker Compose
+if [ ! -f ".env" ]; then
+    touch .env
+fi
 docker compose up -d --build
 
 echo ""
