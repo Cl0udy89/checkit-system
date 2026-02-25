@@ -109,18 +109,10 @@ async def start_game(user: User = Depends(get_current_user)):
 async def finish_player_game(user: User = Depends(get_current_user)):
     # Called by frontend right after successful game score submission
     if queue_state["current_player"] and queue_state["current_player"]["id"] == user.id:
+        queue_state["current_player"] = None
+        queue_state["status"] = "available"
         queue_state["force_solved"] = False
-        
-        # Auto-call next player if someone is waiting
-        if queue_state["queue"]:
-            next_player = queue_state["queue"].pop(0)
-            queue_state["current_player"] = next_player
-            queue_state["status"] = "waiting_for_player"
-        else:
-            queue_state["current_player"] = None
-            queue_state["status"] = "available"
-            
-        return {"message": "Game finished, queue updated"}
+        return {"message": "Game finished, queue freed"}
     return {"message": "No active game to finish"}
 
 @router.post("/timeout-flash")
