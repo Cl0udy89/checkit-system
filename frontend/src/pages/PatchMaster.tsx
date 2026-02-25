@@ -46,7 +46,7 @@ export default function PatchMaster() {
         onSuccess: () => {
             setGameStartedLocal(true)
             setStartTime(Date.now())
-            api.post('/admin/hardware/led', { effect: 'red' }).catch(() => { })
+            api.post('/api/v1/patch_master/led', { effect: 'red' }).catch(() => { })
             queryClient.invalidateQueries({ queryKey: ['pm_queue'] })
         },
         onError: (err: any) => {
@@ -69,12 +69,12 @@ export default function PatchMaster() {
         onSuccess: () => {
             // Stats UI will handle display; don't navigate yet
             // Free the queue for the next player!
-            api.post('/admin/hardware/led', { effect: 'green' }).catch(() => { })
+            api.post('/api/v1/patch_master/led', { effect: 'green' }).catch(() => { })
             finishPMGame().catch((e) => console.error("Failed to finish PM game", e))
 
             // Revert back to rainbow after 7 seconds
             setTimeout(() => {
-                api.post('/admin/hardware/led', { effect: 'rainbow' }).catch(() => { })
+                api.post('/api/v1/patch_master/led', { effect: 'rainbow' }).catch(() => { })
             }, 7000)
         },
         onError: (err: any) => {
@@ -149,7 +149,7 @@ export default function PatchMaster() {
                     const deltaMs = now - (lastPlugTime || startTime)
                     setTimeDeltas(prev => [...prev, { port: currentPair.gpio, deltaMs, label: currentPair.label }])
                     setLastPlugTime(now)
-                    api.post('/admin/hardware/led', { effect: 'pulse' }).catch(() => { })
+                    api.post('/api/v1/patch_master/led', { effect: 'pulse' }).catch(() => { })
                 }
             })
         }
@@ -283,7 +283,7 @@ export default function PatchMaster() {
                                     </button>
                                 </div>
                             ) : (
-                                !isGlobalBreak && !isResetting && !gameStartedLocal && !someoneElsePlaying ? (
+                                !isGlobalBreak && !isResetting ? (
                                     <button
                                         onClick={() => joinMutation.mutate()}
                                         className="bg-accent hover:bg-yellow-400 text-black px-8 py-4 rounded font-mono font-bold text-xl transition-all shadow-[0_0_20px_rgba(243,234,95,0.4)]"
@@ -292,7 +292,7 @@ export default function PatchMaster() {
                                     </button>
                                 ) : (
                                     <p className="text-gray-500 font-mono">
-                                        {gameStartedLocal || someoneElsePlaying ? 'Trwa gra.' : 'Dołączanie zablokowane na czas przerwy.'}
+                                        Dołączanie zablokowane na czas przerwy technicznej.
                                     </p>
                                 )
                             )}

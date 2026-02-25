@@ -128,6 +128,20 @@ async def trigger_timeout_flash(user: User = Depends(get_current_user)):
         
     return {"message": "LED timeout flash triggered and game reset"}
 
+class LEDCommand(BaseModel):
+    effect: str
+
+@router.post("/led")
+async def control_led_user(cmd: LEDCommand, user: User = Depends(get_current_user)):
+    # Allow current player to trigger effects safely
+    if queue_state["current_player"] and queue_state["current_player"]["id"] == user.id:
+        import app.routers.agent as agent_router
+        from app.routers.agent import pending_led_commands
+        agent_router.current_led_effect = cmd.effect
+        pending_led_commands.append(cmd.effect)
+        return {"message": f"LED effect {cmd.effect} queued"}
+    return {"message": "Not authorized to change LED state."}
+
 # --- Admin Endpoints ---
 
 class AdminStatusUpdate(BaseModel):
