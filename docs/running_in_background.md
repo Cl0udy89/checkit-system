@@ -5,8 +5,8 @@ Ten dokument opisuje, w jaki sposób uruchomić podzespoły backendowe oraz fron
 ## Szybka instalacja ⚡
 
 Wersje konfiguracyjne zostały podzielone na dwa osobne foldery w katalogu `deploy/supervisor`:
-- `deploy/supervisor/pi` (Dedykowane dla Raspberry Pi: użytkownik `pi`, ścieżka `/home/pi/CheckIT`)
-- `deploy/supervisor/server` (Dedykowane dla Serwerów Linux: użytkownik `ubuntu`, ścieżka `/home/ubuntu/CheckIT`)
+- `deploy/supervisor/pi` (Zalecane domyślne ustawienie dla klienta, działa na użytkowniku **root** w docelowym folderze `/root/CheckIT`).
+- `deploy/supervisor/server` (Podobna konfiguracja również dopasowana do praw roota i ścieżki `/root/CheckIT` na głównym serwerze publicznym).
 
 Wejdź do interesującego Cię folderu (zależnie od tego na jakiej maszynie jesteś) i opal instalator jako root (Z prawami administratora `sudo`):
 1. Dopisz mu uprawnienia skryptu wykonywalnego (tylko raz):
