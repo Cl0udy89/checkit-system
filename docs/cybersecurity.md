@@ -2,10 +2,10 @@
 
 Wdrożenia zorientowane na cyberbezpieczeństwo (np. konferencje IT i meetupy) wymagają solidnych zabezpieczeń, by uniknąć prób hacking'u fizycznych modułów jak i serwerów głównych.
 
-## 1. Architektura Opierająca się o OpenVPN
+## 1. Architektura Opierająca się o Tunele VPN (WireGuard)
 - Maszyna Raspberry Pi nie zostawia otwartych portów do publicznego wejścia, nawet w sieci lokalnej (LAN). 
-- Moduł komunikuje się z serwerem centralnym korzystając z bezpiecznego, certyfikowanego połączenia (tunele OpenVPN). Weryfikacja certyfikatów po stronie serwera pozwala odrzucić jakiekolwiek polecenia z pominięciem uwierzytelnionych żądań.
-- OpenVPN na Pi kieruje również ruch z `sync_endpoint` wewnętrzną, prywatną siecią. Zapewnia to odporność na ataki typu Man-in-the-Middle w publicznym WiFi na terenie wydarzenia.
+- Moduł komunikuje się z serwerem centralnym korzystając z bezpiecznego, szyfrowanego połączenia (np. autoryzowane tunele WireGuard wgrywane przed eventem).
+- Tunel sieciowy na Pi kieruje również ruch z `sync_endpoint` wewnętrzną, prywatną siecią. Zapewnia to odporność na ataki typu Man-in-the-Middle w publicznym WiFi na terenie wydarzenia.
 
 ## 2. Mechanika Autoryzacji (JWT z Poziomem Uprawnień)
 - API platformy rozróżnia zwykłych użytkowników (graczy trybu Kiosk) oraz administratorów platformy. 
