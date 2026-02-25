@@ -210,7 +210,7 @@ export default function PatchMaster() {
                             <h2 className="text-3xl font-mono font-bold mb-2">PRZERWA TECHNICZNA</h2>
                             <p className="text-gray-400 font-mono mb-6">Administrator oczekuje na reset kabli.</p>
 
-                            {hardwareState?.solved && (
+                            {hardwareState?.pairs?.some((p: any) => p.connected) && (
                                 <div className="bg-red-900/50 border border-red-500 text-red-200 px-6 py-4 rounded-lg font-mono text-center shadow-[0_0_20px_rgba(255,0,0,0.5)]">
                                     <strong>UWAGA ZAWODNIKU:</strong><br />
                                     Kable wciąż są podłączone w maszynie.<br />
@@ -249,7 +249,7 @@ export default function PatchMaster() {
                                 START GRY
                             </button>
 
-                            {hardwareState?.solved && (
+                            {hardwareState?.pairs?.some((p: any) => p.connected) && (
                                 <div className="mt-4 text-red-400 font-mono text-sm border border-red-500/50 p-2 rounded bg-red-900/20">
                                     Pamiętaj o odłączeniu kabli po poprzedniku!
                                 </div>
