@@ -161,11 +161,13 @@ export default function BinaryBrain() {
         // Wait a bit then move on
         setTimeout(() => {
             if (currentQIndex < questions.length - 1) {
-                setCurrentQIndex(prev => prev + 1)
+                // IMPORTANT: Change state fully FIRST
                 setGameState('playing')
                 setLastAnswerCorrect(null)
-                setQuestionStartTime(Date.now())
                 setCurrentPotentialScore(MAX_Q_POINTS)
+                // THEN Change question
+                setCurrentQIndex(prev => prev + 1)
+                setQuestionStartTime(Date.now())
             } else {
                 finishGame(totalScore + pointsEarned) // Pass final updated score
             }
@@ -321,15 +323,15 @@ export default function BinaryBrain() {
                                 <button
                                     key={`${currentQIndex}-${idx}`}
                                     onClick={() => handleAnswer(opt)}
+                                    // Remove the hover effect if we are in feedback mode so mobile doesn't stick
                                     disabled={gameState !== 'playing'}
                                     className={`p-3 md:p-4 text-sm md:text-base border text-left transition-all font-mono group rounded relative overflow-hidden
                                             ${gameState === 'feedback'
                                             ? (opt.isCorrect
                                                 ? 'border-green-500 bg-green-500/20 text-white'
                                                 : 'border-gray-800 opacity-50')
-                                            : 'border-gray-600 hover:border-primary hover:bg-primary/10 text-gray-300 hover:text-white'
-                                        }
-                                        `}
+                                            : 'border-gray-600 hover:border-primary hover:bg-primary/10 text-gray-300 hover:text-white active:bg-primary/20'
+                                        }`}
                                 >
                                     <span className={`font-bold mr-2 ${gameState === 'feedback' && opt.isCorrect ? 'text-green-400' : 'text-primary'}`}>[{idx + 1}]</span>
                                     {opt.text}
