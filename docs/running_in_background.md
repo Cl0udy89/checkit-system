@@ -1,64 +1,63 @@
-# Uruchamianie Systemu CHECK_IT w Tle (Screen)
+# Uruchamianie Systemu CHECK_IT w Tle (Supervisor)
 
-Ten dokument opisuje, w jaki sposób uruchomić podzespoły backendowe oraz frontendowe w tzw. "tle" na komputerze docelowym (serwerze Raspberry Pi / maszynie głównej), wykorzystując linuksowe narzędzie `screen`. Pozwala to na uniknięcie wyłączenia systemu po zamknięciu okna terminala lub po ewentualnym przerwaniu połączenia SSH.
+Ten dokument opisuje, w jaki sposób uruchomić podzespoły backendowe oraz frontendowe w tzw. "tle" produkcyjnym na komputerze docelowym (serwerze Raspberry Pi / maszynie głównej), wykorzystując polecane potężne narzędzie `supervisor`. Pozwala ono nie tylko na uniknięcie wyłączenia systemu po zamknięciu okna terminala, ale też dba by serwisy **zawsze wstawały z reebotem systemu i ponawiały próby wpadnięcia po wyrzuceniu błędu (auto-restart)**.
 
-## Wymagania
-Upewnij się, że narzędzie `screen` jest zainstalowane na Twoim systemie, wpisując w terminal:
-`sudo apt-get install screen`
+## Szybka instalacja ⚡
 
----
-
-## 🚀 Uruchamianie (Start)
-
-W głównym folderze projektu (CheckIT) znajduje się plik wykonywalny chroniący Twoją sesję.
-1. Aby nadać mu uprawnienia do uruchamiania (Robisz to tylko raz):
+W głównym folderze projektu (CheckIT) stworzyliśmy specjalny plik instalacyjny.
+Musi być odpalony jako root (Z prawami administratora `sudo`):
+1. Dopisz mu uprawnienia skryptu wykonywalnego (tylko raz):
    ```bash
-   chmod +x start_background.sh
-   chmod +x stop_background.sh
+   chmod +x setup_supervisor.sh
    ```
-2. Uruchom skrypt startowy:
+2. Uruchom skrypt instalatora i nadzorcy z `sudo`:
    ```bash
-   ./start_background.sh
+   sudo ./setup_supervisor.sh
    ```
 
-**Co się właśnie wydarzyło?**
-Skrypt stworzył dwa całkowicie oddzielne i odseparowane procesy w tle. Jeden dla aplikacji w pythonie (`uvicorn`, port 8000), a drugi dla widoków (`npm run dev`, port 5173). Możesz teraz bezpiecznie zamknąć terminal, a stoisko będzie grać i buczeć.
+Skrypt automatycznie pobierze z `apt` paczkę Supervisora (jeśli jej nie masz) następnie skopiuje konfigurację (`checkit_supervisor.conf`) z Twojego kodu wprost do systemowego centrum dowodzenia w Linuksie `/etc/supervisor/conf.d/`. Ostatecznie system przeładuje pliki i natychmiast wrzuci Back&Front na dwa nowe procesy-duchy utrzymujące Twoje porty.
+
+Gotowe! Stoisko od teraz jest kuloodporne i wstanie po podłączeniu zasilania do malinki.
 
 ---
 
-## 🕵️‍♂️ Podgląd na żywo (Logs)
+## 🛠 Zarządzanie (Komendy Supervisorctl)
 
-Gdy system działa w tle, czasami potrzebujesz zobaczyć co "wypluwa" konsola (np kto się loguje, czy zapalają się diody kabli, jaki jest błąd).
-Do tego służą komendy przywracające tło na wierzch monitora:
+Zarówno Front (Vue/React z Vite) jak i Backend (Fastapi Uvicorn) działają pod rygorystycznym nadzorem. Oto jak się do nich dotknąć:
 
-**Podgląd Backendu (Hardware, Punkty, Baza Danych):**
+**By sprawdzić, czy aplikacje działają bez trudu (Pokaże Ci np. RUNNING (pid 1032) uptime 0:02:11):**
 ```bash
-screen -r checkit_backend
+sudo supervisorctl status
 ```
-
-**Podgląd Frontendu (Ostrzeżenia UI z Vite):**
+**Chcę zrestartować Frontend bo nie wczytało moich zmian:**
 ```bash
-screen -r checkit_frontend
+sudo supervisorctl restart checkit_frontend
 ```
-
-### 🚨 UWAGA: Jak wyjść z podglądu nie psując niczego?
-Jeśli wejdziesz w podgląd przez `screen -r`, **NIGDY NIE KLIKAJ CTRL+C!** To by zabiło całą aplikację!
-Zamiast tego używamy specjalnej kombinacji odłączania (*detach*). 
-
-1. Naciśnij i przytrzymaj: **`CTRL + A`**
-2. Puść oba klawisze.
-3. Nacisnij na klawiaturze samą literkę: **`D`**
-
-Zostaniesz wyrzucony z powrotem do czystej konsoli, a serwer backendu będzie dalej tam gdzieś wewnątrz działał w najlepsze.
+**Chcę wyłączyć Hardware Backend (aby np. sprawdzić manualnie rurę pod terminal):**
+```bash
+sudo supervisorctl stop checkit_backend
+```
+**Chcę odpalić ponownie rozłączony Backend:**
+```bash
+sudo supervisorctl start checkit_backend
+```
 
 ---
 
-## 🛑 Całkowite Zatrzymywanie pracy stoiska (Stop)
+## 🕵️‍♂️ Podgląd na żywo (Live Logs)
 
-Klucze rozdane, światła zgaszone, zamykamy serwerownie CHECK IT!
-Wejdź do głównego folderu CheckIT i wpisz jedną krótką komendę:
+Gdy system działa "w cieniu" pod rootem, nie widzimy printów z konsoli (np kto się loguje w pythonie ani czy kabel zapalił log w grze, czy backend rzuca 500 błędów SQLitowych).
+
+Użyj specjalnego wbudowanego streamingu od supervisora by patrzeć na żywo na pliki `.log` wydalane przez nasze appki:
+
+**Chcę czytać konsolę Backendową:**
 ```bash
-./stop_background.sh
+sudo supervisorctl tail -f checkit_backend
 ```
 
-Wszystkie poboczne wirtualne terminale z `checkit_backend` i `frontend` zostaną brutalnie "zabite", przywracając zasoby RAM Twojego Raspberry Pi. 
+**Chcę czytać konsolę Frontendową (zazwyczaj tu pusto pod Vitem po odpaleniu):**
+```bash
+sudo supervisorctl tail -f checkit_frontend
+```
+
+💡 *Żeby zakończyć podgląd tak zebranych logów wpisujemy standardowe `CTRL+C`. Przerwie to tylko "podgląd ekranu i tekstu". Serwis wciąż bez zawahania zostaje odpalony przez demona maszyny.*
