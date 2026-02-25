@@ -2,10 +2,20 @@
 
 Wdrożenia zorientowane na cyberbezpieczeństwo (np. konferencje IT i meetupy) wymagają solidnych zabezpieczeń, by uniknąć prób hacking'u fizycznych modułów jak i serwerów głównych.
 
-## 1. Architektura Opierająca się o Tunele VPN (WireGuard)
+## 1. Architektura Sieciowa i Tunele VPN (WireGuard)
 - Maszyna Raspberry Pi nie zostawia otwartych portów do publicznego wejścia, nawet w sieci lokalnej (LAN). 
-- Moduł komunikuje się z serwerem centralnym korzystając z bezpiecznego, szyfrowanego połączenia (np. autoryzowane tunele WireGuard wgrywane przed eventem).
-- Tunel sieciowy na Pi kieruje również ruch z `sync_endpoint` wewnętrzną, prywatną siecią. Zapewnia to odporność na ataki typu Man-in-the-Middle w publicznym WiFi na terenie wydarzenia.
+- Zestawiono autoryzowany tunel **WireGuard** pomiędzy Raspberry Pi (IP VPN: `10.66.66.2`) a serwerem VPS (IP VPN: `10.66.66.1`).
+- Wykorzystując ukrytą pulę adresów IP w tunelu, chronimy endpointy do raportowania statusu sprzętu (Man-in-the-Middle mitigation w zewnętrznych sieciach WiFi).
+
+## 2. Nginx Reverse Proxy i Cloudflare Tunnel
+- Aplikacja hostowana natywnie używa **Nginx Reverse Proxy**, wystawiając ruch na domeny:
+  - Frontend (Aplikacja): `https://sparklublin.it/`
+  - Backend (Rest API): `https://api.sparklublin.it/`
+- Zestawiono **Cloudflare Tunnel**, ukrywający prawdziwy adres IP serwera VPS z chroniący przed atakami DDoS, aby aplikacja była bezpiecznie dostępna publicznie przez eventowe WiFi.
+- **Blokada Krytycznych Endpointów**: Z poziomu proxy zewnętrzne zapytania do endpointów administracyjnych oraz sprzętowych:
+  - `/admin`
+  - `/api/v1/agent/sync`
+  zostały wycięte (zablokowane). Dostanie się do nich jest możliwe wyłącznie przez sieć wewnętrzną / tunel WireGuard na VPS.
 
 ## 2. Mechanika Autoryzacji (JWT z Poziomem Uprawnień)
 - API platformy rozróżnia zwykłych użytkowników (graczy trybu Kiosk) oraz administratorów platformy. 

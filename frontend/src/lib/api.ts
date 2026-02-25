@@ -1,6 +1,8 @@
 import axios from 'axios'
 
-export const BACKEND_URL = 'https://sparklublin.it'
+export const BACKEND_URL = window.location.hostname === 'sparklublin.it'
+    ? 'https://api.sparklublin.it'
+    : `http://${window.location.hostname}:8000`
 
 export const api = axios.create({
     baseURL: `${BACKEND_URL}/api/v1`
