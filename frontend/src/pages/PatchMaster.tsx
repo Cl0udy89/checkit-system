@@ -46,7 +46,7 @@ export default function PatchMaster() {
         onSuccess: () => {
             setGameStartedLocal(true)
             setStartTime(Date.now())
-            api.post('/api/v1/patch_master/led', { effect: 'red' }).catch(() => { })
+            api.post('/game/patch-master/queue/led', { effect: 'red' }).catch(() => { })
             queryClient.invalidateQueries({ queryKey: ['pm_queue'] })
         },
         onError: (err: any) => {
@@ -69,12 +69,12 @@ export default function PatchMaster() {
         onSuccess: () => {
             // Stats UI will handle display; don't navigate yet
             // Free the queue for the next player!
-            api.post('/api/v1/patch_master/led', { effect: 'green' }).catch(() => { })
+            api.post('/game/patch-master/queue/led', { effect: 'green' }).catch(() => { })
             finishPMGame().catch((e) => console.error("Failed to finish PM game", e))
 
             // Revert back to rainbow after 7 seconds
             setTimeout(() => {
-                api.post('/api/v1/patch_master/led', { effect: 'rainbow' }).catch(() => { })
+                api.post('/game/patch-master/queue/led', { effect: 'rainbow' }).catch(() => { })
             }, 7000)
         },
         onError: (err: any) => {
@@ -149,7 +149,7 @@ export default function PatchMaster() {
                     const deltaMs = now - (lastPlugTime || startTime)
                     setTimeDeltas(prev => [...prev, { port: currentPair.gpio, deltaMs, label: currentPair.label }])
                     setLastPlugTime(now)
-                    api.post('/api/v1/patch_master/led', { effect: 'pulse' }).catch(() => { })
+                    api.post('/game/patch-master/queue/led', { effect: 'pulse' }).catch(() => { })
                 }
             })
         }
