@@ -17,6 +17,7 @@ export default function Admin() {
     const [activeTab, setActiveTab] = useState<'hardware' | 'users' | 'scores' | 'logs' | 'settings' | 'email'>('hardware')
     const [emailSuccess, setEmailSuccess] = useState('')
     const [expandedUser, setExpandedUser] = useState<number | null>(null)
+    const [customColor, setCustomColor] = useState<string>('#00ff00')
 
     if (!token) return <AdminLogin />
 
@@ -350,14 +351,20 @@ export default function Admin() {
                                 {/* By setting a background with border rounded tight, the color input fits nicer. Some browsers stylize it weirdly anyway */}
                                 <input
                                     type="color"
-                                    value={status?.led?.current_effect?.startsWith('#') ? status.led.current_effect : "#000000"}
-                                    onChange={(e) => ledMutation.mutate(e.target.value)}
-                                    className={`w-10 h-10 cursor-pointer bg-black p-1 transition-all ${status?.led?.current_effect?.startsWith('#') ? 'border-2 border-white scale-110 shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'border border-green-800'}`}
+                                    value={customColor}
+                                    onChange={(e) => setCustomColor(e.target.value)}
+                                    className="w-10 h-10 cursor-pointer bg-black p-1 transition-all border border-green-800"
                                     title="Wybierz z palety kolorów"
                                 />
+                                <button
+                                    onClick={() => ledMutation.mutate(customColor)}
+                                    className="bg-green-700 hover:bg-green-600 text-white font-bold py-1 px-3 rounded text-sm transition-colors"
+                                >
+                                    OK
+                                </button>
                             </div>
                         </div>
-                        <p className="mb-4 text-sm text-green-400">Manual override for Neopixel Strip. Wybierz kolor obok, lub uruchom gotowy efekt poniżej.</p>
+                        <p className="mb-4 text-sm text-green-400">Manual override for Neopixel Strip. Wybierz kolor obok i zatwierdź "OK", lub uruchom gotowy efekt poniżej.</p>
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
                             <button onClick={() => ledMutation.mutate('rainbow')} className={`bg-purple-900 text-white p-2 text-sm hover:bg-purple-700 transition ${status?.led?.current_effect === 'rainbow' ? 'border-2 border-white font-bold shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'border border-purple-500'}`}>RAINBOW</button>
                             <button onClick={() => ledMutation.mutate('chase')} className={`bg-blue-900 text-white p-2 text-sm hover:bg-blue-700 transition ${status?.led?.current_effect === 'chase' ? 'border-2 border-white font-bold shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'border border-blue-500'}`}>CHASE</button>

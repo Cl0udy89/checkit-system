@@ -391,8 +391,11 @@ export default function PatchMaster() {
                                 "w-4 h-4 rounded-full mb-2 md:mb-4",
                                 pair.connected ? "bg-primary animate-pulse" : "bg-red-900"
                             )}></div>
-                            <div className="font-bold text-white font-mono text-sm md:text-base">
+                            <div className="font-bold text-white font-mono text-sm md:text-base mb-1">
                                 {pair.connected ? "POŁĄCZONY" : "ROZŁĄCZONY"}
+                            </div>
+                            <div className="text-[10px] font-mono text-gray-500 bg-black/40 px-2 py-1 rounded">
+                                GÓRA: {idx + 1} ↔ DÓŁ: {idx + 9}
                             </div>
                         </div>
                     ))}
