@@ -4,18 +4,22 @@ Ten dokument opisuje, w jaki sposób uruchomić podzespoły backendowe oraz fron
 
 ## Szybka instalacja ⚡
 
-W głównym folderze projektu (CheckIT) stworzyliśmy specjalny plik instalacyjny.
-Musi być odpalony jako root (Z prawami administratora `sudo`):
+Wersje konfiguracyjne zostały podzielone na dwa osobne foldery w katalogu `deploy/supervisor`:
+- `deploy/supervisor/pi` (Dedykowane dla Raspberry Pi: użytkownik `pi`, ścieżka `/home/pi/CheckIT`)
+- `deploy/supervisor/server` (Dedykowane dla Serwerów Linux: użytkownik `ubuntu`, ścieżka `/home/ubuntu/CheckIT`)
+
+Wejdź do interesującego Cię folderu (zależnie od tego na jakiej maszynie jesteś) i opal instalator jako root (Z prawami administratora `sudo`):
 1. Dopisz mu uprawnienia skryptu wykonywalnego (tylko raz):
    ```bash
-   chmod +x setup_supervisor.sh
+   cd deploy/supervisor/pi  # lub server
+   chmod +x setup.sh
    ```
 2. Uruchom skrypt instalatora i nadzorcy z `sudo`:
    ```bash
-   sudo ./setup_supervisor.sh
+   sudo ./setup.sh
    ```
 
-Skrypt automatycznie pobierze z `apt` paczkę Supervisora (jeśli jej nie masz) następnie skopiuje konfigurację (`checkit_supervisor.conf`) z Twojego kodu wprost do systemowego centrum dowodzenia w Linuksie `/etc/supervisor/conf.d/`. Ostatecznie system przeładuje pliki i natychmiast wrzuci Back&Front na dwa nowe procesy-duchy utrzymujące Twoje porty.
+Skrypt automatycznie pobierze z `apt` paczkę Supervisora (jeśli jej nie masz) następnie skopiuje konfigurację (`checkit.conf`) z Twojego kodu wprost do systemowego centrum dowodzenia w Linuksie `/etc/supervisor/conf.d/`. Ostatecznie system przeładuje pliki i natychmiast wrzuci Back&Front na dwa nowe procesy-duchy utrzymujące Twoje porty.
 
 Gotowe! Stoisko od teraz jest kuloodporne i wstanie po podłączeniu zasilania do malinki.
 
