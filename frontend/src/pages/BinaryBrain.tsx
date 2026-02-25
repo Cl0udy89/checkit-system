@@ -330,7 +330,7 @@ export default function BinaryBrain() {
                                             ? (opt.isCorrect
                                                 ? 'border-green-500 bg-green-500/20 text-white'
                                                 : 'border-gray-800 opacity-50')
-                                            : 'border-gray-600 hover:border-primary hover:bg-primary/10 text-gray-300 hover:text-white active:bg-primary/20'
+                                            : 'border-gray-600 md:hover:border-primary md:hover:bg-primary/10 text-gray-300 md:hover:text-white active:border-primary active:bg-primary/20 active:text-white'
                                         }`}
                                 >
                                     <span className={`font-bold mr-2 ${gameState === 'feedback' && opt.isCorrect ? 'text-green-400' : 'text-primary'}`}>[{idx + 1}]</span>
