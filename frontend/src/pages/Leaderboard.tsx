@@ -69,16 +69,56 @@ export default function Leaderboard() {
                             <span>MISTRZOWIE (SUMA PUNKTÓW)</span>
                             <Trophy size={40} />
                         </h3>
-                        <div className="flex flex-col gap-4 max-w-3xl mx-auto">
-                            {data?.grandmaster?.map((entry: any, idx: number) => (
-                                <div key={idx} className={`flex justify-between items-center font-mono ${idx === 0 ? 'text-3xl border-2 border-yellow-400/50 shadow-[0_0_30px_rgba(255,215,0,0.3)] bg-yellow-400/10 mb-4' : 'text-2xl border-b border-accent/20'} pb-2 px-4 py-3 rounded transition-colors hover:bg-accent/10`}>
-                                    <span className="text-gray-100 flex items-center gap-4">
-                                        <span className={`font-black w-16 ${idx === 0 ? 'text-yellow-400 text-4xl' : idx === 1 ? 'text-gray-400 text-3xl' : idx === 2 ? 'text-amber-700 text-3xl' : 'text-accent text-3xl'}`}>#{idx + 1}</span>
-                                        {entry.nick}
-                                    </span>
-                                    <span className={`${idx === 0 ? 'text-yellow-400' : 'text-accent'} font-black text-3xl`}>{entry.score} PTS</span>
+                        <div className="flex flex-col gap-8 max-w-5xl mx-auto">
+                            {/* 1st Place */}
+                            {data?.grandmaster?.length > 0 && (
+                                <div className="flex justify-center">
+                                    <div className="w-full max-w-2xl flex justify-between items-center font-mono border-2 border-yellow-400/50 shadow-[0_0_30px_rgba(255,215,0,0.3)] bg-yellow-400/10 pb-2 px-6 py-4 rounded transition-colors hover:bg-accent/10">
+                                        <span className="text-gray-100 flex items-center gap-4">
+                                            <span className="font-black text-yellow-400 text-5xl w-20">#1</span>
+                                            <span className="font-bold text-3xl md:text-4xl">{data.grandmaster[0].nick}</span>
+                                        </span>
+                                        <span className="text-yellow-400 font-black text-3xl md:text-4xl">{data.grandmaster[0].score} PTS</span>
+                                    </div>
                                 </div>
-                            ))}
+                            )}
+
+                            {/* Remaining Places in 2 Columns */}
+                            {data?.grandmaster?.length > 1 && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                                    {/* Left Column */}
+                                    <div className="flex flex-col gap-4">
+                                        {data.grandmaster.slice(1, Math.ceil((data.grandmaster.length - 1) / 2) + 1).map((entry: any, i: number) => {
+                                            const idx = i + 1; // 1-indexed for the slice
+                                            return (
+                                                <div key={idx} className="flex justify-between items-center font-mono text-xl md:text-2xl border-b border-accent/20 pb-2 px-4 py-3 rounded transition-colors hover:bg-accent/10">
+                                                    <span className="text-gray-100 flex items-center gap-4">
+                                                        <span className={`font-black w-16 ${idx === 1 ? 'text-gray-400 text-3xl' : idx === 2 ? 'text-amber-700 text-3xl' : 'text-accent text-3xl'}`}>#{idx + 1}</span>
+                                                        {entry.nick}
+                                                    </span>
+                                                    <span className="text-accent font-black text-2xl md:text-3xl">{entry.score} PTS</span>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+
+                                    {/* Right Column */}
+                                    <div className="flex flex-col gap-4">
+                                        {data.grandmaster.slice(Math.ceil((data.grandmaster.length - 1) / 2) + 1).map((entry: any, i: number) => {
+                                            const idx = i + Math.ceil((data.grandmaster.length - 1) / 2) + 1; // 1-indexed for the slice
+                                            return (
+                                                <div key={idx} className="flex justify-between items-center font-mono text-xl md:text-2xl border-b border-accent/20 pb-2 px-4 py-3 rounded transition-colors hover:bg-accent/10">
+                                                    <span className="text-gray-100 flex items-center gap-4">
+                                                        <span className={`font-black w-16 ${idx === 1 ? 'text-gray-400 text-3xl' : idx === 2 ? 'text-amber-700 text-3xl' : 'text-accent text-3xl'}`}>#{idx + 1}</span>
+                                                        {entry.nick}
+                                                    </span>
+                                                    <span className="text-accent font-black text-2xl md:text-3xl">{entry.score} PTS</span>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
