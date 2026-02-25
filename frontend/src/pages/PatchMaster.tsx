@@ -92,7 +92,7 @@ export default function PatchMaster() {
         if (!gameStartedLocal || isFinished || !startTime) return
         const interval = setInterval(() => {
             const elapsed = Date.now() - startTime
-            const score = Math.max(0, 10000 - (elapsed * 0.1))
+            const score = Math.max(0, 10000 - (elapsed * 0.05))
 
             if (score <= 0) {
                 clearInterval(interval)
