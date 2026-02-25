@@ -141,7 +141,7 @@ async def control_led(cmd: LEDCommand):
 async def get_users(session: AsyncSession = Depends(get_session)):
     from app.models import User
     from sqlmodel import select
-    from sqlmodel import select, delete
+    # Fetch DB status again
     result = await session.execute(select(User))
     return result.scalars().all()
 

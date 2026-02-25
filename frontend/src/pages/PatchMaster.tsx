@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchPatchPanelState, submitGameScore, fetchPMQueue, joinPMQueue, leavePMQueue, startPMQueue, triggerTimeoutFlash, finishPMGame } from '../lib/api'
+import { fetchPatchPanelState, submitGameScore, fetchPMQueue, joinPMQueue, leavePMQueue, startPMQueue, triggerTimeoutFlash, finishPMGame, api } from '../lib/api'
 import { useGameStore } from '../hooks/useGameStore'
 import { Zap, Users, ShieldAlert, PlayCircle, X } from 'lucide-react'
 import clsx from 'clsx'
@@ -46,6 +46,7 @@ export default function PatchMaster() {
         onSuccess: () => {
             setGameStartedLocal(true)
             setStartTime(Date.now())
+            api.post('/admin/hardware/led', { effect: 'red' }).catch(() => { })
             queryClient.invalidateQueries({ queryKey: ['pm_queue'] })
         },
         onError: (err: any) => {
@@ -68,7 +69,13 @@ export default function PatchMaster() {
         onSuccess: () => {
             // Stats UI will handle display; don't navigate yet
             // Free the queue for the next player!
+            api.post('/admin/hardware/led', { effect: 'green' }).catch(() => { })
             finishPMGame().catch((e) => console.error("Failed to finish PM game", e))
+
+            // Revert back to rainbow after 7 seconds
+            setTimeout(() => {
+                api.post('/admin/hardware/led', { effect: 'rainbow' }).catch(() => { })
+            }, 7000)
         },
         onError: (err: any) => {
             if (err?.response?.status === 403) {
@@ -142,6 +149,7 @@ export default function PatchMaster() {
                     const deltaMs = now - (lastPlugTime || startTime)
                     setTimeDeltas(prev => [...prev, { port: currentPair.gpio, deltaMs, label: currentPair.label }])
                     setLastPlugTime(now)
+                    api.post('/admin/hardware/led', { effect: 'pulse' }).catch(() => { })
                 }
             })
         }

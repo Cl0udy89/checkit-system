@@ -16,6 +16,9 @@ async def register(user: UserCreate, session: AsyncSession = Depends(get_session
     Registers a new user after validation.
     """
     try:
+        # Enforce 15 chars limit on backend!
+        user.nick = user.nick[:15]
+        
         new_user = await auth_service.register_user(user, session)
         return new_user
     except HTTPException as e:

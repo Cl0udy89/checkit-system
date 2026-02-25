@@ -69,16 +69,35 @@ export default function Leaderboard() {
                             <span>MISTRZOWIE (SUMA PUNKTÓW)</span>
                             <Trophy size={48} />
                         </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-                            {data?.grandmaster?.map((entry: any, idx: number) => (
-                                <div key={idx} className="flex justify-between items-center font-mono text-2xl border-b border-accent/20 pb-2 hover:bg-accent/5 px-4 py-2 rounded transition-colors">
-                                    <span className="text-gray-100 flex items-center gap-4">
-                                        <span className={`font-black text-3xl w-12 ${idx === 0 ? 'text-yellow-400' : idx === 1 ? 'text-gray-400' : idx === 2 ? 'text-amber-700' : 'text-accent'}`}>#{idx + 1}</span>
-                                        {entry.nick}
-                                    </span>
-                                    <span className="text-accent font-black text-3xl">{entry.score}</span>
-                                </div>
-                            ))}
+                        <div className="flex flex-col md:flex-row gap-x-12 gap-y-4">
+                            {/* Column 1: Top half */}
+                            <div className="flex-1 flex flex-col gap-4">
+                                {data?.grandmaster?.slice(0, Math.ceil(data.grandmaster.length / 2)).map((entry: any, idx: number) => (
+                                    <div key={idx} className="flex justify-between items-center font-mono text-2xl border-b border-accent/20 pb-2 hover:bg-accent/5 px-4 py-2 rounded transition-colors">
+                                        <span className="text-gray-100 flex items-center gap-4">
+                                            <span className={`font-black text-3xl w-12 ${idx === 0 ? 'text-yellow-400' : idx === 1 ? 'text-gray-400' : idx === 2 ? 'text-amber-700' : 'text-accent'}`}>#{idx + 1}</span>
+                                            {entry.nick}
+                                        </span>
+                                        <span className="text-accent font-black text-3xl">{entry.score}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Column 2: Bottom half */}
+                            <div className="flex-1 flex flex-col gap-4">
+                                {data?.grandmaster?.slice(Math.ceil(data.grandmaster.length / 2)).map((entry: any, i: number) => {
+                                    const realIdx = Math.ceil(data.grandmaster.length / 2) + i;
+                                    return (
+                                        <div key={realIdx} className="flex justify-between items-center font-mono text-2xl border-b border-accent/20 pb-2 hover:bg-accent/5 px-4 py-2 rounded transition-colors">
+                                            <span className="text-gray-100 flex items-center gap-4">
+                                                <span className={`font-black text-3xl w-12 ${realIdx === 0 ? 'text-yellow-400' : realIdx === 1 ? 'text-gray-400' : realIdx === 2 ? 'text-amber-700' : 'text-accent'}`}>#{realIdx + 1}</span>
+                                                {entry.nick}
+                                            </span>
+                                            <span className="text-accent font-black text-3xl">{entry.score}</span>
+                                        </div>
+                                    )
+                                })}
+                            </div>
                         </div>
                     </div>
                 </div>

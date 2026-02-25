@@ -1,0 +1,106 @@
+#!/bin/bash
+# CheckIT Management CLI
+set -e
+
+# Colors
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}=======================================${NC}"
+echo -e "${BLUE}        CheckIT Management CLI         ${NC}"
+echo -e "${BLUE}=======================================${NC}"
+
+# Helper to check if a process is running
+is_running() {
+    pgrep -f "$1" > /dev/null
+}
+
+display_status() {
+    echo -e "\n${YELLOW}--- System Status ---${NC}"
+    if is_running "uvicorn main:app"; then
+        echo -e "Backend (API):  ${GREEN}ONLINE${NC}"
+    else
+        echo -e "Backend (API):  ${RED}OFFLINE${NC}"
+    fi
+
+    if is_running "vite"; then
+        echo -e "Frontend (UI):  ${GREEN}ONLINE${NC}"
+    else
+        echo -e "Frontend (UI):  ${RED}OFFLINE${NC}"
+    fi
+}
+
+start_services() {
+    echo -e "\n${YELLOW}>>> Starting Services in Background...${NC}"
+    
+    # Check for git pull
+    if command -v git &> /dev/null; then
+        echo "Pulling latest code..."
+        git pull || true
+    fi
+
+    if ! is_running "uvicorn main:app"; then
+        echo "Starting Backend..."
+        cd backend
+        source venv/bin/activate
+        nohup uvicorn main:app --host 0.0.0.0 --port 8000 > ../backend.log 2>&1 &
+        cd ..
+        echo -e "${GREEN}Backend started.${NC}"
+    else
+        echo "Backend is already running."
+    fi
+
+    if ! is_running "vite"; then
+        echo "Starting Frontend..."
+        cd frontend
+        nohup npm run dev -- --host 0.0.0.0 > ../frontend.log 2>&1 &
+        cd ..
+        echo -e "${GREEN}Frontend started.${NC}"
+    else
+        echo "Frontend is already running."
+    fi
+}
+
+stop_services() {
+    echo -e "\n${YELLOW}>>> Stopping Services...${NC}"
+    
+    if is_running "uvicorn main:app"; then
+        pkill -f "uvicorn main:app"
+        echo -e "${GREEN}Backend stopped.${NC}"
+    fi
+
+    if is_running "vite"; then
+        pkill -f "vite"
+        echo -e "${GREEN}Frontend stopped.${NC}"
+    fi
+}
+
+view_logs() {
+    echo -e "\n${YELLOW}--- Viewing Logs (Press Ctrl+C to exit) ---${NC}"
+    tail -f backend.log frontend.log
+}
+
+while true; do
+    display_status
+    echo -e "\n${YELLOW}Available Commands:${NC}"
+    echo "1) Start Services (Background)"
+    echo "2) Stop Services"
+    echo "3) Restart Services"
+    echo "4) View Live Logs"
+    echo "5) Exit and Leave Running"
+    echo "6) Exit and Stop Everything"
+    
+    read -p "Select action [1-6]: " choice
+    case $choice in
+        1) start_services ;;
+        2) stop_services ;;
+        3) stop_services; sleep 2; start_services ;;
+        4) view_logs ;;
+        5) echo "Exiting. Services remain running."; exit 0 ;;
+        6) stop_services; echo "Exiting."; exit 0 ;;
+        *) echo -e "${RED}Invalid option.${NC}" ;;
+    esac
+done
