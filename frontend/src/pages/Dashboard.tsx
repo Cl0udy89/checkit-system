@@ -45,6 +45,10 @@ export default function Dashboard() {
             desc: 'Sprawdź, jak szybko myślisz w systemie zero-jedynkowym. Rozwiąż 10 zagadek logicznych i powalcz o nagrodę! Podejmiesz wyzwanie?',
             icon: <Cpu size={48} className="text-secondary" />,
             color: 'border-secondary',
+            bgClass: 'bg-secondary',
+            textClass: 'text-secondary',
+            hoverBorderClass: 'hover:border-secondary',
+            shadowClass: 'hover:shadow-secondary/30',
             path: '/game/binary-brain',
             cta: 'PODEJMIJ WYZWANIE'
         },
@@ -54,6 +58,10 @@ export default function Dashboard() {
             desc: 'Masz pewną rękę i sokoli wzrok? Pokaż, że kable to Twoja specjalność i wepnij je wszystkie w rekordowym czasie. Startuj!',
             icon: <Zap size={48} className="text-accent" />,
             color: 'border-accent',
+            bgClass: 'bg-accent',
+            textClass: 'text-accent',
+            hoverBorderClass: 'hover:border-accent',
+            shadowClass: 'hover:shadow-accent/30',
             path: '/game/patch-master',
             cta: 'SPRAWDŹ PRECYZJĘ'
         },
@@ -63,6 +71,10 @@ export default function Dashboard() {
             desc: 'Czy potrafisz rozpoznać cyfrowe zagrożenie w ułamku sekundy? Przesuwaj karty i udowodnij, że nic Cię nie zaskoczy. Sprawdź się!',
             icon: <Search size={48} className="text-primary" />,
             color: 'border-primary',
+            bgClass: 'bg-primary',
+            textClass: 'text-primary',
+            hoverBorderClass: 'hover:border-primary',
+            shadowClass: 'hover:shadow-primary/30',
             path: '/game/it-match',
             cta: 'ROZPOCZNIJ ANALIZĘ'
         },
@@ -73,10 +85,10 @@ export default function Dashboard() {
             {/* Header */}
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 z-10 gap-4 mt-4 w-full">
                 <div>
-                    <h1 className="text-3xl md:text-4xl font-mono font-bold text-white tracking-widest leading-tight">
+                    <h1 className="text-xl md:text-2xl font-mono font-bold text-white tracking-widest leading-tight">
                         SYSTEM_ROOT: CHECK_IT_LUBLIN_2026
-                        <span className="text-xs md:text-sm text-gray-500 tracking-widest block mt-3 flex items-center gap-2">
-                            <img src="/src/assets/sparkSomeLogoSVGblack_white_2.png" alt="SparkSome Logo" className="h-5 opacity-80" />
+                        <span className="text-xs md:text-sm text-gray-500 tracking-widest block mt-4 flex items-center gap-2">
+                            <img src="/src/assets/sparkSomeLogoSVGblack_white_2.png" alt="SparkSome Logo" className="h-8 opacity-90" />
                         </span>
                     </h1>
                     <p className="text-gray-400 font-mono mt-2 flex items-center gap-2">
@@ -144,13 +156,13 @@ export default function Dashboard() {
                             key={game.id}
                             onClick={() => !isPlayed ? navigate(game.path) : null}
                             className={`
-                                bg-gray-800/80 backdrop-blur-xl border-2 border-gray-700 p-6 md:p-8 rounded-2xl
-                                ${isPlayed ? 'opacity-70 grayscale-[30%]' : `hover:border-${game.color.replace('border-', '')} cursor-pointer hover:-translate-y-1 hover:shadow-2xl hover:shadow-${game.color.replace('border-', '')}/30`} 
+                                bg-gray-800/80 backdrop-blur-xl border border-gray-700 p-6 md:p-8 rounded-2xl
+                                ${isPlayed ? 'opacity-70 grayscale-[30%]' : `${game.hoverBorderClass} cursor-pointer hover:-translate-y-1 hover:shadow-2xl ${game.shadowClass}`} 
                                 transition-all duration-300 group relative overflow-hidden flex flex-col h-full shadow-lg
                             `}
                         >
                             {/* Color accent bar top */}
-                            <div className={`absolute top-0 left-0 w-full h-1 ${game.color.replace('border', 'bg')} ${isPlayed ? 'opacity-30' : 'opacity-80'}`}></div>
+                            <div className={`absolute top-0 left-0 w-full h-1 ${game.bgClass} ${isPlayed ? 'opacity-30' : 'opacity-80'}`}></div>
 
                             {/* Background Icon */}
                             <div className={`absolute -bottom-4 -right-4 p-4 opacity-5 group-hover:opacity-10 transition-all transform group-hover:scale-125 duration-700 rotate-12`}>
@@ -176,10 +188,10 @@ export default function Dashboard() {
                                     </div>
                                 ) : (
                                     <div className="mt-auto flex items-center justify-between">
-                                        <div className={`inline-block bg-${game.color.replace('border-', '')}/20 text-${game.color.replace('border-', '')} px-4 py-2 text-sm md:text-xs font-mono font-bold rounded-lg border border-${game.color.replace('border-', '')}/50 uppercase tracking-widest`}>
+                                        <div className={`inline-block ${game.bgClass}/20 ${game.textClass} px-4 py-2 text-sm md:text-xs font-mono font-bold rounded-lg ${game.color} border border-opacity-50 uppercase tracking-widest`}>
                                             {game.cta}
                                         </div>
-                                        <div className={`w-10 h-10 rounded-full flex shrink-0 items-center justify-center bg-gray-700 group-hover:bg-${game.color.replace('border-', '')} transition-colors ml-2`}>
+                                        <div className={`w-10 h-10 rounded-full flex shrink-0 items-center justify-center bg-gray-700 group-hover:${game.bgClass} transition-colors ml-2`}>
                                             <Zap size={18} className="text-white" />
                                         </div>
                                     </div>

@@ -5,6 +5,7 @@ import BinaryBrain from './pages/BinaryBrain'
 import PatchMaster from './pages/PatchMaster'
 import ITMatch from './pages/ITMatch'
 import Leaderboard from './pages/Leaderboard'
+import ScreenLeaderboard from './pages/ScreenLeaderboard'
 import Admin from './pages/Admin'
 
 import InteractiveBackground from './components/InteractiveBackground'
@@ -21,6 +22,7 @@ function App() {
           <Route path="/game/patch-master" element={<PatchMaster />} />
           <Route path="/game/it-match" element={<ITMatch />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/screen" element={<ScreenLeaderboard />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
