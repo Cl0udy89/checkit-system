@@ -10,42 +10,155 @@ System składa się z dwóch głównych środowisk: Serwera (Główna Baza Danyc
 
 ### A. Konfiguracja Serwera Głównego (PC/Linux)
 
-1. **Baza Danych i Backend:**
-   - Przejdź do folderu `backend`.
-   - Stwórz środowisko wirtualne: `python -m venv venv`
-   - Aktywuj środowisko: `source venv/bin/activate` (lub `venv\Scripts\activate` na Windows).
-   - Zainstaluj zależności z pliku requirements.txt: `pip install -r requirements.txt`
-   - Uruchom backend (domyślnie port 8000):
-     ```bash
-     uvicorn app.main:app --host 0.0.0.0 --port 8000
-     ```
+## 1️⃣ Wymagania
 
-2. **Frontend (Dashboard, Gry i Panel Administratora):**
-   - Środowisko deweloperskie wymaga zainstalowanego Node.js.
-   - Przejdź do folderu `frontend`.
-   - Zainstaluj pakiety: `npm install`
-   - Uruchom aplikację na żywo: `npm run dev` (lub `npm run preview` po zrobieniu `npm run build`).
-   - Upewnij się, że komputer lub telefon gracza jest w tej samej sieci by uzyskać dostęp.
+Na serwerze musi być zainstalowane:
+
+* Docker
+* Docker Compose (v2, czyli `docker compose`)
+* Git (opcjonalnie, do aktualizacji kodu)
+
+Sprawdzenie:
+
+```bash
+docker --version
+docker compose version
+```
+
+---
+
+## 2️⃣ Konfiguracja środowiska
+
+W katalogu głównym projektu:
+
+```bash
+cp .env.example .env
+```
+
+W pliku `.env` ustaw:
+
+```env
+VITE_API_BASE=/api
+CHECKIT_NODE_ID=checkit-server-01
+CHECKIT_PLATFORM_ROLE=server
+CHECKIT_ADMIN_USER=admin
+CHECKIT_ADMIN_PASS=twoje_silne_haslo
+```
+
+Opcjonalnie edytuj `config.yaml`, jeśli chcesz nadpisać domyślne ustawienia gry lub synchronizacji.
+
+---
+
+## 3️⃣ Uruchomienie całego stacku
+
+Z katalogu głównego projektu:
+
+```bash
+docker compose up -d --build
+```
+
+To uruchomi:
+
+* ✅ Backend (FastAPI)
+* ✅ Frontend (zbudowany przez Vite)
+* ✅ Nginx jako reverse proxy
+* ✅ Wewnętrzną sieć Dockera (bez wystawiania backendu na świat)
+
+---
+
+## 4️⃣ Dostęp do aplikacji
+
+Aplikacja będzie dostępna pod:
+
+```
+http://ADRES_SERWERA:8080
+```
+
+### Publiczne endpointy:
+
+* `/` → frontend (gry)
+* `/health`
+* `/content/*`
+* `/api/...` (publiczne endpointy graczy)
+
+### Tylko VPN:
+
+* `/admin` (panel administratora – frontend)
+* `/api/v1/admin/*`
+* `/api/v1/agent/sync`
+
+Backend **nie jest wystawiony bezpośrednio na port 8000**.
+Dostęp odbywa się wyłącznie przez nginx.
+
+---
+
+## 5️⃣ Aktualizacja systemu
+
+```bash
+git pull
+docker compose up -d --build
+```
+
+---
+
+## 6️⃣ Sprawdzenie statusu
+
+```bash
+docker compose ps
+docker compose logs -f
+```
+
+Backend nie ma publicznego portu.
+Admin UI i agent są chronione przez VPN (na poziomie nginx).
 
 ### B. Konfiguracja Raspberry Pi (Patch Master)
 
-Stanowisko Patch Master wymaga Raspberry Pi z zainstalowanym systemem operacyjnym opartym na Debianie (Raspbian O/S). Posiada zapinane fizyczne porty GPIO do kabli i taśmę LED WS281x.
+Stanowisko Patch Master działa jako **lokalny agent sprzętowy** (FastAPI + Uvicorn), uruchamiany jako usługa systemd. Raspberry Pi powinno mieć system oparty na Debianie (Raspberry Pi OS).
 
-1. **Przygotowanie Raspberry Pi:**
-   - Pobierz kod źródłowy na malinę.
-   - Zainstaluj Python i wirtualne środowisko, tak samo jak na serwerze. Dodatkowo potrzebujesz bibliotek z rootem (rpi_ws281x):
-     ```bash
-     sudo pip install rpi_ws281x RPi.GPIO
-     ```
+#### 1. Instalacja zależności
 
-2. **Uruchamianie Skryptu RPi:**
-   - Aby Raspberry Pi mogło sterować taśmą LED za pomocą protokołu PWM, **MUSI** być uruchomione z uprawnieniami administratora (`sudo`).
-   - Przejdź do foldera `backend` na Raspberry Pi.
-   - Uruchom instancję:
-     ```bash
-     sudo venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
-     ```
-   - *Raspberry Pi automatycznie połączy się z serwerem i pokaże swój status `ONLINE` w panelu Admina w zakładce Hardware.*
+```bash
+sudo apt update
+sudo apt install -y python3 python3-venv python3-dev gcc swig liblgpio-dev
+```
+
+#### 2. Środowisko Python
+
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install rpi-lgpio
+pip install -r requirements-core.txt
+```
+
+Upewnij się, że w katalogu głównym projektu istnieje `config.yaml`.
+
+---
+
+#### 3. Uruchamianie jako usługa (zalecane)
+
+Agent działa jako usługa `checkit-rpi.service` (systemd):
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now checkit-rpi.service
+```
+
+Status:
+
+```bash
+systemctl status checkit-rpi.service
+```
+
+Logi:
+
+```bash
+journalctl -u checkit-rpi.service -f
+```
+
+Po starcie Raspberry Pi synchronizuje się z serwerem i pokazuje status `ONLINE` w panelu Administratora w zakładce **Hardware**.
 
 ---
 
