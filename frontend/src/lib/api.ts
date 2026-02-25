@@ -1,11 +1,13 @@
 import axios from 'axios'
 
-export const BACKEND_URL = window.location.hostname === 'sparklublin.it'
-    ? 'https://api.sparklublin.it'
-    : `http://${window.location.hostname}:8000`
+// /api przez nginx (domyślnie)
+const API_BASE = import.meta.env.VITE_API_BASE || '/api'
+
+// zachowujemy kompatybilność: inne pliki importują BACKEND_URL
+export const BACKEND_URL = API_BASE.replace(/\/+$/, '')
 
 export const api = axios.create({
-    baseURL: `${BACKEND_URL}/api/v1`
+  baseURL: `${BACKEND_URL}/v1`
 })
 
 // Auth Interceptor

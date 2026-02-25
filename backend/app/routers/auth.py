@@ -32,7 +32,10 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     print(f"DEBUG: Login attempt. Username='{form_data.username}', Password='{form_data.password}'")
     
     # user = authenticate_user(fake_users_db, form_data.username, form_data.password)
-    if form_data.username.strip() == "admin" and form_data.password.strip() == "checkit2024":
+    if (
+       form_data.username.strip() == settings.auth.admin_user
+       and form_data.password.strip() == settings.auth.admin_pass
+    ):
         access_token_expires = timedelta(minutes=600)
         access_token = create_access_token(
             data={"sub": form_data.username, "role": "admin"}, expires_delta=access_token_expires

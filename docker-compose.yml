@@ -1,0 +1,36 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    env_file:
+      - .env
+    container_name: checkit-backend
+    restart: unless-stopped
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./content:/app/content:ro
+      - checkit_db:/app/backend/db
+    networks:
+      - checkit_net
+
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx.Dockerfile
+      args:
+        VITE_API_BASE: ${VITE_API_BASE}
+    container_name: checkit-nginx
+    depends_on:
+      - backend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    networks:
+      - checkit_net
+
+networks:
+  checkit_net:
+
+volumes:
+  checkit_db:

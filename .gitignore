@@ -1,0 +1,73 @@
+# --- Secrets / local env ---
+.env
+.env.*.local
+*.env
+!.env.example
+
+# --- Config overrides (jeśli robisz prywatne kopie) ---
+config*.local.yaml
+config*.local.yml
+config*.override.yaml
+config*.override.yml
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.coverage
+coverage.xml
+htmlcov/
+*.egg-info/
+dist/
+build/
+
+# --- Virtualenvs ---
+venv/
+.venv/
+backend/venv/
+pip-wheel-metadata/
+
+# --- Node / Frontend ---
+frontend/node_modules/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/.cache/
+
+# --- Logs / runtime ---
+*.log
+frontend_startup.log
+*.pid
+
+# --- OS / editor junk ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- Docker (local runtime stuff) ---
+docker/*.local
+docker/*.env
+**/docker-data/
+**/data/
+**/volumes/
+
+# --- Databases / generated runtime files ---
+backend/*.db
+backend/*.db-journal
+backend/*.sqlite
+backend/*.sqlite3
+
+# (jeśli chcesz zostawić checkit.db w repo, zakomentuj 3 linie powyżej)

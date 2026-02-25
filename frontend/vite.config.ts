@@ -7,5 +7,6 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
+    allowedHosts: ['sparklublin.it', '57.128.247.85'],
   }
 })

@@ -40,7 +40,7 @@ system:
   platform_role: "client"
 
 api:
-  sync_endpoint: "http://57.128.247.85:8000/api/v1/logs"
+  sync_endpoint: "http://10.66.66.1:8080/api/v1/logs"
   sync_interval_seconds: 5
   retry_interval_seconds: 5
 
@@ -52,7 +52,7 @@ hardware:
   solenoid_pin: 26
   solenoid_open_time_sec: 5
 EOL
-    echo "✅ Configured for Server: 57.128.247.85"
+    echo "✅ Configured for Server: 10.66.66.1"
 fi
 
 # 3. Python Environment & Dependencies
