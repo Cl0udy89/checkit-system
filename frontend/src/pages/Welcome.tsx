@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query'
 import { api } from '../lib/api'
 import { useGameStore } from '../hooks/useGameStore'
 import { User, Mail, ArrowRight, ShieldCheck } from 'lucide-react'
+import sparkSomeLogo from '../assets/sparkSomeLogoSVGblack_white_2.png'
 
 // Define the API call separately
 const registerUser = async (userData: { nick: string, email: string }) => {
@@ -21,6 +22,17 @@ export default function Welcome() {
     const [agreeRules, setAgreeRules] = useState(false)
     const [agreeAge, setAgreeAge] = useState(false)
     const [agreeData, setAgreeData] = useState(false)
+    const [agreeAll, setAgreeAll] = useState(false)
+
+    useEffect(() => {
+        setAgreeAll(agreeRules && agreeAge && agreeData)
+    }, [agreeRules, agreeAge, agreeData])
+
+    const handleAgreeAll = (checked: boolean) => {
+        setAgreeRules(checked)
+        setAgreeAge(checked)
+        setAgreeData(checked)
+    }
 
     // Auto-login redirect
     useEffect(() => {
@@ -122,18 +134,25 @@ export default function Welcome() {
                                 Administratorem Twoich danych osobowych jest SparkSome Venture Sp. z o.o. z siedzibą w Krakowie (ul. Szlak 77/222). Dane (np. nick i e-mail) przetwarzamy w celu organizacji i rozstrzygnięcia konkursu oraz wydania nagród (art. 6 ust. 1 lit. b RODO).
                                 Podanie danych jest dobrowolne, ale konieczne do udziału. Przysługuje Ci prawo dostępu do danych, ich poprawiania, usunięcia oraz złożenia skargi do Prezesa UODO. Szczegóły znajdziesz w <a href="https://sparksome.pl/assets/Polityka%20prywatno%C5%9Bci%20SparkSome.pdf" target="_blank" rel="noreferrer" className="text-primary hover:underline font-bold">Polityce prywatności</a>.
                             </p>
-                            <label className="flex items-start gap-2 cursor-pointer">
-                                <input type="checkbox" checked={agreeRules} onChange={e => setAgreeRules(e.target.checked)} className="mt-0.5 accent-primary shrink-0" />
-                                <span>Zapoznałem/am się z Regulaminem konkursów i aktywacji organizowanych przez SparkSome Venture Sp. z o.o. i akceptuję jego postanowienia.</span>
-                            </label>
-                            <label className="flex items-start gap-2 cursor-pointer">
-                                <input type="checkbox" checked={agreeAge} onChange={e => setAgreeAge(e.target.checked)} className="mt-0.5 accent-primary shrink-0" />
-                                <span>Oświadczam, że mam ukończone 18 lat lub posiadam zgodę opiekuna prawnego na udział w konkursie/aktywacji.</span>
-                            </label>
-                            <label className="flex items-start gap-2 cursor-pointer">
-                                <input type="checkbox" checked={agreeData} onChange={e => setAgreeData(e.target.checked)} className="mt-0.5 accent-primary shrink-0" />
-                                <span className="text-[10px] leading-tight">Przyjmuję do wiadomości, że moje dane osobowe (nick, adres e-mail) będą przetwarzane przez SparkSome Venture Sp. z o.o. w celu organizacji i przeprowadzenia konkursu, publikacji wyników oraz wydania nagród, zgodnie z Regulaminem i Polityką prywatności.</span>
-                            </label>
+                            <div className="bg-black/40 p-3 rounded-lg border border-gray-800 space-y-3">
+                                <label className="flex items-start gap-2 cursor-pointer border-b border-gray-800 pb-3 mb-2">
+                                    <input type="checkbox" checked={agreeAll} onChange={e => handleAgreeAll(e.target.checked)} className="mt-0.5 w-4 h-4 accent-primary shrink-0 transition-transform hover:scale-110" />
+                                    <span className="font-bold text-white text-sm">Akceptuję wszystkie poniższe oświadczenia i regulaminy.</span>
+                                </label>
+
+                                <label className="flex items-start gap-2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
+                                    <input type="checkbox" checked={agreeRules} onChange={e => setAgreeRules(e.target.checked)} className="mt-0.5 accent-primary shrink-0" />
+                                    <span>Zapoznałem/am się z Regulaminem konkursów i aktywacji organizowanych przez SparkSome Venture Sp. z o.o. i akceptuję jego postanowienia.</span>
+                                </label>
+                                <label className="flex items-start gap-2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
+                                    <input type="checkbox" checked={agreeAge} onChange={e => setAgreeAge(e.target.checked)} className="mt-0.5 accent-primary shrink-0" />
+                                    <span>Oświadczam, że mam ukończone 18 lat lub posiadam zgodę opiekuna prawnego na udział w konkursie/aktywacji.</span>
+                                </label>
+                                <label className="flex items-start gap-2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
+                                    <input type="checkbox" checked={agreeData} onChange={e => setAgreeData(e.target.checked)} className="mt-0.5 accent-primary shrink-0" />
+                                    <span className="text-[10px] leading-tight">Przyjmuję do wiadomości, że moje dane osobowe (nick, adres e-mail) będą przetwarzane przez SparkSome Venture Sp. z o.o. w celu organizacji i przeprowadzenia konkursu, publikacji wyników oraz wydania nagród, zgodnie z Regulaminem i Polityką prywatności.</span>
+                                </label>
+                            </div>
                         </div>
 
                         <button
@@ -148,7 +167,7 @@ export default function Welcome() {
                 </form>
 
                 <div className="mt-8 flex flex-col items-center gap-4 text-gray-600 text-xs font-mono uppercase">
-                    <img src="/src/assets/sparkSomeLogoSVGblack_white_2.png" alt="SparkSome Logo" className="h-6 opacity-60 hover:opacity-100 transition-opacity" />
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-6 opacity-60 hover:opacity-100 transition-opacity" />
                     CHECKIT V1.0.4
                 </div>
             </div>

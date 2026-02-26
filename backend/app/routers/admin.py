@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from pydantic import BaseModel
 from app.hardware.solenoid import solenoid
 from app.hardware.patch_panel import patch_panel
@@ -17,6 +17,8 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["Admin"], dependencies=[Depends(get_current_admin)])
+
+from app.limiter import limiter
 
 @router.get("/system/status")
 async def get_system_status():
@@ -66,7 +68,8 @@ async def get_system_status():
     }
 
 @router.post("/solenoid/trigger")
-async def trigger_solenoid():
+@limiter.limit("20/minute")
+async def trigger_solenoid(request: Request):
     logger.info("Admin triggered solenoid.")
     # This runs in background/async
     await solenoid.open_box()
@@ -130,7 +133,8 @@ class LEDCommand(BaseModel):
     effect: str
 
 @router.post("/hardware/led")
-async def control_led(cmd: LEDCommand):
+@limiter.limit("30/minute")
+async def control_led(request: Request, cmd: LEDCommand):
     import app.routers.agent as agent_router
     from app.routers.agent import pending_led_commands
     agent_router.current_led_effect = cmd.effect

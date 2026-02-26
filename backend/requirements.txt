@@ -7,6 +7,7 @@ pydantic>=2.9.2
 pydantic-settings>=2.2.0
 requests==2.31.0
 apscheduler==3.10.4
+slowapi>=0.1.9
 # RPi.GPIO is needed on the Pi, but we'll mock it locally. 
 # We include it here, but installation might fail on Windows if not handled.
 # Ideally installed via apt on RPi (python3-rpi.gpio) to avoid compilation issues.

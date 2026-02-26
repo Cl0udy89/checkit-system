@@ -39,6 +39,7 @@ DEFAULTS = {
     "security": {
         "profanity_list_url": "https://raw.githubusercontent.com/zacanger/profane-words/master/words.txt",
         "domain_blocklist": ["tempmail.com", "10minutemail.com"],
+        "jwt_secret": "CHANGE_ME_IN_PROD_SECRET_KEY"
     },
 }
 
@@ -100,6 +101,9 @@ class SimpleConfig:
         # auth
         self._config["auth"]["admin_user"] = os.getenv("CHECKIT_ADMIN_USER", self._config["auth"]["admin_user"])
         self._config["auth"]["admin_pass"] = os.getenv("CHECKIT_ADMIN_PASS", self._config["auth"]["admin_pass"])
+
+        # security
+        self._config["security"]["jwt_secret"] = os.getenv("CHECKIT_JWT_SECRET", self._config["security"]["jwt_secret"])
 
     def get(self, section, key, default=None):
         return self._config.get(section, {}).get(key, default)

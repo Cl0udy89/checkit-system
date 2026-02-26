@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from datetime import timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session
@@ -10,8 +10,11 @@ from app.simple_config import settings
 
 router = APIRouter(tags=["Auth"])
 
+from app.limiter import limiter
+
 @router.post("/register", response_model=UserRead)
-async def register(user: UserCreate, session: AsyncSession = Depends(get_session)):
+@limiter.limit("3/minute")
+async def register(request: Request, user: UserCreate, session: AsyncSession = Depends(get_session)):
     """
     Registers a new user after validation.
     """
@@ -27,7 +30,8 @@ async def register(user: UserCreate, session: AsyncSession = Depends(get_session
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/token")
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+@limiter.limit("5/minute")
+async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
     # HARDCODED ADMIN FOR NOW (Simple Kiosk Mode)
     print(f"DEBUG: Login attempt. Username='{form_data.username}', Password='{form_data.password}'")
     

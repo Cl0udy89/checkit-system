@@ -48,7 +48,6 @@ game:
   initial_points: 10000
 
 hardware:
-hardware:
   solenoid_pin: 26
   solenoid_open_time_sec: 5
 EOL

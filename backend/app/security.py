@@ -7,9 +7,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 # Secret key should be in config, but defaulting here for safety
-SECRET_KEY = "CHANGE_ME_IN_PROD_SECRET_KEY" 
+SECRET_KEY = settings.security.jwt_secret
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 300
+ACCESS_TOKEN_EXPIRE_MINUTES = 240 # Reduced to 4 hours for security
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token")
