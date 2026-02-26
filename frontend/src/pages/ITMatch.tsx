@@ -57,35 +57,14 @@ export default function ITMatch() {
             // Default: shuffle them if it's a fresh game
             let shouldShuffle = true
 
-            // Load saved progress if available
+            // Force reset on load rather than resuming stale sessions (DISABLED cache resume)
             if (user) {
-                const savedProgress = localStorage.getItem(`it_match_state_${user.id}`)
-                if (savedProgress) {
-                    try {
-                        const parsed = JSON.parse(savedProgress)
-                        if (parsed.questions && parsed.questions.length > 0) {
-                            loadedQuestions = parsed.questions
-                            shouldShuffle = false // We already have a saved randomized order
-                        }
-
-                        setCurrentIndex(parsed.currentIndex || 0)
-                        setScore(parsed.score || 0)
-                        setAnswers(parsed.answers || {})
-
-                        // Load elapsed time instead of absolute start time to prevent massive jumps when offline
-                        if (parsed.elapsed !== undefined) {
-                            const timePassed = parsed.elapsed
-                            setQuestionStartTime(Date.now() - timePassed)
-                            const activeScore = Math.max(0, MAX_Q_POINTS - (timePassed * DECAY_PER_MS))
-                            setCurrentPotentialScore(Math.floor(activeScore))
-                        } else {
-                            setQuestionStartTime(Date.now())
-                            setCurrentPotentialScore(MAX_Q_POINTS)
-                        }
-                    } catch (e) {
-                        console.error('Failed to parse saved progress', e)
-                    }
-                }
+                localStorage.removeItem(`it_match_state_${user.id}`)
+                setCurrentIndex(0)
+                setScore(0)
+                setAnswers({})
+                setQuestionStartTime(Date.now())
+                setCurrentPotentialScore(MAX_Q_POINTS)
             }
 
             if (shouldShuffle) {

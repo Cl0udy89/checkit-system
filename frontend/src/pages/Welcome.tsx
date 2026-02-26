@@ -166,8 +166,8 @@ export default function Welcome() {
                     </div>
                 </form>
 
-                <div className="mt-8 flex flex-col items-center gap-4 text-gray-600 text-xs font-mono uppercase">
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-6 opacity-60 hover:opacity-100 transition-opacity" />
+                <div className="mt-12 flex flex-col items-center gap-4 text-gray-600 text-xs font-mono uppercase">
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-10 md:h-14 opacity-70 hover:opacity-100 transition-opacity invert mix-blend-screen" />
                     CHECKIT V1.0.4
                 </div>
             </div>

@@ -17,9 +17,9 @@ export default function ScreenLeaderboard() {
             <div className="flex-1 flex flex-col justify-between">
                 {list?.slice(0, 10).map((entry, idx) => (
                     <div key={idx} className="flex justify-between items-center font-mono text-base xl:text-lg border-b border-gray-800/50 pb-1 xl:pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
-                        <span className="text-gray-300 flex items-center gap-2 truncate">
+                        <span className="text-gray-300 flex items-center gap-2 truncate flex-1 min-w-0 mr-4">
                             <span className={`font-bold ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
-                            <span className="truncate max-w-[150px]">{entry.nick}</span>
+                            <span className="truncate">{entry.nick}</span>
                         </span>
                         <span className="text-white font-bold text-lg xl:text-xl shrink-0">{entry.score} PTS</span>
                     </div>
@@ -61,9 +61,9 @@ export default function ScreenLeaderboard() {
                                     const idx = i + 1; // 1-indexed for slice
                                     return (
                                         <div key={idx} className="flex-1 flex justify-between items-center font-mono border border-accent/30 p-4 xl:p-6 rounded-xl bg-surface/50">
-                                            <span className="text-gray-100 flex items-center gap-4">
-                                                <span className={`font-black text-4xl xl:text-5xl w-16 ${idx === 1 ? 'text-gray-400' : 'text-amber-700'}`}>#{idx + 1}</span>
-                                                <span className="text-2xl xl:text-3xl truncate max-w-[200px]">{entry.nick}</span>
+                                            <span className="text-gray-100 flex items-center gap-4 flex-1 min-w-0 mr-4">
+                                                <span className={`font-black text-4xl xl:text-5xl shrink-0 ${idx === 1 ? 'text-gray-400' : 'text-amber-700'}`}>#{idx + 1}</span>
+                                                <span className="text-2xl xl:text-3xl truncate">{entry.nick}</span>
                                             </span>
                                             <span className="text-accent font-black text-3xl xl:text-4xl">{entry.score} PTS</span>
                                         </div>

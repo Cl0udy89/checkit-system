@@ -43,31 +43,15 @@ export default function BinaryBrain() {
 
     const currentQ = questions ? questions[currentQIndex] : null
 
-    // Load saved progress if available
+    // Load saved progress if available (DISABLED cache resume to prevent starting at Q3)
     useEffect(() => {
         if (questions && user && !hasLoaded) {
-            const savedProgress = localStorage.getItem(`binary_brain_state_${user.id}`)
-            if (savedProgress) {
-                try {
-                    const parsed = JSON.parse(savedProgress)
-                    const loadedIndex = parsed.currentQIndex || 0
-                    const loadedScore = parsed.totalScore || 0
-                    const loadedAnswers = parsed.answers || {}
-
-                    setCurrentQIndex(loadedIndex)
-                    setTotalScore(loadedScore)
-                    setAnswers(loadedAnswers)
-                    if (parsed.questionStartTime) setQuestionStartTime(parsed.questionStartTime)
-
-                    if (loadedIndex >= questions.length) {
-                        finishGame(loadedScore, loadedAnswers)
-                        setHasLoaded(true)
-                        return
-                    }
-                } catch (e) {
-                    console.error('Failed to parse saved progress', e)
-                }
-            }
+            // Force reset on load rather than resuming stale sessions
+            localStorage.removeItem(`binary_brain_state_${user.id}`)
+            setCurrentQIndex(0)
+            setTotalScore(0)
+            setAnswers({})
+            setQuestionStartTime(Date.now())
             setHasLoaded(true)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
