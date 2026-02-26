@@ -89,7 +89,7 @@ export default function Dashboard() {
                     <h1 className="text-xl md:text-2xl font-mono font-bold text-white tracking-widest leading-tight">
                         SYSTEM_ROOT: CHECK_IT_LUBLIN_2026
                         <span className="text-xs md:text-sm text-gray-500 tracking-widest block mt-4 flex items-center gap-2">
-                            <img src={sparkLogo} alt="SparkSome Logo" className="h-8 opacity-90" />
+                            <img src={sparkLogo} alt="SparkSome Logo" className="h-8 opacity-90 invert mix-blend-screen" />
                         </span>
                     </h1>
                     <p className="text-gray-400 font-mono mt-2 flex items-center gap-2">

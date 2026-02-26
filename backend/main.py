@@ -96,7 +96,12 @@ app.include_router(patch_master_queue.router, prefix=f"{API_V1_STR}/game/patch-m
 # Mount content directory for images
 from pathlib import Path
 CONTENT_DIR = Path(__file__).parent.parent / "content"
-app.mount("/content", StaticFiles(directory=CONTENT_DIR), name="content")
+
+# Safely check if directory exists to prevent crash on fresh installs
+if not CONTENT_DIR.exists():
+    CONTENT_DIR.mkdir(parents=True, exist_ok=True)
+    
+app.mount("/api/content", StaticFiles(directory=CONTENT_DIR), name="content")
 
 @app.get("/health")
 def health_check():
