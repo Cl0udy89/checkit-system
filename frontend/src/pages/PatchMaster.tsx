@@ -171,16 +171,22 @@ export default function PatchMaster() {
         if (!lastPlugTime) setLastPlugTime(startTime)
 
         if (lastKnownPairs) {
+            const now = Date.now()
+            const newDeltas: any[] = []
+
             hardwareState.pairs.forEach((currentPair: any, idx: number) => {
                 const prevPair = lastKnownPairs[idx]
                 if (!prevPair.connected && currentPair.connected) {
-                    const now = Date.now()
                     const deltaMs = now - (lastPlugTime || startTime)
-                    setTimeDeltas(prev => [...prev, { port: currentPair.gpio, deltaMs, label: currentPair.label }])
-                    setLastPlugTime(now)
+                    newDeltas.push({ port: currentPair.gpio, deltaMs, label: currentPair.label })
                     api.post('/game/patch-master/queue/led', { effect: 'pulse' }).catch(() => { })
                 }
             })
+
+            if (newDeltas.length > 0) {
+                setTimeDeltas(prev => [...prev, ...newDeltas])
+                setLastPlugTime(now)
+            }
         }
         setLastKnownPairs(hardwareState.pairs)
     }, [hardwareState?.pairs, gameStartedLocal, isFinished, startTime, lastPlugTime])
