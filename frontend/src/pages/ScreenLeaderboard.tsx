@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchLeaderboard } from '../lib/api'
+
 import { Trophy } from 'lucide-react'
+import sparkSomeLogo from '../assets/sparkSomeLogoSVGblack_white_2.png'
 
 export default function ScreenLeaderboard() {
     const { data, isLoading } = useQuery({
@@ -14,6 +16,10 @@ export default function ScreenLeaderboard() {
     const Section = ({ title, list }: { title: string, list: any[] }) => (
         <div className="bg-surface/80 border border-gray-700 rounded-lg p-4 xl:p-6 shadow-lg h-full flex flex-col">
             <h3 className="text-xl xl:text-2xl font-mono font-bold text-primary mb-4 border-b border-gray-800 pb-2 shrink-0">{title}</h3>
+            <div className="flex justify-between text-xs xl:text-sm text-gray-500 font-mono mb-2 px-2 shrink-0">
+                <span>POZYCJA / NICK</span>
+                <span>SCORE</span>
+            </div>
             <div className="flex-1 flex flex-col justify-between">
                 {list?.slice(0, 10).map((entry, idx) => (
                     <div key={idx} className="flex justify-between items-center font-mono text-base xl:text-lg border-b border-gray-800/50 pb-1 xl:pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
@@ -21,7 +27,7 @@ export default function ScreenLeaderboard() {
                             <span className={`font-bold ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
                             <span className="truncate">{entry.nick}</span>
                         </span>
-                        <span className="text-white font-bold text-lg xl:text-xl shrink-0">{entry.score} PTS</span>
+                        <span className="text-white font-bold text-lg xl:text-xl shrink-0">{entry.score} SCORE</span>
                     </div>
                 ))}
                 {(!list || list.length === 0) && <div className="text-gray-600 text-sm">BRAK DANYCH</div>}
@@ -31,18 +37,20 @@ export default function ScreenLeaderboard() {
 
     return (
         <div className="h-screen w-screen bg-black overflow-hidden p-4 xl:p-8 flex flex-col absolute top-0 left-0 right-0 bottom-0 z-50">
-            <h1 className="text-4xl xl:text-5xl font-mono font-bold text-white mb-6 xl:mb-8 text-center flex justify-center items-center gap-4 shrink-0">
-                <Trophy className="text-accent" size={48} /> GLOBALNY RANKING
-            </h1>
+            <div className="flex justify-center items-center gap-6 mb-6 xl:mb-10 text-center shrink-0">
+                <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 xl:h-24 opacity-100 invert mix-blend-screen" />
+                <h1 className="text-5xl xl:text-7xl font-mono font-bold text-white tracking-tighter">
+                    RANKING OGÓLNY
+                </h1>
+            </div>
 
             {/* Grandmaster Section - Top Half */}
             <div className="flex-none h-[45%] mb-6">
                 <div className="bg-surface/90 border-4 border-accent rounded-xl p-4 xl:p-8 shadow-[0_0_50px_rgba(243,234,95,0.2)] h-full flex flex-col relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-32 bg-accent/10 rounded-full blur-[100px] transform translate-x-1/2 -translate-y-1/2"></div>
                     <div className="relative z-10 flex flex-col h-full">
-                        <h3 className="text-2xl xl:text-3xl font-mono font-bold text-accent mb-4 xl:mb-6 border-b-2 border-accent/30 pb-2 xl:pb-4 flex justify-between items-center shrink-0">
-                            <span>MISTRZOWIE (SUMA PUNKTÓW)</span>
-                            <Trophy size={36} />
+                        <h3 className="text-2xl xl:text-4xl font-mono font-extrabold text-accent mb-4 xl:mb-6 border-b-2 border-accent/30 pb-2 xl:pb-4 flex justify-between items-center shrink-0">
+                            <span>TOP SCORE: ALL GAMES</span>
                         </h3>
                         <div className="flex-1 flex gap-4 xl:gap-8 justify-center overflow-hidden">
                             {/* 1st Place - Large Center Left-ish or Top */}
@@ -51,7 +59,7 @@ export default function ScreenLeaderboard() {
                                     <Trophy size={64} className="text-yellow-400 mb-4 drop-shadow-[0_0_15px_rgba(255,215,0,0.8)]" />
                                     <span className="text-yellow-400 font-black text-6xl mb-2">#1</span>
                                     <span className="text-white font-bold text-4xl xl:text-5xl mb-4 truncate w-full text-center">{data.grandmaster[0].nick}</span>
-                                    <span className="text-yellow-400 font-black text-4xl xl:text-5xl">{data.grandmaster[0].score} PTS</span>
+                                    <span className="text-yellow-400 font-black text-4xl xl:text-5xl">{data.grandmaster[0].score} SCORE</span>
                                 </div>
                             )}
 
@@ -65,7 +73,7 @@ export default function ScreenLeaderboard() {
                                                 <span className={`font-black text-4xl xl:text-5xl shrink-0 ${idx === 1 ? 'text-gray-400' : 'text-amber-700'}`}>#{idx + 1}</span>
                                                 <span className="text-2xl xl:text-3xl truncate">{entry.nick}</span>
                                             </span>
-                                            <span className="text-accent font-black text-3xl xl:text-4xl">{entry.score} PTS</span>
+                                            <span className="text-accent font-black text-3xl xl:text-4xl">{entry.score} SCORE</span>
                                         </div>
                                     )
                                 })}

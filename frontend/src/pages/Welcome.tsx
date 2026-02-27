@@ -22,17 +22,6 @@ export default function Welcome() {
     const [agreeRules, setAgreeRules] = useState(false)
     const [agreeAge, setAgreeAge] = useState(false)
     const [agreeData, setAgreeData] = useState(false)
-    const [agreeAll, setAgreeAll] = useState(false)
-
-    useEffect(() => {
-        setAgreeAll(agreeRules && agreeAge && agreeData)
-    }, [agreeRules, agreeAge, agreeData])
-
-    const handleAgreeAll = (checked: boolean) => {
-        setAgreeRules(checked)
-        setAgreeAge(checked)
-        setAgreeData(checked)
-    }
 
     // Auto-login redirect
     useEffect(() => {
@@ -78,11 +67,12 @@ export default function Welcome() {
             <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
 
             <div className="z-10 w-full max-w-md">
-                <div className="text-center mb-10">
-                    <h1 className="text-5xl font-mono font-bold text-white mb-2 tracking-tighter">
-                        CHECK<span className="text-primary">IT</span>
+                <div className="text-center mb-10 mt-4">
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-24 md:h-32 mb-8 mx-auto opacity-100 transition-opacity invert mix-blend-screen" />
+                    <h1 className="text-xl md:text-3xl font-mono font-bold text-white mb-4 tracking-tighter uppercase leading-snug">
+                        Podejmij wyzwanie Sparks_Core i sprawdź swój tech-skill!
                     </h1>
-                    <p className="text-gray-400 font-mono text-sm tracking-widest uppercase">Rozpal innowację ze SPARKOSTREFA // Dołącz do gry!</p>
+                    <p className="text-primary font-mono text-lg tracking-widest uppercase font-bold">ZAAUTORYZUJ SIĘ, ABY ROZPOCZĄĆ MISJĘ.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="bg-surface border border-gray-800 p-8 rounded-xl shadow-2xl backdrop-blur-sm relative group">
@@ -99,7 +89,7 @@ export default function Welcome() {
                         )}
 
                         <div className="space-y-2">
-                            <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">Nick</label>
+                            <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">NICK —</label>
                             <div className="relative">
                                 <User className="absolute left-3 top-3 text-gray-600" size={20} />
                                 <input
@@ -110,13 +100,13 @@ export default function Welcome() {
                                         if (val.length <= 20) setNick(val)
                                     }}
                                     className="w-full bg-black/50 border border-gray-700 text-white pl-10 pr-4 py-3 rounded focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-mono"
-                                    placeholder="WPISZ NICK"
+                                    placeholder="NICK —"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">Email</label>
+                            <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">oraz E-MAIL —</label>
                             <div className="relative">
                                 <Mail className="absolute left-3 top-3 text-gray-600" size={20} />
                                 <input
@@ -124,7 +114,7 @@ export default function Welcome() {
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
                                     className="w-full bg-black/50 border border-gray-700 text-white pl-10 pr-4 py-3 rounded focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-mono"
-                                    placeholder="WPISZ EMAIL"
+                                    placeholder="oraz E-MAIL —"
                                 />
                             </div>
                         </div>
@@ -135,13 +125,8 @@ export default function Welcome() {
                                 Podanie danych jest dobrowolne, ale konieczne do udziału. Przysługuje Ci prawo dostępu do danych, ich poprawiania, usunięcia oraz złożenia skargi do Prezesa UODO. Szczegóły znajdziesz w <a href="https://sparksome.pl/assets/Polityka%20prywatno%C5%9Bci%20SparkSome.pdf" target="_blank" rel="noreferrer" className="text-primary hover:underline font-bold">Polityce prywatności</a>.
                             </p>
                             <div className="bg-black/40 p-3 rounded-lg border border-gray-800 space-y-3">
-                                <label className="flex items-start gap-2 cursor-pointer border-b border-gray-800 pb-3 mb-2">
-                                    <input type="checkbox" checked={agreeAll} onChange={e => handleAgreeAll(e.target.checked)} className="mt-0.5 w-4 h-4 accent-primary shrink-0 transition-transform hover:scale-110" />
-                                    <span className="font-bold text-white text-sm">Akceptuję wszystkie poniższe oświadczenia i regulaminy.</span>
-                                </label>
-
                                 <label className="flex items-start gap-2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
-                                    <input type="checkbox" checked={agreeRules} onChange={e => setAgreeRules(e.target.checked)} className="mt-0.5 accent-primary shrink-0" />
+                                    <input type="checkbox" checked={agreeRules} onChange={e => setAgreeRules(e.target.checked)} className="mt-0.5 w-4 h-4 accent-primary shrink-0 transition-transform hover:scale-110" />
                                     <span>Zapoznałem/am się z Regulaminem konkursów i aktywacji organizowanych przez SparkSome Venture Sp. z o.o. i akceptuję jego postanowienia.</span>
                                 </label>
                                 <label className="flex items-start gap-2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
@@ -160,14 +145,13 @@ export default function Welcome() {
                             disabled={mutation.isPending}
                             className="w-full bg-primary hover:bg-green-400 text-black font-bold py-4 rounded transition-all flex justify-center items-center gap-2 group/btn"
                         >
-                            {mutation.isPending ? 'ŁADOWANIE...' : 'ROZPOCZNIJ SESJĘ'}
+                            {mutation.isPending ? 'ŁADOWANIE...' : 'AUTORYZUJ I WEJDŹ'}
                             <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
                         </button>
                     </div>
                 </form>
 
                 <div className="mt-12 flex flex-col items-center gap-4 text-gray-600 text-xs font-mono uppercase">
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-10 md:h-14 opacity-70 hover:opacity-100 transition-opacity invert mix-blend-screen" />
                     CHECKIT V1.0.4
                 </div>
             </div>

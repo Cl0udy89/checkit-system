@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchLeaderboard } from '../lib/api'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Trophy } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { useEffect } from 'react'
+import sparkSomeLogo from '../assets/sparkSomeLogoSVGblack_white_2.png'
 
 export default function Leaderboard() {
     const navigate = useNavigate()
@@ -32,6 +33,10 @@ export default function Leaderboard() {
     const Section = ({ title, list }: { title: string, list: any[] }) => (
         <div className="bg-surface border border-gray-700 rounded-lg p-6 shadow-lg">
             <h3 className="text-2xl font-mono font-bold text-primary mb-6 border-b border-gray-800 pb-2">{title}</h3>
+            <div className="flex justify-between text-xs text-gray-500 font-mono mb-2 px-2">
+                <span>POZYCJA / NICK</span>
+                <span>SCORE</span>
+            </div>
             <div className="space-y-3">
                 {list?.map((entry, idx) => (
                     <div key={idx} className="flex justify-between items-center font-mono text-lg border-b border-gray-800/50 pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
@@ -39,7 +44,7 @@ export default function Leaderboard() {
                             <span className={`font-bold ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
                             {entry.nick}
                         </span>
-                        <span className="text-white font-bold text-xl">{entry.score} PTS</span>
+                        <span className="text-white font-bold text-xl">{entry.score} SCORE</span>
                     </div>
                 ))}
                 {(!list || list.length === 0) && <div className="text-gray-600 text-sm">BRAK DANYCH</div>}
@@ -56,9 +61,12 @@ export default function Leaderboard() {
                 <ArrowLeft size={20} /> POWRÓT
             </button>
 
-            <h1 className="text-4xl font-mono font-bold text-white mb-12 text-center flex justify-center items-center gap-4">
-                <Trophy className="text-accent" size={48} /> GLOBALNY RANKING
-            </h1>
+            <div className="flex justify-center items-center gap-6 mb-12 text-center">
+                <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 opacity-100 invert mix-blend-screen" />
+                <h1 className="text-4xl md:text-6xl font-mono font-bold text-white tracking-tighter">
+                    RANKING OGÓLNY
+                </h1>
+            </div>
 
             {/* Grandmaster Section - Full Width on Top */}
             <div className="mb-12">
@@ -66,8 +74,7 @@ export default function Leaderboard() {
                     <div className="absolute top-0 right-0 p-32 bg-accent/10 rounded-full blur-[100px] transform translate-x-1/2 -translate-y-1/2"></div>
                     <div className="relative z-10">
                         <h3 className="text-3xl font-mono font-bold text-accent mb-8 border-b-2 border-accent/30 pb-4 flex justify-between items-center">
-                            <span>MISTRZOWIE (SUMA PUNKTÓW)</span>
-                            <Trophy size={40} />
+                            <span>TOP SCORE: ALL GAMES</span>
                         </h3>
                         <div className="flex flex-col gap-8 max-w-5xl mx-auto">
                             {/* 1st Place */}
@@ -78,7 +85,7 @@ export default function Leaderboard() {
                                             <span className="font-black text-yellow-400 text-5xl w-20">#1</span>
                                             <span className="font-bold text-3xl md:text-4xl">{data.grandmaster[0].nick}</span>
                                         </span>
-                                        <span className="text-yellow-400 font-black text-3xl md:text-4xl">{data.grandmaster[0].score} PTS</span>
+                                        <span className="text-accent font-black text-3xl md:text-4xl">{data.grandmaster[0].score} SCORE</span>
                                     </div>
                                 </div>
                             )}
@@ -96,7 +103,7 @@ export default function Leaderboard() {
                                                         <span className={`font-black w-16 ${idx === 1 ? 'text-gray-400 text-3xl' : idx === 2 ? 'text-amber-700 text-3xl' : 'text-accent text-3xl'}`}>#{idx + 1}</span>
                                                         {entry.nick}
                                                     </span>
-                                                    <span className="text-accent font-black text-2xl md:text-3xl">{entry.score} PTS</span>
+                                                    <span className="text-accent font-black text-2xl md:text-3xl">{entry.score} SCORE</span>
                                                 </div>
                                             )
                                         })}
@@ -112,7 +119,7 @@ export default function Leaderboard() {
                                                         <span className={`font-black w-16 ${idx === 1 ? 'text-gray-400 text-3xl' : idx === 2 ? 'text-amber-700 text-3xl' : 'text-accent text-3xl'}`}>#{idx + 1}</span>
                                                         {entry.nick}
                                                     </span>
-                                                    <span className="text-accent font-black text-2xl md:text-3xl">{entry.score} PTS</span>
+                                                    <span className="text-accent font-black text-2xl md:text-3xl">{entry.score} SCORE</span>
                                                 </div>
                                             )
                                         })}
