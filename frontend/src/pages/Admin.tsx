@@ -555,6 +555,18 @@ export default function Admin() {
                     </div>
 
                     <div className="mb-4 p-4 border border-green-800 bg-black">
+                        <label className="block text-white font-bold mb-4 border-b border-gray-800 pb-2">WIADOMOŚĆ NA TABLICY WYNIKÓW</label>
+                        <div className="text-xs text-gray-400 mb-2">Wpisz tekst (np. "Koniec o 14:00"), który pojawi się w prawym górnym rogu ekranów rankingu. Zostaw puste, aby ukryć.</div>
+                        <input
+                            type="text"
+                            placeholder="np. Zakończenie o 14:00"
+                            defaultValue={config?.leaderboard_message || ""}
+                            onBlur={(e) => configMutation.mutate({ key: 'leaderboard_message', value: e.target.value })}
+                            className="bg-gray-900 border border-green-800 p-2 text-white w-full font-mono"
+                        />
+                    </div>
+
+                    <div className="mb-4 p-4 border border-green-800 bg-black">
                         <label className="block text-white font-bold mb-4 border-b border-gray-800 pb-2">KONFIGURACJA EMAIL (SMTP)</label>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

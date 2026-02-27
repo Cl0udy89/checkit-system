@@ -11,6 +11,12 @@ router = APIRouter(tags=["Leaderboard"])
 @router.get("")
 @router.get("/")
 async def get_leaderboard(session: AsyncSession = Depends(get_session)):
+    from app.models import SystemConfig
+    # Fetch leaderboard_message from config
+    config_res = await session.execute(select(SystemConfig).where(SystemConfig.key == "leaderboard_message"))
+    msg_config = config_res.scalar_one_or_none()
+    leaderboard_message = msg_config.value if msg_config else ""
+
     # 1. Top Scores per Game
     # We want top 10 for each game type
     
@@ -73,5 +79,6 @@ async def get_leaderboard(session: AsyncSession = Depends(get_session)):
         "binary_brain": binary_brain,
         "patch_master": patch_master,
         "it_match": it_match,
-        "grandmaster": grandmaster_top
+        "grandmaster": grandmaster_top,
+        "leaderboard_message": leaderboard_message
     }

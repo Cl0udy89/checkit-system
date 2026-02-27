@@ -90,6 +90,13 @@ export default function ScreenLeaderboard() {
                 <h1 className="text-5xl xl:text-7xl font-mono font-bold text-white tracking-tighter w-full text-center">
                     RANKING OGÓLNY
                 </h1>
+                {data?.leaderboard_message && (
+                    <div className="absolute right-0 text-right">
+                        <div className="text-xl xl:text-3xl font-bold font-mono text-accent animate-pulse px-6 py-3 bg-accent/10 border-2 border-accent/50 rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(243,234,95,0.3)]">
+                            {data.leaderboard_message}
+                        </div>
+                    </div>
+                )}
             </motion.div>
 
             {/* Grandmaster Section - Top Half */}

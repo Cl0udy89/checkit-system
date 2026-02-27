@@ -56,8 +56,13 @@ export default function Leaderboard() {
 
     return (
         <div className="min-h-screen bg-transparent p-4 md:p-8 relative overflow-y-auto overflow-x-hidden flex flex-col custom-scrollbar">
-            <div className="absolute top-4 right-4 md:top-8 md:right-8 z-20">
+            <div className="absolute top-4 right-4 md:top-8 md:right-8 z-20 flex flex-col items-end gap-2">
                 <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert" />
+                {data?.leaderboard_message && (
+                    <div className="text-sm md:text-base font-bold font-mono text-accent animate-pulse px-3 py-1.5 bg-accent/10 border border-accent/50 rounded-lg backdrop-blur-md shadow-[0_0_15px_rgba(243,234,95,0.2)]">
+                        {data.leaderboard_message}
+                    </div>
+                )}
             </div>
 
             <button
