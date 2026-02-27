@@ -5,6 +5,7 @@ import { fetchGameContent, submitGameScore, BACKEND_URL } from '../lib/api'
 import { useGameStore } from '../hooks/useGameStore'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Zap } from 'lucide-react'
+import sparkSomeLogo from '../assets/sparkSomeLogo_Black.png'
 
 // Shuffle utility
 const shuffle = (array: any[]) => {
@@ -270,9 +271,10 @@ export default function BinaryBrain() {
                 <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center">WERYFIKACJA ZAKOŃCZONA</h1>
 
                 <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8">
-                    <div className="text-center mb-6 md:mb-8 border border-gray-700 rounded-lg bg-black/50 p-6 md:p-8">
+                    <div className="text-center mb-6 md:mb-8 border border-gray-700 rounded-lg bg-black/50 p-6 md:p-8 flex flex-col items-center">
                         <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">WYNIK KOŃCOWY</div>
                         <div className="text-5xl md:text-7xl font-bold text-accent font-mono">{finalResult.score}</div>
+                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert mt-6 opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
                         {!user && <div className="text-red-500 mt-4 text-sm font-mono tracking-widest">BRAK SESJI LOGOWANIA. WYNIK NIE ZOSTAŁ ZAPISANY.</div>}
                     </div>
 

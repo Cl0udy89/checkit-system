@@ -24,6 +24,7 @@ export default function ITMatch() {
     const [gameState, setGameState] = useState<'playing' | 'feedback'>('playing')
     const [startTime] = useState(Date.now())
     const [answers, setAnswers] = useState<Record<string, any>>({})
+    const [answerStats, setAnswerStats] = useState<{ isCorrect: boolean, timeMs: number }[]>([])
     const [floatingPoints, setFloatingPoints] = useState<{ id: number, val: number, label: string }[]>([])
 
     const DECAY_PER_MS = 0.05 // 50 points per second
@@ -69,6 +70,7 @@ export default function ITMatch() {
                         setCurrentIndex(savedState.currentIndex || 0)
                         setScore(savedState.score || 0)
                         setAnswers(savedState.answers || {})
+                        setAnswerStats(savedState.answerStats || [])
 
                         // Restore precise time if available, otherwise it will just be from 0 again
                         if (savedState.questionStartTime) {
@@ -92,6 +94,7 @@ export default function ITMatch() {
             setCurrentIndex(0)
             setScore(0)
             setAnswers({})
+            setAnswerStats([])
             setQuestionStartTime(Date.now())
             setCurrentPotentialScore(MAX_Q_POINTS)
         }
@@ -104,12 +107,13 @@ export default function ITMatch() {
                 currentIndex,
                 score,
                 answers,
+                answerStats,
                 questionStartTime,
                 questions
             }
             localStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))
         }
-    }, [currentIndex, score, answers, questionStartTime, user, questions, gameOver, gameState])
+    }, [currentIndex, score, answers, answerStats, questionStartTime, user, questions, gameOver, gameState])
 
     // Timer Effect (Per Question)
     useEffect(() => {
@@ -152,8 +156,12 @@ export default function ITMatch() {
         const newScore = score + pointsEarned
         const newAnswers = { ...answers, [currentQ.id]: userChoiceSafe }
 
+        const timeElapsed = Date.now() - questionStartTime
+        const newAnswerStats = [...answerStats, { isCorrect: userChoiceSafe === isSafe, timeMs: timeElapsed }]
+
         setScore(newScore)
         setAnswers(newAnswers)
+        setAnswerStats(newAnswerStats)
         setGameState('feedback')
 
         // Force anti-cheat save immediately for the next state
@@ -162,6 +170,7 @@ export default function ITMatch() {
                 currentIndex: currentIndex + 1,
                 score: newScore,
                 answers: newAnswers,
+                answerStats: newAnswerStats,
                 questionStartTime: Date.now(), // Will be reset on setTimeout anyway
                 questions: questions
             }
@@ -218,13 +227,52 @@ export default function ITMatch() {
     }
 
     if (gameOver) {
+        const stats = answerStats || []
+        const fastestAnswer = stats.length > 0 ? stats.reduce((min, s) => s.timeMs < min.timeMs ? s : min, stats[0]) : null
+        const slowestAnswer = stats.length > 0 ? stats.reduce((max, s) => s.timeMs > max.timeMs ? s : max, stats[0]) : null
+        const correctCount = stats.filter(s => s.isCorrect).length
+        const incorrectCount = stats.length - correctCount
+
         return (
-            <div className="min-h-[100dvh] bg-transparent flex flex-col items-center justify-center font-mono text-white p-4">
-                <h1 className="text-5xl md:text-7xl font-bold text-primary mb-8 text-center drop-shadow-[0_0_15px_rgba(74,222,128,0.8)]">LICZENIE PUNKTÓW...</h1>
-                <div className="text-4xl md:text-6xl mb-12 text-center text-gray-300">TWÓJ WYNIK: <span className="text-accent font-bold drop-shadow-[0_0_10px_rgba(255,215,0,0.8)]">{score}</span></div>
-                <button onClick={() => navigate('/dashboard')} className="bg-primary text-black text-xl md:text-2xl px-10 py-4 rounded font-bold hover:bg-green-400 transition-all shadow-[0_0_20px_rgba(74,222,128,0.5)]">
-                    POWRÓT DO BAZY
-                </button>
+            <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col justify-center items-center relative touch-none overflow-x-hidden">
+                <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center drop-shadow-[0_0_15px_rgba(74,222,128,0.8)]">LICZENIE PUNKTÓW...</h1>
+
+                <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8">
+                    <div className="text-center mb-6 md:mb-8 border border-gray-700 rounded-lg bg-black/50 p-6 md:p-8 flex flex-col items-center">
+                        <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">WYNIK KOŃCOWY</div>
+                        <div className="text-5xl md:text-7xl font-bold text-accent font-mono">{score}</div>
+                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert mt-6 opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+                        {!user && <div className="text-red-500 mt-4 text-sm font-mono tracking-widest">BRAK SESJI LOGOWANIA. WYNIK NIE ZOSTAŁ ZAPISANY.</div>}
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-8">
+                        <div className="p-3 md:p-4 border border-green-900/50 bg-green-900/10 rounded-lg flex flex-col items-center text-center">
+                            <div className="text-[10px] md:text-xs text-green-500/80 mb-2 font-mono">NAJSZYBSZA ODPOWIEDŹ</div>
+                            <div className="text-xl md:text-2xl font-bold text-green-400 font-mono mb-1">{fastestAnswer ? (fastestAnswer.timeMs / 1000).toFixed(2) + 's' : '---'}</div>
+                        </div>
+                        <div className="p-3 md:p-4 border border-red-900/50 bg-red-900/10 rounded-lg flex flex-col items-center text-center">
+                            <div className="text-[10px] md:text-xs text-red-500/80 mb-2 font-mono">NAJDŁUŻSZE ZASTANOWIENIE</div>
+                            <div className="text-xl md:text-2xl font-bold text-red-400 font-mono mb-1">{slowestAnswer ? (slowestAnswer.timeMs / 1000).toFixed(2) + 's' : '---'}</div>
+                        </div>
+                        <div className="p-3 md:p-4 border border-blue-900/50 bg-blue-900/10 rounded-lg flex flex-col items-center text-center">
+                            <div className="text-[10px] md:text-xs text-blue-500/80 mb-2 font-mono">POPRAWNE</div>
+                            <div className="text-xl md:text-2xl font-bold text-blue-400 font-mono mb-1">{correctCount}</div>
+                        </div>
+                        <div className="p-3 md:p-4 border border-orange-900/50 bg-orange-900/10 rounded-lg flex flex-col items-center text-center">
+                            <div className="text-[10px] md:text-xs text-orange-500/80 mb-2 font-mono">BŁĘDNE</div>
+                            <div className="text-xl md:text-2xl font-bold text-orange-400 font-mono mb-1">{incorrectCount}</div>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-center mt-6 md:mt-8">
+                        <button
+                            onClick={() => navigate('/dashboard')}
+                            className="bg-primary text-black px-6 md:px-8 py-3 md:py-4 rounded-lg font-bold font-mono text-lg md:text-xl transition-colors shadow-[0_0_20px_rgba(74,222,128,0.5)] hover:bg-green-400"
+                        >
+                            POWRÓT DO BAZY
+                        </button>
+                    </div>
+                </div>
             </div>
         )
     }
