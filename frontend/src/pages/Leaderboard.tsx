@@ -56,15 +56,18 @@ export default function Leaderboard() {
 
     return (
         <div className="min-h-screen bg-transparent p-4 md:p-8 relative overflow-y-auto overflow-x-hidden flex flex-col custom-scrollbar">
+            <div className="absolute top-4 left-4 md:top-8 md:left-8 z-20">
+                <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-12 md:h-16 invert" />
+            </div>
+
             <button
                 onClick={() => navigate('/dashboard')}
-                className="mb-6 md:mb-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                className="mb-6 md:mb-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors relative z-30"
             >
                 <ArrowLeft size={20} /> POWRÓT
             </button>
 
-            <div className="flex justify-center items-center gap-6 mb-12 text-center mt-8">
-                <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert" />
+            <div className="flex justify-center items-center mb-12 text-center mt-4">
                 <h1 className="text-4xl md:text-6xl font-mono font-bold text-white tracking-tighter">
                     RANKING OGÓLNY
                 </h1>
