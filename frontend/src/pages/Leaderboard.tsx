@@ -3,7 +3,7 @@ import { fetchLeaderboard } from '../lib/api'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { useEffect } from 'react'
-import sparkSomeLogo from '../assets/sparkSomeLogoSVGblack_white_2.png'
+import sparkSomeLogo from '../assets/sparkSomeLogo_Black.png'
 
 export default function Leaderboard() {
     const navigate = useNavigate()
@@ -37,24 +37,15 @@ export default function Leaderboard() {
                 <span>POZYCJA / NICK</span>
                 <span>SCORE</span>
             </div>
-            <div className="flex-1 overflow-hidden relative">
-                <div className={`space-y-3 ${list?.length > 7 ? 'animate-scroll' : ''}`}>
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar" style={{ maxHeight: '250px' }}>
+                <div className="space-y-3">
                     {list?.map((entry, idx) => (
-                        <div key={idx} className="flex justify-between items-center font-mono text-lg border-b border-gray-800/50 pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
-                            <span className="text-gray-300 flex items-center gap-2">
-                                <span className={`font-bold ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
-                                {entry.nick}
+                        <div key={idx} className="flex justify-between items-center font-mono text-base md:text-lg border-b border-gray-800/50 pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
+                            <span className="text-gray-300 flex items-center gap-2 truncate pr-4">
+                                <span className={`font-bold shrink-0 ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
+                                <span className="truncate">{entry.nick}</span>
                             </span>
-                            <span className="text-white font-bold text-xl">{entry.score} SCORE</span>
-                        </div>
-                    ))}
-                    {list?.length > 7 && list.map((entry, idx) => (
-                        <div key={`dup-${idx}`} className="flex justify-between items-center font-mono text-lg border-b border-gray-800/50 pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
-                            <span className="text-gray-300 flex items-center gap-2">
-                                <span className={`font-bold ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
-                                {entry.nick}
-                            </span>
-                            <span className="text-white font-bold text-xl">{entry.score} SCORE</span>
+                            <span className="text-white font-bold text-lg md:text-xl shrink-0">{entry.score} SCORE</span>
                         </div>
                     ))}
                     {(!list || list.length === 0) && <div className="text-gray-600 text-sm">BRAK DANYCH</div>}
@@ -64,7 +55,7 @@ export default function Leaderboard() {
     )
 
     return (
-        <div className="min-h-screen bg-transparent p-8 relative overflow-y-auto">
+        <div className="h-screen w-screen bg-transparent p-4 md:p-8 relative overflow-hidden flex flex-col">
             <button
                 onClick={() => navigate('/dashboard')}
                 className="mb-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
@@ -72,8 +63,8 @@ export default function Leaderboard() {
                 <ArrowLeft size={20} /> POWRÓT
             </button>
 
-            <div className="flex justify-center items-center gap-6 mb-12 text-center">
-                <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 opacity-100 invert mix-blend-screen" />
+            <div className="flex justify-center items-center gap-6 mb-12 text-center mt-8">
+                <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert" />
                 <h1 className="text-4xl md:text-6xl font-mono font-bold text-white tracking-tighter">
                     RANKING OGÓLNY
                 </h1>

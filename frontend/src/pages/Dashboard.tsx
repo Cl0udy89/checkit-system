@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../hooks/useGameStore'
 
 import { LogOut } from 'lucide-react'
-import sparkLogo from '../assets/sparkSomeLogoSVGblack_white_2.png'
+import sparkLogo from '../assets/sparkSomeLogo_Black.png'
 
 export default function Dashboard() {
     const navigate = useNavigate()
@@ -82,22 +82,21 @@ export default function Dashboard() {
     ]
 
     return (
-        <div className="min-h-screen p-4 md:p-8 flex flex-col relative overflow-x-hidden bg-transparent w-full max-w-[1600px] mx-auto">
-            {/* Header */}
+        <div className="h-screen p-4 md:p-8 flex flex-col relative overflow-hidden bg-transparent w-full mx-auto">
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 z-10 gap-4 mt-4 w-full">
-                <div className="flex items-center gap-6">
-                    <img src={sparkLogo} alt="SparkSome Logo" className="h-12 md:h-16 opacity-90 invert mix-blend-screen shrink-0" />
-                    <div>
-                        <h1 className="text-xl md:text-2xl font-mono font-bold text-white tracking-widest leading-tight">
-                            SYSTEM_ROOT: CHECK_IT_LUBLIN_2026
-                        </h1>
-                        <p className="text-gray-400 font-mono mt-2 flex items-center gap-2">
-                            <span className="bg-primary/20 text-primary px-2 py-0.5 rounded text-sm border border-primary/30">USER</span>
-                            <span className="text-xl text-white font-bold">{user?.nick || 'GUEST'}</span>
-                        </p>
-                    </div>
+                <div className="absolute top-4 left-4 md:top-8 md:left-8 z-20">
+                    <img src={sparkLogo} alt="SparkSome Logo" className="h-12 md:h-16 invert" />
                 </div>
-                <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                <div className="flex-1 text-center md:text-left md:pl-32 mt-16 md:mt-0">
+                    <h1 className="text-xl md:text-2xl font-mono font-bold text-white tracking-widest leading-tight">
+                        SYSTEM_ROOT: CHECK_IT_LUBLIN_2026
+                    </h1>
+                    <p className="text-gray-400 font-mono mt-2 justify-center md:justify-start flex items-center gap-2">
+                        <span className="bg-primary/20 text-primary px-2 py-0.5 rounded text-sm border border-primary/30">USER</span>
+                        <span className="text-xl text-white font-bold">{user?.nick || 'GUEST'}</span>
+                    </p>
+                </div>
+                <div className="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0 justify-center md:justify-end">
                     <button
                         onClick={() => navigate('/leaderboard')}
                         className="flex items-center gap-2 bg-surface/50 backdrop-blur-md border border-gray-700 hover:border-primary hover:text-primary px-6 py-3 font-mono transition-all rounded-lg"
@@ -207,6 +206,6 @@ export default function Dashboard() {
             <div className="mt-8 text-center text-sm text-gray-400 font-mono">
                 SYSTEM_ID: CHECKIT_NODE_01 // SECURE_CONNECTION // POWERED BY SPARKS.ENGINE
             </div>
-        </div>
+        </div >
     )
 }
