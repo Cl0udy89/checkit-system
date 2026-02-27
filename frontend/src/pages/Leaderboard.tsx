@@ -37,7 +37,7 @@ export default function Leaderboard() {
                 <span>POZYCJA / NICK</span>
                 <span>SCORE</span>
             </div>
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar" style={{ maxHeight: '250px' }}>
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar h-[300px]">
                 <div className="space-y-3">
                     {list?.map((entry, idx) => (
                         <div key={idx} className="flex justify-between items-center font-mono text-base md:text-lg border-b border-gray-800/50 pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
@@ -55,10 +55,10 @@ export default function Leaderboard() {
     )
 
     return (
-        <div className="h-screen w-screen bg-transparent p-4 md:p-8 relative overflow-hidden flex flex-col">
+        <div className="min-h-screen bg-transparent p-4 md:p-8 relative overflow-y-auto overflow-x-hidden flex flex-col custom-scrollbar">
             <button
                 onClick={() => navigate('/dashboard')}
-                className="mb-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                className="mb-6 md:mb-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
             >
                 <ArrowLeft size={20} /> POWRÓT
             </button>
@@ -134,7 +134,7 @@ export default function Leaderboard() {
             </div>
 
             {/* Game Sections - 3 Columns Below */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-20">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-10">
                 <Section title="BINARY BRAIN" list={data?.binary_brain} />
                 <Section title="PATCH MASTER" list={data?.patch_master} />
                 <Section title="IT MATCH" list={data?.it_match} />
