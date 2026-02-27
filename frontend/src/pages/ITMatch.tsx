@@ -241,7 +241,6 @@ export default function ITMatch() {
                     <div className="text-center mb-6 md:mb-8 border border-gray-700 rounded-lg bg-black/50 p-6 md:p-8 flex flex-col items-center">
                         <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">WYNIK KOŃCOWY</div>
                         <div className="text-5xl md:text-7xl font-bold text-accent font-mono">{score}</div>
-                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert mt-6 opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
                         {!user && <div className="text-red-500 mt-4 text-sm font-mono tracking-widest">BRAK SESJI LOGOWANIA. WYNIK NIE ZOSTAŁ ZAPISANY.</div>}
                     </div>
 
@@ -264,7 +263,8 @@ export default function ITMatch() {
                         </div>
                     </div>
 
-                    <div className="flex justify-center mt-6 md:mt-8">
+                    <div className="flex flex-col items-center mt-6 md:mt-8">
+                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert mb-8 opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
                         <button
                             onClick={() => navigate('/dashboard')}
                             className="bg-primary text-black px-6 md:px-8 py-3 md:py-4 rounded-lg font-bold font-mono text-lg md:text-xl transition-colors shadow-[0_0_20px_rgba(74,222,128,0.5)] hover:bg-green-400"

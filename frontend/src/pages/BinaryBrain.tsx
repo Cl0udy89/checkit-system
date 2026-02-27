@@ -20,6 +20,7 @@ export default function BinaryBrain() {
     const [currentQIndex, setCurrentQIndex] = useState(0)
     const [answers, setAnswers] = useState<Record<string, string>>({})
     const [answerStats, setAnswerStats] = useState<{ isCorrect: boolean, timeMs: number }[]>([])
+    const [floatingPoints, setFloatingPoints] = useState<{ id: number, val: number, label: string }[]>([])
 
     // Scoring State
     const [totalScore, setTotalScore] = useState(0)
@@ -35,6 +36,12 @@ export default function BinaryBrain() {
 
     const DECAY_PER_MS = 0.05 // 50 points per second
     const MAX_Q_POINTS = 1000
+
+    const showPoints = (val: number, label: string) => {
+        const id = Date.now() + Math.random()
+        setFloatingPoints(prev => [...prev, { id, val, label }])
+        setTimeout(() => setFloatingPoints(prev => prev.filter(p => p.id !== id)), 1200)
+    }
 
     const { data: questions, isLoading, isError, error } = useQuery({
         queryKey: ['questions', 'binary_brain'],
@@ -155,9 +162,14 @@ export default function BinaryBrain() {
 
         // Calculate points for this question
         let pointsEarned = 0
-        if (isCorrect) {
+        if (option.text === "TIMEOUT") {
+            showPoints(0, "CZAS MINĄŁ")
+        } else if (isCorrect) {
             pointsEarned = currentPotentialScore
             setTotalScore(prev => prev + pointsEarned)
+            showPoints(currentPotentialScore, "POPRAWNIE")
+        } else {
+            showPoints(0, "BŁĄD")
         }
 
         const timeElapsed = Date.now() - questionStartTime
@@ -274,7 +286,6 @@ export default function BinaryBrain() {
                     <div className="text-center mb-6 md:mb-8 border border-gray-700 rounded-lg bg-black/50 p-6 md:p-8 flex flex-col items-center">
                         <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">WYNIK KOŃCOWY</div>
                         <div className="text-5xl md:text-7xl font-bold text-accent font-mono">{finalResult.score}</div>
-                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert mt-6 opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
                         {!user && <div className="text-red-500 mt-4 text-sm font-mono tracking-widest">BRAK SESJI LOGOWANIA. WYNIK NIE ZOSTAŁ ZAPISANY.</div>}
                     </div>
 
@@ -297,7 +308,8 @@ export default function BinaryBrain() {
                         </div>
                     </div>
 
-                    <div className="flex justify-center mt-6 md:mt-8">
+                    <div className="flex flex-col items-center mt-6 md:mt-8">
+                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert mb-8 opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
                         <button
                             onClick={() => navigate('/dashboard')}
                             className="bg-gray-800 hover:bg-gray-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-lg font-bold font-mono text-lg md:text-xl transition-colors border border-gray-600"
@@ -333,6 +345,23 @@ export default function BinaryBrain() {
 
             {/* Question Card */}
             <div className="flex-1 flex flex-col justify-center max-w-4xl mx-auto w-full relative mt-8 md:mt-10">
+                <div className="absolute inset-0 flex justify-center items-center pointer-events-none z-50">
+                    <AnimatePresence>
+                        {floatingPoints.map(fp => (
+                            <motion.div
+                                key={fp.id}
+                                initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                                animate={{ opacity: 1, y: -150, scale: 1.5 }}
+                                exit={{ opacity: 0 }}
+                                className={`absolute font-bold text-4xl md:text-5xl whitespace-nowrap drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
+                            >
+                                {fp.val > 0 ? `+${fp.val}` : fp.val}
+                                <div className="text-xl md:text-2xl text-center opacity-90 mt-2">{fp.label}</div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </div>
+
                 <AnimatePresence mode='wait'>
                     <motion.div
                         key={currentQIndex}
@@ -386,7 +415,7 @@ export default function BinaryBrain() {
                     </motion.div>
                 </AnimatePresence>
 
-                {/* Feedback Overlay Message */}
+                {/* Feedback Overlay Message (Fallback in case floating is missed) */}
                 {gameState === 'feedback' && (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
