@@ -41,7 +41,12 @@ export default function Welcome() {
             if (err.message === "Network Error") {
                 setError("Błąd połączenia. Czy serwer działa?")
             } else {
-                setError(err.response?.data?.detail || 'Rejestracja nieudana. Spróbuj innego nicku.')
+                const errorDetail = err.response?.data?.detail;
+                if (Array.isArray(errorDetail)) {
+                    setError(errorDetail[0]?.msg || 'Nieprawidłowy format danych.');
+                } else {
+                    setError(errorDetail || 'Rejestracja nieudana. Spróbuj innego nicku.');
+                }
             }
         }
     })

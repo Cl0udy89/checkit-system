@@ -50,8 +50,7 @@ export default function BinaryBrain() {
             if (savedStateStr) {
                 try {
                     const savedState = JSON.parse(savedStateStr)
-                    // If we finished the game, don't resume it
-                    if (savedState.currentQIndex >= questions.length) {
+                    if (savedState.currentQIndex >= questions.length || savedState.finished) {
                         localStorage.removeItem(`binary_brain_state_${user.id}`)
                         setCurrentQIndex(0)
                         setTotalScore(0)
@@ -62,11 +61,12 @@ export default function BinaryBrain() {
                         setTotalScore(savedState.totalScore || 0)
                         setAnswers(savedState.answers || {})
 
-                        // We must continue the timer from where we left off
-                        // But since we don't know exactly when they left, starting a fresh timer for the *current* question is usually fairest, 
-                        // OR we restore the old timestamp and potentially instantly timeout.
-                        // Let's give them a fresh timer for the current question they resumed on.
-                        setQuestionStartTime(Date.now())
+                        // Restore exact timestamp to keep points dropping correctly
+                        if (savedState.questionStartTime) {
+                            setQuestionStartTime(savedState.questionStartTime)
+                        } else {
+                            setQuestionStartTime(Date.now())
+                        }
                     }
                 } catch (e) {
                     console.error("Error parsing saved state", e)
@@ -76,7 +76,6 @@ export default function BinaryBrain() {
                     setQuestionStartTime(Date.now())
                 }
             } else {
-                // Force reset on load rather than resuming stale sessions if none exists
                 setCurrentQIndex(0)
                 setTotalScore(0)
                 setAnswers({})

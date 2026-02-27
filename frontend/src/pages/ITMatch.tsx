@@ -52,41 +52,58 @@ export default function ITMatch() {
     })
 
     useEffect(() => {
-        if (data) {
+        if (data && user) {
             let loadedQuestions = [...data]
-            // Default: shuffle them if it's a fresh game
-            let shouldShuffle = true
+            const savedStateStr = localStorage.getItem(`it_match_state_${user.id}`)
 
-            // Force reset on load rather than resuming stale sessions (DISABLED cache resume)
-            if (user) {
-                localStorage.removeItem(`it_match_state_${user.id}`)
-                setCurrentIndex(0)
-                setScore(0)
-                setAnswers({})
-                setQuestionStartTime(Date.now())
-                setCurrentPotentialScore(MAX_Q_POINTS)
+            if (savedStateStr) {
+                try {
+                    const savedState = JSON.parse(savedStateStr)
+
+                    if (savedState.currentIndex >= savedState.questions?.length) {
+                        // Game was finished, restart
+                        localStorage.removeItem(`it_match_state_${user.id}`)
+                    } else if (savedState.questions && savedState.questions.length > 0) {
+                        setQuestions(savedState.questions)
+                        setCurrentIndex(savedState.currentIndex || 0)
+                        setScore(savedState.score || 0)
+                        setAnswers(savedState.answers || {})
+
+                        // Restore precise time if available, otherwise it will just be from 0 again
+                        if (savedState.questionStartTime) {
+                            setQuestionStartTime(savedState.questionStartTime)
+                        } else {
+                            setQuestionStartTime(Date.now())
+                        }
+
+                        return // Skip shuffling since we re-loaded the old pool
+                    }
+                } catch (e) { }
             }
 
-            if (shouldShuffle) {
-                // Fisher-Yates shuffle
-                for (let i = loadedQuestions.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [loadedQuestions[i], loadedQuestions[j]] = [loadedQuestions[j], loadedQuestions[i]];
-                }
+            // If no saved state, setup a new shuffled game
+            for (let i = loadedQuestions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [loadedQuestions[i], loadedQuestions[j]] = [loadedQuestions[j], loadedQuestions[i]];
             }
+
             setQuestions(loadedQuestions)
+            setCurrentIndex(0)
+            setScore(0)
+            setAnswers({})
+            setQuestionStartTime(Date.now())
+            setCurrentPotentialScore(MAX_Q_POINTS)
         }
     }, [data, user])
 
     // Save progress continuously
     useEffect(() => {
         if (user && questions.length > 0 && !gameOver && gameState === 'playing') {
-            const currentElapsed = Date.now() - questionStartTime
             const stateToSave = {
                 currentIndex,
                 score,
                 answers,
-                elapsed: currentElapsed,
+                questionStartTime,
                 questions
             }
             localStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))
@@ -133,7 +150,7 @@ export default function ITMatch() {
                 currentIndex: currentIndex + 1,
                 score: newScore,
                 answers: newAnswers,
-                elapsed: 0, // Reset elapsed for the next question
+                questionStartTime: Date.now(), // Will be reset on setTimeout anyway
                 questions: questions
             }
             localStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))

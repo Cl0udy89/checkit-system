@@ -7,6 +7,7 @@ import { useGameStore } from '../hooks/useGameStore'
 
 import { LogOut } from 'lucide-react'
 import sparkLogo from '../assets/sparkSomeLogo_Black.png'
+import { motion } from 'framer-motion'
 
 export default function Dashboard() {
     const navigate = useNavigate()
@@ -83,18 +84,31 @@ export default function Dashboard() {
 
     return (
         <div className="h-screen p-4 md:p-8 flex flex-col relative overflow-hidden bg-transparent w-full mx-auto">
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 z-10 gap-4 mt-4 w-full">
-                <div className="absolute top-4 left-4 md:top-8 md:left-8 z-20">
-                    <img src={sparkLogo} alt="SparkSome Logo" className="h-12 md:h-16 invert" />
-                </div>
-                <div className="flex-1 text-center md:text-left md:pl-32 mt-16 md:mt-0">
-                    <h1 className="text-xl md:text-2xl font-mono font-bold text-white tracking-widest leading-tight">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 z-10 gap-4 mt-4 w-full relative">
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="absolute top-4 left-4 md:top-6 md:left-6 z-20"
+                >
+                    <img src={sparkLogo} alt="SparkSome Logo" className="h-12 md:h-[4.5rem] invert" />
+                </motion.div>
+                <div className="flex-1 text-center md:text-left md:pl-64 lg:pl-72 mt-20 md:mt-2">
+                    <motion.h1
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-2xl md:text-3xl font-mono font-bold text-white tracking-widest leading-tight"
+                    >
                         SYSTEM_ROOT: CHECK_IT_LUBLIN_2026
-                    </h1>
-                    <p className="text-gray-400 font-mono mt-2 justify-center md:justify-start flex items-center gap-2">
+                    </motion.h1>
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-gray-400 font-mono mt-2 justify-center md:justify-start flex items-center gap-2"
+                    >
                         <span className="bg-primary/20 text-primary px-2 py-0.5 rounded text-sm border border-primary/30">USER</span>
                         <span className="text-xl text-white font-bold">{user?.nick || 'GUEST'}</span>
-                    </p>
+                    </motion.p>
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0 justify-center md:justify-end">
                     <button
@@ -152,15 +166,22 @@ export default function Dashboard() {
                     const score = status?.score || 0
 
                     return (
-                        <div
+                        <motion.div
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            whileHover={isPlayed ? {} : { y: -8, scale: 1.02 }}
+                            transition={{ duration: 0.4 }}
                             key={game.id}
                             onClick={() => !isPlayed ? navigate(game.path) : null}
                             className={`
-                                bg-gray-800/80 backdrop-blur-xl border border-gray-700 p-6 md:p-8 rounded-2xl
-                                ${isPlayed ? 'opacity-70 grayscale-[30%]' : `${game.hoverBorderClass} cursor-pointer hover:-translate-y-1 hover:shadow-2xl ${game.shadowClass}`} 
-                                transition-all duration-300 group relative overflow-hidden flex flex-col h-full shadow-lg
+                                bg-white/5 backdrop-blur-xl border border-white/10 p-6 md:p-8 rounded-2xl
+                                ${isPlayed ? 'opacity-60 grayscale-[30%] bg-black/40' : `${game.hoverBorderClass} cursor-pointer shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:shadow-[0_16px_64px_rgba(255,255,255,0.05)] hover:bg-white/10`} 
+                                transition-all duration-300 group relative overflow-hidden flex flex-col h-full
                             `}
                         >
+                            {/* Inner glass light spot */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-0"></div>
+
                             {/* Color accent bar top */}
                             <div className={`absolute top-0 left-0 w-full h-1 ${game.bgClass} ${isPlayed ? 'opacity-30' : 'opacity-80'}`}></div>
 
@@ -197,7 +218,7 @@ export default function Dashboard() {
                                     </div>
                                 )}
                             </div>
-                        </div>
+                        </motion.div>
                     )
                 })}
             </div>
