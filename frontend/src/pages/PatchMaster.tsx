@@ -380,7 +380,6 @@ export default function PatchMaster() {
                     <div className="mb-8 p-6 md:p-10 border-4 border-green-500 bg-green-500/20 text-green-400 text-center rounded-2xl shadow-[0_0_50px_rgba(34,197,94,0.4)] animate-pulse flex flex-col items-center gap-6 z-20 w-full">
                         <div className="text-4xl md:text-6xl font-black font-mono tracking-widest drop-shadow-[0_0_10px_rgba(34,197,94,0.8)]">DOSTĘP PRZYZNANY</div>
                         <div className="text-2xl md:text-4xl font-bold font-mono text-white">SKRYTKA ZOSTAŁA OTWARTA!</div>
-                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert mt-4" />
                     </div>
                 )}
                 {isSuccess && currentScore < 5000 && (
@@ -390,7 +389,10 @@ export default function PatchMaster() {
                     </div>
                 )}
 
-                <div className="flex justify-center mt-2 md:mt-4 z-20 relative">
+                <div className="flex flex-col items-center mt-2 md:mt-4 z-20 relative">
+                    {isSuccess && currentScore >= 5000 && (
+                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert mb-8 opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+                    )}
                     <button
                         onClick={() => {
                             queryClient.invalidateQueries({ queryKey: ['pm_queue'] })
