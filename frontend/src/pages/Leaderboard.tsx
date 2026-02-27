@@ -58,11 +58,6 @@ export default function Leaderboard() {
         <div className="min-h-screen bg-transparent p-4 md:p-8 relative overflow-y-auto overflow-x-hidden flex flex-col custom-scrollbar">
             <div className="absolute top-4 right-4 md:top-8 md:right-8 z-20 flex flex-col items-end gap-2">
                 <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert" />
-                {data?.leaderboard_message && (
-                    <div className="text-sm md:text-base font-bold font-mono text-accent animate-pulse px-3 py-1.5 bg-accent/10 border border-accent/50 rounded-lg backdrop-blur-md shadow-[0_0_15px_rgba(243,234,95,0.2)]">
-                        {data.leaderboard_message}
-                    </div>
-                )}
             </div>
 
             <button
@@ -72,10 +67,15 @@ export default function Leaderboard() {
                 <ArrowLeft size={20} /> POWRÓT
             </button>
 
-            <div className="flex justify-center items-center mb-12 text-center mt-4">
-                <h1 className="text-4xl md:text-6xl font-mono font-bold text-white tracking-tighter">
+            <div className="flex flex-col justify-center items-center mb-12 text-center mt-4 w-full">
+                <h1 className="text-4xl md:text-6xl font-mono font-bold text-white tracking-tighter mb-4 md:mb-6">
                     RANKING OGÓLNY
                 </h1>
+                {data?.leaderboard_message && (
+                    <div className="text-lg md:text-2xl font-bold font-mono text-accent animate-pulse px-6 py-3 bg-accent/10 border-2 border-accent/50 rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(243,234,95,0.4)] text-center">
+                        {data.leaderboard_message}
+                    </div>
+                )}
             </div>
 
             {/* Grandmaster Section - Full Width on Top */}

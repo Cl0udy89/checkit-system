@@ -82,19 +82,19 @@ export default function ScreenLeaderboard() {
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center w-full mb-6 xl:mb-10 shrink-0 relative z-10"
+                className="flex flex-col items-center w-full mb-6 xl:mb-10 shrink-0 relative z-10"
             >
-                <div className="absolute left-0">
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 xl:h-24 opacity-100 invert" />
+                <div className="flex items-center w-full relative justify-center mb-4">
+                    <div className="absolute left-0">
+                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 xl:h-24 opacity-100 invert" />
+                    </div>
+                    <h1 className="text-5xl xl:text-7xl font-mono font-bold text-white tracking-tighter w-full text-center">
+                        RANKING OGÓLNY
+                    </h1>
                 </div>
-                <h1 className="text-5xl xl:text-7xl font-mono font-bold text-white tracking-tighter w-full text-center">
-                    RANKING OGÓLNY
-                </h1>
                 {data?.leaderboard_message && (
-                    <div className="absolute right-0 text-right">
-                        <div className="text-xl xl:text-3xl font-bold font-mono text-accent animate-pulse px-6 py-3 bg-accent/10 border-2 border-accent/50 rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(243,234,95,0.3)]">
-                            {data.leaderboard_message}
-                        </div>
+                    <div className="text-2xl xl:text-4xl font-bold font-mono text-accent animate-pulse px-8 py-4 bg-accent/10 border-2 border-accent/50 rounded-xl backdrop-blur-md shadow-[0_0_30px_rgba(243,234,95,0.4)] text-center">
+                        {data.leaderboard_message}
                     </div>
                 )}
             </motion.div>
