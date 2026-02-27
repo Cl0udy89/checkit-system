@@ -279,9 +279,13 @@ export default function ITMatch() {
 
     return (
         <div className="h-[100dvh] bg-transparent flex flex-col items-center justify-between p-2 md:p-4 relative touch-none select-none overflow-hidden">
-            <header className="w-full max-w-lg mt-1 md:mt-2 flex flex-row justify-between items-start z-10 font-mono text-white px-2 shrink-0">
+            {/* Aesthetically placed logo */}
+            <div className="absolute top-4 left-4 z-50 pointer-events-none">
+                <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-10 md:h-14 w-auto object-contain invert brightness-0 opacity-100 drop-shadow-md" />
+            </div>
+
+            <header className="w-full max-w-lg mt-14 md:mt-16 flex flex-row justify-between items-start z-10 font-mono text-white px-2 shrink-0">
                 <div className="relative font-bold flex flex-col items-start gap-1">
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-10 md:h-14 invert mb-2" />
                     <div className="text-xl md:text-3xl text-gray-300">
                         WYNIK: <span className="text-3xl md:text-4xl text-accent drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]">{score}</span>
                     </div>
