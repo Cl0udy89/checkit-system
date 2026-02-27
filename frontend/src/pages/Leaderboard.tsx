@@ -81,11 +81,11 @@ export default function Leaderboard() {
                             {data?.grandmaster?.length > 0 && (
                                 <div className="flex justify-center">
                                     <div className="w-full max-w-2xl flex justify-between items-center font-mono border-2 border-yellow-400/50 shadow-[0_0_30px_rgba(255,215,0,0.3)] bg-yellow-400/10 pb-2 px-6 py-4 rounded transition-colors hover:bg-accent/10">
-                                        <span className="text-gray-100 flex items-center gap-4">
-                                            <span className="font-black text-yellow-400 text-5xl w-20">#1</span>
-                                            <span className="font-bold text-3xl md:text-4xl">{data.grandmaster[0].nick}</span>
-                                        </span>
-                                        <span className="text-accent font-black text-3xl md:text-4xl">{data.grandmaster[0].score} SCORE</span>
+                                        <div className="flex items-center gap-6 overflow-hidden">
+                                            <span className="font-black text-yellow-400 text-5xl shrink-0 w-20">#1</span>
+                                            <span className="font-bold text-3xl md:text-4xl text-white truncate">{data.grandmaster[0].nick}</span>
+                                        </div>
+                                        <span className="text-accent font-black text-3xl md:text-4xl shrink-0 ml-4">{data.grandmaster[0].score} SCORE</span>
                                     </div>
                                 </div>
                             )}

@@ -61,14 +61,13 @@ export default function Welcome() {
     }
 
     return (
-        <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-4 relative overflow-x-hidden">
+        <div className="h-screen w-screen bg-transparent flex flex-col items-center justify-center p-4 relative overflow-hidden">
             {/* Background Elements */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
             <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
 
             <div className="z-10 w-full max-w-md">
                 <div className="text-center mb-10 mt-4">
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-24 md:h-32 mb-8 mx-auto opacity-100 transition-opacity invert mix-blend-screen" />
                     <h1 className="text-xl md:text-3xl font-mono font-bold text-white mb-4 tracking-tighter uppercase leading-snug">
                         Podejmij wyzwanie Sparks_Core i sprawdź swój tech-skill!
                     </h1>
@@ -100,7 +99,7 @@ export default function Welcome() {
                                         if (val.length <= 20) setNick(val)
                                     }}
                                     className="w-full bg-black/50 border border-gray-700 text-white pl-10 pr-4 py-3 rounded focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-mono"
-                                    placeholder="NICK —"
+                                    placeholder="WPISZ NICK"
                                 />
                             </div>
                         </div>
@@ -114,7 +113,7 @@ export default function Welcome() {
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
                                     className="w-full bg-black/50 border border-gray-700 text-white pl-10 pr-4 py-3 rounded focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-mono"
-                                    placeholder="oraz E-MAIL —"
+                                    placeholder="WPISZ EMAIL"
                                 />
                             </div>
                         </div>
@@ -151,8 +150,9 @@ export default function Welcome() {
                     </div>
                 </form>
 
-                <div className="mt-12 flex flex-col items-center gap-4 text-gray-600 text-xs font-mono uppercase">
+                <div className="mt-8 flex flex-col items-center gap-2 text-gray-600 text-xs font-mono uppercase">
                     CHECKIT V1.0.4
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-20 opacity-100 invert mix-blend-screen mt-4" />
                 </div>
             </div>
         </div>

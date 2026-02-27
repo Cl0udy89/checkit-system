@@ -7,3 +7,18 @@
     @apply bg-background text-white font-sans overflow-x-hidden; /* Prevent horizontal scroll, allow vertical on mobile */
   }
 }
+
+@layer utilities {
+  .animate-scroll {
+    animation: scroll 30s linear infinite;
+  }
+  
+  @keyframes scroll {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-50%);
+    }
+  }
+}

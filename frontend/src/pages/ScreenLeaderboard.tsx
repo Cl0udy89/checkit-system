@@ -20,16 +20,28 @@ export default function ScreenLeaderboard() {
                 <span>POZYCJA / NICK</span>
                 <span>SCORE</span>
             </div>
-            <div className="flex-1 flex flex-col justify-between">
-                {list?.slice(0, 10).map((entry, idx) => (
-                    <div key={idx} className="flex justify-between items-center font-mono text-base xl:text-lg border-b border-gray-800/50 pb-1 xl:pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
-                        <span className="text-gray-300 flex items-center gap-2 truncate flex-1 min-w-0 mr-4">
-                            <span className={`font-bold ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
-                            <span className="truncate">{entry.nick}</span>
-                        </span>
-                        <span className="text-white font-bold text-lg xl:text-xl shrink-0">{entry.score} SCORE</span>
-                    </div>
-                ))}
+            <div className="flex-1 flex flex-col justify-between overflow-hidden relative">
+                <div className={`flex flex-col gap-0 ${list?.length > 7 ? 'animate-scroll' : ''}`}>
+                    {list?.map((entry, idx) => (
+                        <div key={idx} className="flex justify-between items-center font-mono text-base xl:text-lg border-b border-gray-800/50 pb-1 xl:pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
+                            <span className="text-gray-300 flex items-center gap-2 truncate flex-1 min-w-0 mr-4">
+                                <span className={`font-bold ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
+                                <span className="truncate">{entry.nick}</span>
+                            </span>
+                            <span className="text-white font-bold text-lg xl:text-xl shrink-0">{entry.score} SCORE</span>
+                        </div>
+                    ))}
+                    {/* Duplicate list for seamless infinite scroll if animating */}
+                    {list?.length > 7 && list.map((entry, idx) => (
+                        <div key={`dup-${idx}`} className="flex justify-between items-center font-mono text-base xl:text-lg border-b border-gray-800/50 pb-1 xl:pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
+                            <span className="text-gray-300 flex items-center gap-2 truncate flex-1 min-w-0 mr-4">
+                                <span className={`font-bold ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
+                                <span className="truncate">{entry.nick}</span>
+                            </span>
+                            <span className="text-white font-bold text-lg xl:text-xl shrink-0">{entry.score} SCORE</span>
+                        </div>
+                    ))}
+                </div>
                 {(!list || list.length === 0) && <div className="text-gray-600 text-sm">BRAK DANYCH</div>}
             </div>
         </div>
@@ -55,10 +67,12 @@ export default function ScreenLeaderboard() {
                         <div className="flex-1 flex gap-4 xl:gap-8 justify-center overflow-hidden">
                             {/* 1st Place - Large Center Left-ish or Top */}
                             {data?.grandmaster?.length > 0 && (
-                                <div className="flex-1 flex flex-col items-center justify-center p-4 border-2 border-yellow-400/50 shadow-[0_0_30px_rgba(255,215,0,0.3)] bg-yellow-400/10 rounded-xl h-full">
-                                    <Trophy size={64} className="text-yellow-400 mb-4 drop-shadow-[0_0_15px_rgba(255,215,0,0.8)]" />
-                                    <span className="text-yellow-400 font-black text-6xl mb-2">#1</span>
-                                    <span className="text-white font-bold text-4xl xl:text-5xl mb-4 truncate w-full text-center">{data.grandmaster[0].nick}</span>
+                                <div className="flex-1 flex flex-col items-center justify-center p-4 border-2 border-yellow-400/50 shadow-[0_0_30px_rgba(255,215,0,0.3)] bg-yellow-400/10 rounded-xl h-full relative">
+                                    <Trophy size={64} className="text-yellow-400 mb-2 drop-shadow-[0_0_15px_rgba(255,215,0,0.8)]" />
+                                    <div className="flex items-center justify-center gap-4 w-full mb-4">
+                                        <span className="text-yellow-400 font-black text-6xl">#1</span>
+                                        <span className="text-white font-bold text-4xl xl:text-5xl truncate">{data.grandmaster[0].nick}</span>
+                                    </div>
                                     <span className="text-yellow-400 font-black text-4xl xl:text-5xl">{data.grandmaster[0].score} SCORE</span>
                                 </div>
                             )}

@@ -82,7 +82,7 @@ export default function Dashboard() {
     ]
 
     return (
-        <div className="min-h-screen p-4 md:p-8 flex flex-col relative overflow-x-hidden bg-gradient-to-b from-black to-gray-900 w-full max-w-[1600px] mx-auto">
+        <div className="min-h-screen p-4 md:p-8 flex flex-col relative overflow-x-hidden bg-transparent w-full max-w-[1600px] mx-auto">
             {/* Header */}
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 z-10 gap-4 mt-4 w-full">
                 <div>
