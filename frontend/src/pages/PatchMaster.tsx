@@ -345,7 +345,7 @@ export default function PatchMaster() {
         const isSuccess = currentScore > 0
 
         return (
-            <div className="flex-1 flex flex-col items-center justify-center w-full max-w-4xl mx-auto z-10 p-2 md:p-4">
+            <div className="flex-1 flex flex-col items-center justify-center w-full max-w-4xl mx-auto z-10 p-2 md:p-4 overflow-hidden touch-none">
                 <h1 className={`text-4xl md:text-5xl font-mono font-bold mb-4 md:mb-8 text-center drop-shadow-md z-20 ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>
                     {isSuccess ? 'ZADANIE UKOŃCZONE' : 'CZAS MINĄŁ'}
                 </h1>
@@ -395,9 +395,11 @@ export default function PatchMaster() {
                     </div>
                 )}
 
-                <div className="flex flex-col items-center mt-2 md:mt-4 z-20 relative">
+                <div className="flex flex-col items-center mt-2 md:mt-4 z-20 relative w-full">
                     {isSuccess && currentScore >= 5000 && (
-                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert mb-8 opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+                        <div className="my-4 md:my-6 flex justify-center w-full">
+                            <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-[4rem] md:h-[6rem] invert opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+                        </div>
                     )}
                     <button
                         onClick={() => {
