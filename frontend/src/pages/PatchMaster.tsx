@@ -5,6 +5,7 @@ import { fetchPatchPanelState, submitGameScore, fetchPMQueue, joinPMQueue, leave
 import { useGameStore } from '../hooks/useGameStore'
 import { Zap, Users, ShieldAlert, PlayCircle, X } from 'lucide-react'
 import clsx from 'clsx'
+import sparkSomeLogo from '../assets/sparkSomeLogo_Black.png'
 
 export default function PatchMaster() {
     const navigate = useNavigate()
@@ -339,11 +340,26 @@ export default function PatchMaster() {
 
         return (
             <div className="flex-1 flex flex-col items-center justify-center w-full max-w-4xl mx-auto z-10 p-2 md:p-4">
-                <h1 className={`text-4xl md:text-5xl font-mono font-bold mb-4 md:mb-8 text-center drop-shadow-md ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>
+                <h1 className={`text-4xl md:text-5xl font-mono font-bold mb-4 md:mb-8 text-center drop-shadow-md z-20 ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>
                     {isSuccess ? 'ZADANIE UKOŃCZONE' : 'CZAS MINĄŁ'}
                 </h1>
 
-                <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full">
+                {/* Box Opening Notification */}
+                {isSuccess && currentScore >= 5000 && (
+                    <div className="mb-8 p-4 md:p-6 border-2 border-green-500 bg-green-500/20 text-green-400 text-center rounded-xl shadow-[0_0_30px_rgba(34,197,94,0.3)] animate-pulse flex flex-col items-center gap-4 z-20">
+                        <div className="text-2xl md:text-3xl font-bold font-mono tracking-widest">DOSTĘP PRZYZNANY</div>
+                        <div className="text-lg font-mono">SKRYTKA ZOSTAŁA OTWARTA!</div>
+                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-10 md:h-12 invert mt-2" />
+                    </div>
+                )}
+                {isSuccess && currentScore < 5000 && (
+                    <div className="mb-8 p-4 md:p-6 border-2 border-red-500 bg-red-500/20 text-red-400 text-center rounded-xl z-20">
+                        <div className="text-xl md:text-2xl font-bold font-mono tracking-widest">BRAK DOSTĘPU</div>
+                        <div className="text-sm font-mono mt-2">WYMAGANE MINIMUM 5000 PUNKTÓW, ABY OTWORZYĆ SKRYTKĘ.</div>
+                    </div>
+                )}
+
+                <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full z-20 relative">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-4 md:mb-8">
                         <div className="text-center p-4 md:p-6 border border-gray-700 rounded-lg bg-black/50">
                             <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">WYNIK KOŃCOWY</div>
@@ -392,11 +408,16 @@ export default function PatchMaster() {
     const renderGameUI = () => {
         const pairs = hardwareState?.pairs || []
         return (
-            <div className="flex-1 flex flex-col w-full max-w-4xl mx-auto z-10">
+            <div className="flex-1 flex flex-col w-full max-w-4xl mx-auto z-10 relative">
                 <div className="w-full flex justify-between items-center mb-8 border-b border-gray-800 pb-4 gap-4 flex-wrap">
-                    <h1 className="text-xl md:text-2xl font-mono text-accent flex items-center gap-2">
-                        <Zap size={24} className="shrink-0" /> GRA ROZPOCZĘTA
-                    </h1>
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-4">
+                            <h1 className="text-xl md:text-2xl font-mono text-accent flex items-center gap-2">
+                                <Zap size={24} className="shrink-0" /> GRA ROZPOCZĘTA
+                            </h1>
+                        </div>
+                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-6 md:h-8 invert opacity-70 mt-1" />
+                    </div>
                     <div className="text-right whitespace-nowrap">
                         <div className="text-xs text-gray-500 font-mono">AKTUALNY WYNIK</div>
                         <div className="text-3xl md:text-4xl font-mono font-bold text-white tracking-widest text-shadow-neon">

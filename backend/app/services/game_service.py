@@ -53,10 +53,13 @@ class GameService:
                 logger.warning("Patch Master finish requested but hardware not solved.")
                 final_score = 0 # Penalty?
             else:
-                logger.info("Patch Master solved verified. Triggering Solenoid.")
-                import asyncio
-                asyncio.create_task(solenoid.open_box())
-                session.add(GameLog(event_type="SOLENOID", details=f"Open Triggered by User {user_id} (Patch Master)"))
+                if final_score >= 5000:
+                    logger.info("Patch Master solved verified and score >= 5000. Triggering Solenoid.")
+                    import asyncio
+                    asyncio.create_task(solenoid.open_box())
+                    session.add(GameLog(event_type="SOLENOID", details=f"Open Triggered by User {user_id} (Patch Master > 5000 pts)"))
+                else:
+                    logger.info(f"Patch Master solved but score {final_score} is < 5000. Not triggering Solenoid.")
 
         elif game_type == "it_match":
             if score is not None:

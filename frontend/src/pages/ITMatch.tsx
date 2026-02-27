@@ -5,6 +5,7 @@ import { fetchITMatchQuestions, submitGameScore, BACKEND_URL } from '../lib/api'
 import { useNavigate } from 'react-router-dom'
 import { Check, X, Info } from 'lucide-react'
 import { useGameStore } from '../hooks/useGameStore'
+import sparkSomeLogo from '../assets/sparkSomeLogo_Black.png'
 
 interface Question {
     id: number
@@ -221,6 +222,7 @@ export default function ITMatch() {
         <div className="min-h-[100dvh] bg-transparent flex flex-col items-center justify-between p-4 relative touch-none select-none overflow-hidden">
             <header className="w-full max-w-lg mt-2 md:mt-4 flex flex-row justify-between items-start z-10 font-mono text-white px-2">
                 <div className="relative font-bold flex flex-col items-start gap-1">
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-6 md:h-8 invert opacity-70 mb-2" />
                     <div className="text-xl md:text-3xl text-gray-300">
                         WYNIK: <span className="text-3xl md:text-4xl text-accent drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]">{score}</span>
                     </div>
