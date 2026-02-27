@@ -85,17 +85,17 @@ export default function Dashboard() {
         <div className="min-h-screen p-4 md:p-8 flex flex-col relative overflow-x-hidden bg-transparent w-full max-w-[1600px] mx-auto">
             {/* Header */}
             <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 z-10 gap-4 mt-4 w-full">
-                <div>
-                    <h1 className="text-xl md:text-2xl font-mono font-bold text-white tracking-widest leading-tight">
-                        SYSTEM_ROOT: CHECK_IT_LUBLIN_2026
-                        <span className="text-xs md:text-sm text-gray-500 tracking-widest block mt-6 flex items-center gap-2">
-                            <img src={sparkLogo} alt="SparkSome Logo" className="h-12 md:h-16 opacity-90 invert mix-blend-screen" />
-                        </span>
-                    </h1>
-                    <p className="text-gray-400 font-mono mt-2 flex items-center gap-2">
-                        <span className="bg-primary/20 text-primary px-2 py-0.5 rounded text-sm border border-primary/30">USER</span>
-                        <span className="text-xl text-white font-bold">{user?.nick || 'GUEST'}</span>
-                    </p>
+                <div className="flex items-center gap-6">
+                    <img src={sparkLogo} alt="SparkSome Logo" className="h-12 md:h-16 opacity-90 invert mix-blend-screen shrink-0" />
+                    <div>
+                        <h1 className="text-xl md:text-2xl font-mono font-bold text-white tracking-widest leading-tight">
+                            SYSTEM_ROOT: CHECK_IT_LUBLIN_2026
+                        </h1>
+                        <p className="text-gray-400 font-mono mt-2 flex items-center gap-2">
+                            <span className="bg-primary/20 text-primary px-2 py-0.5 rounded text-sm border border-primary/30">USER</span>
+                            <span className="text-xl text-white font-bold">{user?.nick || 'GUEST'}</span>
+                        </p>
+                    </div>
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto justify-end">
                     <button

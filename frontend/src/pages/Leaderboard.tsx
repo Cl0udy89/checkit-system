@@ -31,23 +31,34 @@ export default function Leaderboard() {
     if (isLoading) return <div className="p-10 text-center animate-pulse font-mono text-2xl">SYNCHRONIZACJA WYNIKÓW...</div>
 
     const Section = ({ title, list }: { title: string, list: any[] }) => (
-        <div className="bg-surface border border-gray-700 rounded-lg p-6 shadow-lg">
-            <h3 className="text-2xl font-mono font-bold text-primary mb-6 border-b border-gray-800 pb-2">{title}</h3>
-            <div className="flex justify-between text-xs text-gray-500 font-mono mb-2 px-2">
+        <div className="bg-surface border border-gray-700 rounded-lg p-6 shadow-lg h-full flex flex-col">
+            <h3 className="text-2xl font-mono font-bold text-primary mb-6 border-b border-gray-800 pb-2 shrink-0">{title}</h3>
+            <div className="flex justify-between text-xs text-gray-500 font-mono mb-2 px-2 shrink-0">
                 <span>POZYCJA / NICK</span>
                 <span>SCORE</span>
             </div>
-            <div className="space-y-3">
-                {list?.map((entry, idx) => (
-                    <div key={idx} className="flex justify-between items-center font-mono text-lg border-b border-gray-800/50 pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
-                        <span className="text-gray-300 flex items-center gap-2">
-                            <span className={`font-bold ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
-                            {entry.nick}
-                        </span>
-                        <span className="text-white font-bold text-xl">{entry.score} SCORE</span>
-                    </div>
-                ))}
-                {(!list || list.length === 0) && <div className="text-gray-600 text-sm">BRAK DANYCH</div>}
+            <div className="flex-1 overflow-hidden relative">
+                <div className={`space-y-3 ${list?.length > 7 ? 'animate-scroll' : ''}`}>
+                    {list?.map((entry, idx) => (
+                        <div key={idx} className="flex justify-between items-center font-mono text-lg border-b border-gray-800/50 pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
+                            <span className="text-gray-300 flex items-center gap-2">
+                                <span className={`font-bold ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
+                                {entry.nick}
+                            </span>
+                            <span className="text-white font-bold text-xl">{entry.score} SCORE</span>
+                        </div>
+                    ))}
+                    {list?.length > 7 && list.map((entry, idx) => (
+                        <div key={`dup-${idx}`} className="flex justify-between items-center font-mono text-lg border-b border-gray-800/50 pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
+                            <span className="text-gray-300 flex items-center gap-2">
+                                <span className={`font-bold ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
+                                {entry.nick}
+                            </span>
+                            <span className="text-white font-bold text-xl">{entry.score} SCORE</span>
+                        </div>
+                    ))}
+                    {(!list || list.length === 0) && <div className="text-gray-600 text-sm">BRAK DANYCH</div>}
+                </div>
             </div>
         </div>
     )

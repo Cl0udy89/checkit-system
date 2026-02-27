@@ -43,15 +43,45 @@ export default function BinaryBrain() {
 
     const currentQ = questions ? questions[currentQIndex] : null
 
-    // Load saved progress if available (DISABLED cache resume to prevent starting at Q3)
+    // Load saved progress if available
     useEffect(() => {
         if (questions && user && !hasLoaded) {
-            // Force reset on load rather than resuming stale sessions
-            localStorage.removeItem(`binary_brain_state_${user.id}`)
-            setCurrentQIndex(0)
-            setTotalScore(0)
-            setAnswers({})
-            setQuestionStartTime(Date.now())
+            const savedStateStr = localStorage.getItem(`binary_brain_state_${user.id}`)
+            if (savedStateStr) {
+                try {
+                    const savedState = JSON.parse(savedStateStr)
+                    // If we finished the game, don't resume it
+                    if (savedState.currentQIndex >= questions.length) {
+                        localStorage.removeItem(`binary_brain_state_${user.id}`)
+                        setCurrentQIndex(0)
+                        setTotalScore(0)
+                        setAnswers({})
+                        setQuestionStartTime(Date.now())
+                    } else {
+                        setCurrentQIndex(savedState.currentQIndex || 0)
+                        setTotalScore(savedState.totalScore || 0)
+                        setAnswers(savedState.answers || {})
+
+                        // We must continue the timer from where we left off
+                        // But since we don't know exactly when they left, starting a fresh timer for the *current* question is usually fairest, 
+                        // OR we restore the old timestamp and potentially instantly timeout.
+                        // Let's give them a fresh timer for the current question they resumed on.
+                        setQuestionStartTime(Date.now())
+                    }
+                } catch (e) {
+                    console.error("Error parsing saved state", e)
+                    setCurrentQIndex(0)
+                    setTotalScore(0)
+                    setAnswers({})
+                    setQuestionStartTime(Date.now())
+                }
+            } else {
+                // Force reset on load rather than resuming stale sessions if none exists
+                setCurrentQIndex(0)
+                setTotalScore(0)
+                setAnswers({})
+                setQuestionStartTime(Date.now())
+            }
             setHasLoaded(true)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -61,15 +61,15 @@ export default function Welcome() {
     }
 
     return (
-        <div className="h-screen w-screen bg-transparent flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen w-screen bg-transparent flex flex-col items-center justify-center p-4 relative overflow-y-auto">
             {/* Background Elements */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
             <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
 
             <div className="z-10 w-full max-w-md">
-                <div className="text-center mb-10 mt-4">
+                <div className="text-center mb-8 mt-12 md:mt-4">
                     <h1 className="text-xl md:text-3xl font-mono font-bold text-white mb-4 tracking-tighter uppercase leading-snug">
-                        Podejmij wyzwanie Sparks_Core i sprawdź swój tech-skill!
+                        Podejmij wyzwanie Sparks_Core<br /> i sprawdź swój tech-skill!
                     </h1>
                     <p className="text-primary font-mono text-lg tracking-widest uppercase font-bold">ZAAUTORYZUJ SIĘ, ABY ROZPOCZĄĆ MISJĘ.</p>
                 </div>
@@ -88,7 +88,7 @@ export default function Welcome() {
                         )}
 
                         <div className="space-y-2">
-                            <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">NICK —</label>
+                            <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">NICK</label>
                             <div className="relative">
                                 <User className="absolute left-3 top-3 text-gray-600" size={20} />
                                 <input
@@ -105,7 +105,7 @@ export default function Welcome() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">oraz E-MAIL —</label>
+                            <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">E-MAIL</label>
                             <div className="relative">
                                 <Mail className="absolute left-3 top-3 text-gray-600" size={20} />
                                 <input

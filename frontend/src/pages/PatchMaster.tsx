@@ -94,9 +94,35 @@ export default function PatchMaster() {
         }
     }, [user, gameStartedLocal, isFinished])
 
+    // Load saved progress
+    useEffect(() => {
+        if (user && qState?.current_player?.id === user.id && qState?.status === 'playing') {
+            const savedStateStr = localStorage.getItem(`patch_master_state_${user.id}`)
+            if (savedStateStr) {
+                try {
+                    const savedState = JSON.parse(savedStateStr)
+                    // Only resume if It's relatively fresh (within an hour) to prevent weird bugs
+                    if (Date.now() - savedState.startTime < 3600000) {
+                        setStartTime(savedState.startTime)
+                        setGameStartedLocal(true)
+                        return // Exit early so we don't overwrite
+                    }
+                } catch (e) {
+                    console.error("Error parsing saved state", e)
+                }
+            }
+        }
+    }, [user, qState?.current_player?.id, qState?.status])
+
     // Timer
     useEffect(() => {
         if (!gameStartedLocal || isFinished || !startTime) return
+
+        // Save state so reload doesn't wipe
+        if (user) {
+            localStorage.setItem(`patch_master_state_${user.id}`, JSON.stringify({ startTime }))
+        }
+
         const interval = setInterval(() => {
             const elapsed = Date.now() - startTime
             const score = Math.max(0, 10000 - (elapsed * 0.05))
@@ -107,6 +133,7 @@ export default function PatchMaster() {
                 setFinalDuration(elapsed)
                 setIsFinished(true)
                 triggerTimeoutFlash().catch(console.error)
+                if (user) localStorage.removeItem(`patch_master_state_${user.id}`);
                 submitMutation.mutate({
                     user_id: user?.id || 0,
                     game_type: 'patch_master',
@@ -124,6 +151,7 @@ export default function PatchMaster() {
     useEffect(() => {
         if ((hardwareState?.solved || qState?.force_solved) && !isFinished && gameStartedLocal && startTime) {
             setIsFinished(true)
+            if (user) localStorage.removeItem(`patch_master_state_${user.id}`);
             const duration = Date.now() - startTime
             setFinalDuration(duration)
             submitMutation.mutate({
