@@ -56,8 +56,8 @@ export default function Leaderboard() {
 
     return (
         <div className="min-h-screen bg-transparent p-4 md:p-8 relative overflow-y-auto overflow-x-hidden flex flex-col custom-scrollbar">
-            <div className="absolute top-4 left-4 md:top-8 md:left-8 z-20">
-                <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-12 md:h-16 invert" />
+            <div className="absolute top-4 right-4 md:top-8 md:right-8 z-20">
+                <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-12 md:h-16 invert opacity-80" />
             </div>
 
             <button
