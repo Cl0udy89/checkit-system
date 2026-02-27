@@ -84,33 +84,37 @@ export default function Dashboard() {
 
     return (
         <div className="h-screen p-4 md:p-8 flex flex-col relative overflow-hidden bg-transparent w-full mx-auto">
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 z-10 gap-4 mt-4 w-full relative">
-                <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="absolute top-4 left-4 md:top-6 md:left-6 z-20"
-                >
-                    <img src={sparkLogo} alt="SparkSome Logo" className="h-12 md:h-[4.5rem] invert" />
-                </motion.div>
-                <div className="flex-1 text-center md:text-left md:pl-64 lg:pl-72 mt-20 md:mt-2">
-                    <motion.h1
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-2xl md:text-3xl font-mono font-bold text-white tracking-widest leading-tight"
+            <header className="flex flex-col lg:flex-row w-full justify-between items-center mb-12 z-10 gap-6 lg:gap-8 mt-4 relative">
+                <div className="flex flex-col md:flex-row items-center justify-center md:justify-start w-full lg:w-auto gap-6 md:gap-8">
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="shrink-0"
                     >
-                        SYSTEM_ROOT: CHECK_IT_LUBLIN_2026
-                    </motion.h1>
-                    <motion.p
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.2 }}
-                        className="text-gray-400 font-mono mt-2 justify-center md:justify-start flex items-center gap-2"
-                    >
-                        <span className="bg-primary/20 text-primary px-2 py-0.5 rounded text-sm border border-primary/30">USER</span>
-                        <span className="text-xl text-white font-bold">{user?.nick || 'GUEST'}</span>
-                    </motion.p>
+                        <img src={sparkLogo} alt="SparkSome Logo" className="h-12 md:h-16 invert" />
+                    </motion.div>
+
+                    <div className="flex flex-col items-center md:items-start text-center md:text-left border-t border-gray-800 pt-6 md:pt-0 md:border-t-0 md:border-l md:pl-8">
+                        <motion.h1
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="text-xl md:text-2xl lg:text-3xl font-mono font-bold text-white tracking-widest leading-tight"
+                        >
+                            SYSTEM_ROOT: CHECK_IT_LUBLIN_2026
+                        </motion.h1>
+                        <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                            className="text-gray-400 font-mono mt-3 flex items-center gap-3"
+                        >
+                            <span className="bg-primary/20 text-primary px-3 py-1 rounded text-sm border border-primary/30 font-bold tracking-wider">USER</span>
+                            <span className="text-xl md:text-2xl text-white font-bold">{user?.nick || 'GUEST'}</span>
+                        </motion.p>
+                    </div>
                 </div>
-                <div className="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0 justify-center md:justify-end">
+
+                <div className="flex items-center gap-3 w-full lg:w-auto justify-center lg:justify-end shrink-0">
                     <button
                         onClick={() => navigate('/leaderboard')}
                         className="flex items-center gap-2 bg-surface/50 backdrop-blur-md border border-gray-700 hover:border-primary hover:text-primary px-6 py-3 font-mono transition-all rounded-lg"
