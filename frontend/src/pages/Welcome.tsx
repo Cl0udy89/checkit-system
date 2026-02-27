@@ -4,7 +4,7 @@ import { useMutation } from '@tanstack/react-query'
 import { api } from '../lib/api'
 import { useGameStore } from '../hooks/useGameStore'
 import { User, Mail, ArrowRight, ShieldCheck } from 'lucide-react'
-import sparkSomeLogo from '../assets/sparkSomeLogoSVGblack_white_2.png'
+import sparkSomeLogo from '../assets/sparkSomeLogo_Black.png'
 
 // Define the API call separately
 const registerUser = async (userData: { nick: string, email: string }) => {
@@ -61,10 +61,15 @@ export default function Welcome() {
     }
 
     return (
-        <div className="min-h-screen w-screen bg-transparent flex flex-col items-center justify-center p-4 relative overflow-y-auto">
+        <div className="h-screen w-screen bg-transparent flex flex-col items-center justify-center p-4 relative overflow-hidden">
             {/* Background Elements */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
             <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+
+            {/* Top-Left Logo */}
+            <div className="absolute top-4 left-4 md:top-8 md:left-8 z-20">
+                <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-12 md:h-16 invert" />
+            </div>
 
             <div className="z-10 w-full max-w-md">
                 <div className="text-center mb-8 mt-12 md:mt-4">
@@ -152,7 +157,6 @@ export default function Welcome() {
 
                 <div className="mt-8 flex flex-col items-center gap-2 text-gray-600 text-xs font-mono uppercase">
                     CHECKIT V1.0.4
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-20 opacity-100 invert mix-blend-screen mt-4" />
                 </div>
             </div>
         </div>
