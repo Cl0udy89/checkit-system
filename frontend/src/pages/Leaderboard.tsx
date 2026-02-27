@@ -72,7 +72,7 @@ export default function Leaderboard() {
                     RANKING OGÓLNY
                 </h1>
                 {data?.leaderboard_message && (
-                    <div className="text-lg md:text-2xl font-bold font-mono text-accent animate-pulse px-6 py-3 bg-accent/10 border-2 border-accent/50 rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(243,234,95,0.4)] text-center">
+                    <div className="text-lg md:text-2xl font-bold font-mono text-accent px-6 py-3 bg-accent/20 border-2 border-accent rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(243,234,95,0.6)] text-center">
                         {data.leaderboard_message}
                     </div>
                 )}

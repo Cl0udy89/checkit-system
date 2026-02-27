@@ -93,7 +93,7 @@ export default function ScreenLeaderboard() {
                     </h1>
                 </div>
                 {data?.leaderboard_message && (
-                    <div className="text-2xl xl:text-4xl font-bold font-mono text-accent animate-pulse px-8 py-4 bg-accent/10 border-2 border-accent/50 rounded-xl backdrop-blur-md shadow-[0_0_30px_rgba(243,234,95,0.4)] text-center">
+                    <div className="text-2xl xl:text-4xl font-bold font-mono text-accent px-8 py-4 bg-accent/20 border-2 border-accent rounded-xl backdrop-blur-md shadow-[0_0_30px_rgba(243,234,95,0.6)] text-center">
                         {data.leaderboard_message}
                     </div>
                 )}
