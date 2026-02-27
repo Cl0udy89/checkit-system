@@ -109,7 +109,7 @@ async def get_hardware_status():
     # Override with disconnected if offline (unless we are the RPi itself testing locally)
     if not is_rpi_online and not IS_RPI:
         pp_state = [
-            {"label": p["label"], "gpio": p["gpio"], "connected": False}
+            {"label": p["label"], "gpio": p["gpio"], "connected": p["connected"] if p.get("forced") else False, "forced": p.get("forced", False)}
             for p in pp_state
         ]
         

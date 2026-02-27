@@ -116,14 +116,23 @@ export default function ITMatch() {
         if (gameOver || questions.length === 0 || gameState !== 'playing') return
 
         const interval = setInterval(() => {
+            if (gameState !== 'playing') return
+
             const elapsed = Date.now() - questionStartTime
             const scoreVal = Math.max(0, MAX_Q_POINTS - (elapsed * DECAY_PER_MS))
-            setCurrentPotentialScore(Math.floor(scoreVal))
+
+            if (scoreVal <= 0) {
+                clearInterval(interval)
+                setCurrentPotentialScore(0)
+                handleSwipe('timeout')
+            } else {
+                setCurrentPotentialScore(Math.floor(scoreVal))
+            }
         }, 50)
         return () => clearInterval(interval)
-    }, [questionStartTime, gameOver, questions, gameState])
+    }, [questionStartTime, gameOver, questions, gameState, currentIndex, score, answers, user])
 
-    const handleSwipe = (direction: 'left' | 'right') => {
+    const handleSwipe = (direction: 'left' | 'right' | 'timeout') => {
         if (gameState !== 'playing') return
 
         const currentQ = questions[currentIndex]
@@ -131,7 +140,9 @@ export default function ITMatch() {
         const userChoiceSafe = direction === 'right'
 
         let pointsEarned = 0
-        if (userChoiceSafe === isSafe) {
+        if (direction === 'timeout') {
+            showPoints(0, "CZAS MINĄŁ")
+        } else if (userChoiceSafe === isSafe) {
             pointsEarned = currentPotentialScore
             showPoints(currentPotentialScore, "POPRAWNIE")
         } else {
@@ -219,10 +230,10 @@ export default function ITMatch() {
     }
 
     return (
-        <div className="min-h-[100dvh] bg-transparent flex flex-col items-center justify-between p-4 relative touch-none select-none overflow-hidden">
-            <header className="w-full max-w-lg mt-2 md:mt-4 flex flex-row justify-between items-start z-10 font-mono text-white px-2">
+        <div className="h-[100dvh] bg-transparent flex flex-col items-center justify-between p-2 md:p-4 relative touch-none select-none overflow-hidden">
+            <header className="w-full max-w-lg mt-1 md:mt-2 flex flex-row justify-between items-start z-10 font-mono text-white px-2 shrink-0">
                 <div className="relative font-bold flex flex-col items-start gap-1">
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-6 md:h-8 invert opacity-70 mb-2" />
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-10 md:h-14 invert mb-2" />
                     <div className="text-xl md:text-3xl text-gray-300">
                         WYNIK: <span className="text-3xl md:text-4xl text-accent drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]">{score}</span>
                     </div>
@@ -231,12 +242,12 @@ export default function ITMatch() {
                     </div>
                 </div>
                 <div className="text-2xl md:text-3xl text-gray-400 font-bold tracking-widest">
-                    <span className="text-sm md:text-lg block text-right text-gray-500 font-normal">PROG</span>
+                    <span className="text-sm md:text-lg block text-right text-gray-500 font-normal">PROJEKT</span>
                     {currentIndex + 1}&nbsp;/&nbsp;{questions.length}
                 </div>
             </header>
 
-            <div className="flex-1 w-full max-w-md relative flex justify-center items-center my-4 min-h-[50dvh]">
+            <div className="flex-1 w-full max-w-md relative flex justify-center items-center my-2 min-h-0">
                 <AnimatePresence>
                     {floatingPoints.map(fp => (
                         <motion.div
@@ -263,23 +274,23 @@ export default function ITMatch() {
                 </AnimatePresence>
             </div>
 
-            <div className="flex gap-4 w-full max-w-md mb-8 z-10">
+            <div className="flex gap-4 w-full max-w-md mb-2 md:mb-4 z-10 shrink-0">
                 <button
                     onClick={() => document.dispatchEvent(new CustomEvent('manual-swipe', { detail: 'left' }))}
-                    className="flex-1 bg-red-600/80 hover:bg-red-500 py-4 rounded-full flex justify-center items-center"
+                    className="flex-1 bg-red-600/80 hover:bg-red-500 py-3 md:py-4 rounded-full flex justify-center items-center"
                 >
-                    <X size={32} color="white" />
+                    <X size={28} color="white" className="md:w-8 md:h-8" />
                 </button>
-                <div className="flex items-center text-gray-500 text-xs font-mono uppercase tracking-widest">
-                    <span className="mr-2">Zagrożenie</span>
-                    <Info size={16} />
-                    <span className="ml-2">Bezpiecznie</span>
+                <div className="flex items-center text-gray-500 text-[10px] md:text-xs font-mono uppercase tracking-widest whitespace-nowrap">
+                    <span className="mr-1 md:mr-2">Zagrożenie</span>
+                    <Info size={14} className="md:w-4 md:h-4" />
+                    <span className="ml-1 md:ml-2">Bezpieczny</span>
                 </div>
                 <button
                     onClick={() => document.dispatchEvent(new CustomEvent('manual-swipe', { detail: 'right' }))}
-                    className="flex-1 bg-green-600/80 hover:bg-green-500 py-4 rounded-full flex justify-center items-center"
+                    className="flex-1 bg-green-600/80 hover:bg-green-500 py-3 md:py-4 rounded-full flex justify-center items-center"
                 >
-                    <Check size={32} color="white" />
+                    <Check size={28} color="white" className="md:w-8 md:h-8" />
                 </button>
             </div>
         </div>
@@ -322,7 +333,7 @@ function Card({ question, onSwipe, gameState }: { question: Question, onSwipe: (
                 <div className="absolute inset-0 bg-black/70 z-40 rounded-2xl pointer-events-none backdrop-blur-sm transition-all duration-300"></div>
             )}
 
-            <div className="w-full aspect-square md:aspect-[4/5] bg-gray-800 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative z-10">
+            <div className="w-full h-auto flex-1 bg-gray-800 rounded-xl mb-3 md:mb-6 flex items-center justify-center overflow-hidden relative z-10 max-h-[45vh] md:max-h-[55vh]">
                 {question.image && question.image !== 'none' ? (
                     // Image fetched from backend
                     <img src={`${BACKEND_URL}/content/it_match/images/${question.image}`} alt="Quiz" draggable={false} className="object-cover w-full h-full pointer-events-none" onError={(e) => e.currentTarget.style.display = 'none'} />
@@ -331,7 +342,7 @@ function Card({ question, onSwipe, gameState }: { question: Question, onSwipe: (
                 )}
             </div>
 
-            <h3 className="text-xl md:text-2xl font-bold text-white mb-4 z-10 select-none pointer-events-none">{question.question}</h3>
+            <h3 className="text-lg md:text-2xl font-bold text-white mb-2 md:mb-4 z-10 select-none pointer-events-none line-clamp-4">{question.question}</h3>
         </motion.div>
     )
 }

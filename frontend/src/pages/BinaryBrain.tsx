@@ -18,6 +18,7 @@ export default function BinaryBrain() {
     const user = useGameStore(state => state.user)
     const [currentQIndex, setCurrentQIndex] = useState(0)
     const [answers, setAnswers] = useState<Record<string, string>>({})
+    const [answerStats, setAnswerStats] = useState<{ isCorrect: boolean, timeMs: number }[]>([])
 
     // Scoring State
     const [totalScore, setTotalScore] = useState(0)
@@ -29,7 +30,7 @@ export default function BinaryBrain() {
     // UI State
     const [gameState, setGameState] = useState<'playing' | 'feedback' | 'finished'>('playing')
     const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | null>(null)
-    const [finalResult, setFinalResult] = useState<{ score: number, boxOpened: boolean } | null>(null)
+    const [finalResult, setFinalResult] = useState<{ score: number, boxOpened: boolean, stats: any[] } | null>(null)
 
     const DECAY_PER_MS = 0.05 // 50 points per second
     const MAX_Q_POINTS = 1000
@@ -60,6 +61,7 @@ export default function BinaryBrain() {
                         setCurrentQIndex(savedState.currentQIndex || 0)
                         setTotalScore(savedState.totalScore || 0)
                         setAnswers(savedState.answers || {})
+                        setAnswerStats(savedState.answerStats || [])
 
                         // Restore exact timestamp to keep points dropping correctly
                         if (savedState.questionStartTime) {
@@ -79,6 +81,7 @@ export default function BinaryBrain() {
                 setCurrentQIndex(0)
                 setTotalScore(0)
                 setAnswers({})
+                setAnswerStats([])
                 setQuestionStartTime(Date.now())
             }
             setHasLoaded(true)
@@ -156,6 +159,10 @@ export default function BinaryBrain() {
             setTotalScore(prev => prev + pointsEarned)
         }
 
+        const timeElapsed = Date.now() - questionStartTime
+        const newAnswerStats = [...answerStats, { isCorrect, timeMs: timeElapsed }]
+        setAnswerStats(newAnswerStats)
+
         // Record Answer
         const newAnswers = { ...answers, [currentQ.id]: option.text }
         setAnswers(newAnswers)
@@ -166,6 +173,7 @@ export default function BinaryBrain() {
                 currentQIndex: currentQIndex + 1,
                 totalScore: totalScore + pointsEarned,
                 answers: newAnswers,
+                answerStats: newAnswerStats,
                 questionStartTime: Date.now()
             }
             localStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify(nextState))
@@ -182,15 +190,15 @@ export default function BinaryBrain() {
                 setCurrentQIndex(prev => prev + 1)
                 setQuestionStartTime(Date.now())
             } else {
-                finishGame(totalScore + pointsEarned) // Pass final updated score
+                finishGame(totalScore + pointsEarned, newAnswers, newAnswerStats) // Pass final updated score
             }
         }, 1500)
     }
 
-    function finishGame(finalScore: number, finalAnswers?: Record<string, string>) {
+    function finishGame(finalScore: number, finalAnswers?: Record<string, string>, finalStats?: any[]) {
         setGameState('finished')
-        const boxOpened = finalScore >= 5000
-        setFinalResult({ score: finalScore, boxOpened })
+        const boxOpened = false
+        setFinalResult({ score: finalScore, boxOpened, stats: finalStats || answerStats })
 
         if (user) {
             localStorage.removeItem(`binary_brain_state_${user.id}`)
@@ -251,28 +259,50 @@ export default function BinaryBrain() {
     if (!q && gameState !== 'finished') return <div className="p-10 text-center text-red-500">ERROR_LOADING_QUESTION</div>
 
     if (gameState === 'finished' && finalResult) {
+        const stats = finalResult.stats || []
+        const fastestAnswer = stats.length > 0 ? stats.reduce((min, s) => s.timeMs < min.timeMs ? s : min, stats[0]) : null
+        const slowestAnswer = stats.length > 0 ? stats.reduce((max, s) => s.timeMs > max.timeMs ? s : max, stats[0]) : null
+        const correctCount = stats.filter(s => s.isCorrect).length
+        const incorrectCount = stats.length - correctCount
+
         return (
-            <div className="min-h-[100dvh] bg-transparent p-8 flex flex-col justify-center items-center relative touch-none overflow-hidden">
-                <h1 className="text-5xl font-mono font-bold text-primary mb-8 glow-text text-center">WERYFIKACJA UMIEJĘTNOŚCI ZAKOŃCZONA</h1>
+            <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col justify-center items-center relative touch-none overflow-x-hidden">
+                <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center">WERYFIKACJA ZAKOŃCZONA</h1>
 
-                <div className="mb-12">
-                    <div className="text-gray-400 text-xl font-mono mb-2">WYNIK KOŃCOWY</div>
-                    <div className="text-7xl font-bold text-white mb-8">{finalResult.score}</div>
-
-                    <div className={`text-3xl font-bold p-4 border-2 rounded-xl ${finalResult.boxOpened ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-red-500 text-red-400 bg-red-500/10'}`}>
-                        {finalResult.boxOpened ? "DOSTĘP PRZYZNANY - OTWIERANIE SKRYTKI..." : "BRAK DOSTĘPU - ZBYT MAŁO PUNKTÓW"}
+                <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8">
+                    <div className="text-center mb-6 md:mb-8 border border-gray-700 rounded-lg bg-black/50 p-6 md:p-8">
+                        <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">WYNIK KOŃCOWY</div>
+                        <div className="text-5xl md:text-7xl font-bold text-accent font-mono">{finalResult.score}</div>
+                        {!user && <div className="text-red-500 mt-4 text-sm font-mono tracking-widest">BRAK SESJI LOGOWANIA. WYNIK NIE ZOSTAŁ ZAPISANY.</div>}
                     </div>
-                    {!finalResult.boxOpened && <div className="text-gray-500 mt-2 font-mono text-sm">Target: 5000 pts</div>}
-                </div>
 
-                <div className="flex gap-4">
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        className="bg-gray-800 hover:bg-gray-700 text-white px-8 py-4 rounded-lg font-bold font-mono text-xl transition-colors"
-                    >
-                        POWRÓT DO BAZY
-                    </button>
-                    {!user && <div className="text-red-500 mt-4">Warning: User not logged in. Score not saved.</div>}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-8">
+                        <div className="p-3 md:p-4 border border-green-900/50 bg-green-900/10 rounded-lg flex flex-col items-center text-center">
+                            <div className="text-[10px] md:text-xs text-green-500/80 mb-2 font-mono">NAJSZYBSZA ODPOWIEDŹ</div>
+                            <div className="text-xl md:text-2xl font-bold text-green-400 font-mono mb-1">{fastestAnswer ? (fastestAnswer.timeMs / 1000).toFixed(2) + 's' : '---'}</div>
+                        </div>
+                        <div className="p-3 md:p-4 border border-red-900/50 bg-red-900/10 rounded-lg flex flex-col items-center text-center">
+                            <div className="text-[10px] md:text-xs text-red-500/80 mb-2 font-mono">NAJDŁUŻSZE ZASTANOWIENIE</div>
+                            <div className="text-xl md:text-2xl font-bold text-red-400 font-mono mb-1">{slowestAnswer ? (slowestAnswer.timeMs / 1000).toFixed(2) + 's' : '---'}</div>
+                        </div>
+                        <div className="p-3 md:p-4 border border-blue-900/50 bg-blue-900/10 rounded-lg flex flex-col items-center text-center">
+                            <div className="text-[10px] md:text-xs text-blue-500/80 mb-2 font-mono">POPRAWNE</div>
+                            <div className="text-xl md:text-2xl font-bold text-blue-400 font-mono mb-1">{correctCount}</div>
+                        </div>
+                        <div className="p-3 md:p-4 border border-orange-900/50 bg-orange-900/10 rounded-lg flex flex-col items-center text-center">
+                            <div className="text-[10px] md:text-xs text-orange-500/80 mb-2 font-mono">BŁĘDNE</div>
+                            <div className="text-xl md:text-2xl font-bold text-orange-400 font-mono mb-1">{incorrectCount}</div>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-center mt-6 md:mt-8">
+                        <button
+                            onClick={() => navigate('/dashboard')}
+                            className="bg-gray-800 hover:bg-gray-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-lg font-bold font-mono text-lg md:text-xl transition-colors border border-gray-600"
+                        >
+                            POWRÓT DO BAZY
+                        </button>
+                    </div>
                 </div>
             </div>
         )

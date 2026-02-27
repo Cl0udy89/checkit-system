@@ -344,22 +344,7 @@ export default function PatchMaster() {
                     {isSuccess ? 'ZADANIE UKOŃCZONE' : 'CZAS MINĄŁ'}
                 </h1>
 
-                {/* Box Opening Notification */}
-                {isSuccess && currentScore >= 5000 && (
-                    <div className="mb-8 p-4 md:p-6 border-2 border-green-500 bg-green-500/20 text-green-400 text-center rounded-xl shadow-[0_0_30px_rgba(34,197,94,0.3)] animate-pulse flex flex-col items-center gap-4 z-20">
-                        <div className="text-2xl md:text-3xl font-bold font-mono tracking-widest">DOSTĘP PRZYZNANY</div>
-                        <div className="text-lg font-mono">SKRYTKA ZOSTAŁA OTWARTA!</div>
-                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-10 md:h-12 invert mt-2" />
-                    </div>
-                )}
-                {isSuccess && currentScore < 5000 && (
-                    <div className="mb-8 p-4 md:p-6 border-2 border-red-500 bg-red-500/20 text-red-400 text-center rounded-xl z-20">
-                        <div className="text-xl md:text-2xl font-bold font-mono tracking-widest">BRAK DOSTĘPU</div>
-                        <div className="text-sm font-mono mt-2">WYMAGANE MINIMUM 5000 PUNKTÓW, ABY OTWORZYĆ SKRYTKĘ.</div>
-                    </div>
-                )}
-
-                <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full z-20 relative">
+                <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full z-20 relative mb-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-4 md:mb-8">
                         <div className="text-center p-4 md:p-6 border border-gray-700 rounded-lg bg-black/50">
                             <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">WYNIK KOŃCOWY</div>
@@ -388,18 +373,33 @@ export default function PatchMaster() {
                             <div className="text-[10px] md:text-sm text-gray-500 font-mono">na pojedynczy port</div>
                         </div>
                     </div>
+                </div>
 
-                    <div className="flex justify-center mt-6 md:mt-8">
-                        <button
-                            onClick={() => {
-                                queryClient.invalidateQueries({ queryKey: ['pm_queue'] })
-                                navigate('/dashboard')
-                            }}
-                            className="bg-gray-800 hover:bg-gray-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-lg font-bold font-mono text-lg md:text-xl transition-colors border border-gray-600"
-                        >
-                            POWRÓT DO BAZY
-                        </button>
+                {/* Box Opening Notification */}
+                {isSuccess && currentScore >= 5000 && (
+                    <div className="mb-8 p-6 md:p-10 border-4 border-green-500 bg-green-500/20 text-green-400 text-center rounded-2xl shadow-[0_0_50px_rgba(34,197,94,0.4)] animate-pulse flex flex-col items-center gap-6 z-20 w-full">
+                        <div className="text-4xl md:text-6xl font-black font-mono tracking-widest drop-shadow-[0_0_10px_rgba(34,197,94,0.8)]">DOSTĘP PRZYZNANY</div>
+                        <div className="text-2xl md:text-4xl font-bold font-mono text-white">SKRYTKA ZOSTAŁA OTWARTA!</div>
+                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert mt-4" />
                     </div>
+                )}
+                {isSuccess && currentScore < 5000 && (
+                    <div className="mb-8 p-4 md:p-6 border-2 border-red-500 bg-red-500/20 text-red-400 text-center rounded-xl z-20 w-full">
+                        <div className="text-xl md:text-2xl font-bold font-mono tracking-widest">BRAK DOSTĘPU</div>
+                        <div className="text-sm font-mono mt-2 text-white">WYMAGANE MINIMUM 5000 PUNKTÓW, ABY OTWORZYĆ SKRYTKĘ.</div>
+                    </div>
+                )}
+
+                <div className="flex justify-center mt-2 md:mt-4 z-20 relative">
+                    <button
+                        onClick={() => {
+                            queryClient.invalidateQueries({ queryKey: ['pm_queue'] })
+                            navigate('/dashboard')
+                        }}
+                        className="bg-gray-800 hover:bg-gray-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-lg font-bold font-mono text-lg md:text-xl transition-colors border border-gray-600"
+                    >
+                        POWRÓT DO BAZY
+                    </button>
                 </div>
             </div>
         )
