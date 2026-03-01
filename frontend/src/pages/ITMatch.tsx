@@ -234,7 +234,7 @@ export default function ITMatch() {
         const incorrectCount = stats.length - correctCount
 
         return (
-            <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col justify-center items-center relative touch-none overflow-x-hidden">
+            <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col justify-center items-center relative md:touch-none overflow-x-hidden overflow-y-auto custom-scrollbar">
                 <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center drop-shadow-[0_0_15px_rgba(74,222,128,0.8)]">LICZENIE PUNKTÓW...</h1>
 
                 <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8">

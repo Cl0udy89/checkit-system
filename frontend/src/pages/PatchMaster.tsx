@@ -345,7 +345,7 @@ export default function PatchMaster() {
         const isSuccess = currentScore > 0
 
         return (
-            <div className="flex-1 flex flex-col items-center justify-center w-full max-w-4xl mx-auto z-10 p-2 md:p-4 overflow-hidden touch-none">
+            <div className="flex-1 flex flex-col items-center justify-center w-full max-w-4xl mx-auto z-10 p-2 md:p-4 overflow-x-hidden overflow-y-auto md:overflow-hidden md:touch-none custom-scrollbar">
                 <h1 className={`text-4xl md:text-5xl font-mono font-bold mb-4 md:mb-8 text-center drop-shadow-md z-20 ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>
                     {isSuccess ? 'ZADANIE UKOŃCZONE' : 'CZAS MINĄŁ'}
                 </h1>
@@ -480,7 +480,7 @@ export default function PatchMaster() {
     }
 
     return (
-        <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden touch-none overflow-hidden">
+        <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden md:touch-none overflow-y-auto md:overflow-hidden custom-scrollbar">
             {!isFinished && (
                 <button
                     onClick={handleExit}

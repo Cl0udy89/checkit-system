@@ -83,7 +83,7 @@ export default function Dashboard() {
     ]
 
     return (
-        <div className="h-screen p-4 md:p-8 flex flex-col relative overflow-hidden bg-transparent w-full mx-auto">
+        <div className="min-h-screen lg:h-screen p-4 md:p-8 flex flex-col relative overflow-x-hidden overflow-y-auto lg:overflow-hidden bg-transparent w-full mx-auto">
             <header className="flex flex-col lg:flex-row w-full justify-between items-center mb-12 z-10 gap-6 lg:gap-8 mt-4 relative">
                 <div className="flex flex-col md:flex-row items-center justify-center md:justify-start w-full lg:w-auto gap-6 md:gap-8">
                     <motion.div

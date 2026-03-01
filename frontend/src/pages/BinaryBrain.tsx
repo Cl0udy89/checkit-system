@@ -279,7 +279,7 @@ export default function BinaryBrain() {
         const incorrectCount = stats.length - correctCount
 
         return (
-            <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col justify-center items-center relative touch-none overflow-x-hidden">
+            <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col justify-center items-center relative md:touch-none overflow-x-hidden overflow-y-auto custom-scrollbar">
                 <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center">WERYFIKACJA ZAKOŃCZONA</h1>
 
                 <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8">
@@ -323,7 +323,7 @@ export default function BinaryBrain() {
     }
 
     return (
-        <div className="min-h-[100dvh] bg-transparent flex flex-col p-2 md:p-6 relative touch-none overflow-hidden">
+        <div className="min-h-[100dvh] bg-transparent flex flex-col p-2 md:p-6 relative md:touch-none overflow-x-hidden overflow-y-auto md:overflow-hidden custom-scrollbar">
             {/* HUD */}
             <div className="flex flex-col md:flex-row justify-between items-center mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2">
                 <h1 className="text-xl md:text-2xl font-mono text-primary flex items-center gap-2">
