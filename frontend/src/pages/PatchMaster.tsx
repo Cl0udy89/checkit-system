@@ -303,6 +303,15 @@ export default function PatchMaster() {
                     {/* QUEUE ACTIONS */}
                     {!isMyTurn && (
                         <div className="flex flex-col items-center border-t border-gray-700 pt-8 mt-4">
+                            {!isQueued && !isResetting && !isGlobalBreak && (
+                                <div className="mb-8 p-4 bg-accent/10 border border-accent/30 rounded-xl text-center w-full max-w-sm">
+                                    <h3 className="text-accent font-mono font-bold text-lg mb-2 flex items-center justify-center gap-2"><Zap size={20} /> GRA FIZYCZNA</h3>
+                                    <p className="text-gray-300 font-mono text-sm leading-relaxed">
+                                        Podejdź do maszyny <strong>PATCH MASTER</strong> i połącz wprawnie kable! Zapisz się do kolejki w telefonie – najszybsi mają szansę <strong>otworzyć skrytkę z nagrodą!</strong> 🎁
+                                    </p>
+                                </div>
+                            )}
+
                             <Users size={48} className="text-gray-500 mb-4" />
                             <h3 className="text-xl font-mono text-white mb-6">KOLEJKA GRACZY ({qState?.queue?.length || 0})</h3>
 

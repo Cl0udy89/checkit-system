@@ -57,7 +57,7 @@ export default function Dashboard() {
         {
             id: 'patch-master',
             title: 'PATCH_MASTER',
-            desc: 'Masz pewną rękę i sokoli wzrok? Pokaż, że kable to Twoja specjalność i wepnij je wszystkie w rekordowym czasie. Startuj!',
+            desc: 'Podejdź do fizycznej maszyny! Pokaż, że kable to Twoja specjalność, wepnij je w rekordowym czasie i otwórz skrytkę z nagrodą. Startuj!',
             icon: <Zap size={48} className="text-accent" />,
             color: 'border-accent',
             bgClass: 'bg-accent',
