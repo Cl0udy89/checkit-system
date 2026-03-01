@@ -385,7 +385,10 @@ export default function PatchMaster() {
                 {isSuccess && currentScore >= 5000 && (
                     <div className="mb-8 p-6 md:p-10 border-4 border-green-500 bg-green-500/20 text-green-400 text-center rounded-2xl shadow-[0_0_50px_rgba(34,197,94,0.4)] animate-pulse flex flex-col items-center gap-6 z-20 w-full">
                         <div className="text-4xl md:text-6xl font-black font-mono tracking-widest drop-shadow-[0_0_10px_rgba(34,197,94,0.8)]">DOSTĘP PRZYZNANY</div>
-                        <div className="text-2xl md:text-4xl font-bold font-mono text-white">SKRYTKA ZOSTAŁA OTWARTA!</div>
+                        <div className="text-2xl md:text-4xl font-bold font-mono text-white text-center">
+                            SKRYTKA ZOSTAŁA OTWARTA!<br />
+                            <span className="text-accent text-3xl md:text-5xl drop-shadow-md mt-4 block">ZGARNIJ SWOJĄ NAGRODĘ! 🎁</span>
+                        </div>
                     </div>
                 )}
                 {isSuccess && currentScore < 5000 && (
