@@ -3,7 +3,7 @@ import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-mo
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchITMatchQuestions, submitGameScore, BACKEND_URL } from '../lib/api'
 import { useNavigate } from 'react-router-dom'
-import { Check, X, Info } from 'lucide-react'
+import { Check, X, Info, Search } from 'lucide-react'
 import { useGameStore } from '../hooks/useGameStore'
 import sparkSomeLogo from '../assets/sparkSomeLogo_Black.png'
 
@@ -279,25 +279,27 @@ export default function ITMatch() {
 
     return (
         <div className="h-[100dvh] bg-transparent flex flex-col items-center justify-between p-2 md:p-4 relative touch-none select-none overflow-hidden">
-            {/* Aesthetically placed logo */}
-            <div className="absolute top-4 left-4 z-50 pointer-events-none">
-                <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-10 md:h-14 w-auto object-contain invert brightness-0 opacity-100 drop-shadow-md" />
+            {/* HUD */}
+            <div className="w-full max-w-lg flex justify-between items-start mb-2 md:mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative px-2">
+                <div className="flex flex-col gap-1 md:gap-2 shrink-0">
+                    <h1 className="text-base md:text-2xl font-mono text-primary flex items-center gap-1 md:gap-2">
+                        <Search size={18} className="md:w-6 md:h-6 shrink-0" /> IT_MATCH
+                    </h1>
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-4 md:h-6 w-auto object-contain invert opacity-70" />
+                </div>
+                <div className="flex gap-3 md:gap-8 text-right shrink-0">
+                    <div className="flex flex-col items-end">
+                        <div className="text-[9px] md:text-xs text-gray-500 font-mono">WYNIK ({currentIndex + 1}/{questions.length})</div>
+                        <div className="text-xl md:text-4xl font-mono font-bold text-accent">{score}</div>
+                    </div>
+                    <div className="flex flex-col items-end">
+                        <div className="text-[9px] md:text-xs text-gray-500 font-mono">PULA</div>
+                        <div className="text-2xl md:text-5xl font-mono font-bold tracking-widest text-shadow-neon text-white">
+                            {currentPotentialScore.toString().padStart(4, '0')}
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <header className="w-full max-w-lg mt-14 md:mt-16 flex flex-row justify-between items-start z-10 font-mono text-white px-2 shrink-0">
-                <div className="relative font-bold flex flex-col items-start gap-1">
-                    <div className="text-xl md:text-3xl text-gray-300">
-                        WYNIK: <span className="text-3xl md:text-4xl text-accent drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]">{score}</span>
-                    </div>
-                    <div className="text-base md:text-xl text-gray-400">
-                        PULA: <span className="text-xl md:text-2xl text-white font-bold tracking-widest">{currentPotentialScore.toString().padStart(4, '0')}</span>
-                    </div>
-                </div>
-                <div className="text-2xl md:text-3xl text-gray-400 font-bold tracking-widest">
-                    <span className="text-sm md:text-lg block text-right text-gray-500 font-normal">PROJEKT</span>
-                    {currentIndex + 1}&nbsp;/&nbsp;{questions.length}
-                </div>
-            </header>
 
             <div className="flex-1 w-full max-w-md relative flex justify-center items-center my-2 min-h-0">
                 <AnimatePresence>

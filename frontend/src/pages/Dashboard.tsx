@@ -106,10 +106,10 @@ export default function Dashboard() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.2 }}
-                            className="text-gray-400 font-mono mt-3 flex items-center gap-3"
+                            className="text-gray-400 font-mono mt-3 flex items-center gap-3 w-full"
                         >
-                            <span className="bg-primary/20 text-primary px-3 py-1 rounded text-sm border border-primary/30 font-bold tracking-wider">USER</span>
-                            <span className="text-xl md:text-2xl text-white font-bold">{user?.nick || 'GUEST'}</span>
+                            <span className="bg-primary/20 text-primary px-3 py-1 rounded text-sm border border-primary/30 font-bold tracking-wider shrink-0">USER</span>
+                            <span className="text-2xl md:text-3xl text-white font-bold truncate max-w-[200px] sm:max-w-[300px] md:max-w-none" title={user?.nick || 'GUEST'}>{user?.nick || 'GUEST'}</span>
                         </motion.p>
                     </div>
                 </div>

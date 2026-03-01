@@ -325,18 +325,21 @@ export default function BinaryBrain() {
     return (
         <div className="min-h-[100dvh] bg-transparent flex flex-col p-2 md:p-6 relative md:touch-none overflow-x-hidden overflow-y-auto md:overflow-hidden custom-scrollbar">
             {/* HUD */}
-            <div className="flex flex-col md:flex-row justify-between items-center mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2">
-                <h1 className="text-xl md:text-2xl font-mono text-primary flex items-center gap-2">
-                    <Zap size={20} className="md:w-6 md:h-6" /> BINARY_BRAIN
-                </h1>
-                <div className="flex gap-4 md:gap-8 text-right w-full md:w-auto justify-between md:justify-end">
-                    <div>
-                        <div className="text-[10px] md:text-xs text-gray-500 font-mono">TOTAL SCORE</div>
-                        <div className="text-2xl md:text-4xl font-mono font-bold text-accent">{totalScore}</div>
+            <div className="w-full flex justify-between items-start mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative max-w-4xl mx-auto">
+                <div className="flex flex-col gap-1 md:gap-2 shrink-0">
+                    <h1 className="text-base md:text-2xl font-mono text-primary flex items-center gap-1 md:gap-2">
+                        <Zap size={18} className="md:w-6 md:h-6 shrink-0" /> BINARY_BRAIN
+                    </h1>
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-4 md:h-6 w-auto object-contain invert opacity-70" />
+                </div>
+                <div className="flex gap-3 md:gap-8 text-right shrink-0">
+                    <div className="flex flex-col items-end">
+                        <div className="text-[9px] md:text-xs text-gray-500 font-mono">TOTAL SCORE</div>
+                        <div className="text-xl md:text-4xl font-mono font-bold text-accent">{totalScore}</div>
                     </div>
-                    <div>
-                        <div className="text-[10px] md:text-xs text-gray-500 font-mono">POTENTIAL</div>
-                        <div className={`text-3xl md:text-5xl font-mono font-bold tracking-widest text-shadow-neon ${gameState === 'feedback' ? (lastAnswerCorrect ? 'text-green-500' : 'text-red-500') : 'text-white'}`}>
+                    <div className="flex flex-col items-end">
+                        <div className="text-[9px] md:text-xs text-gray-500 font-mono">POTENTIAL</div>
+                        <div className={`text-2xl md:text-5xl font-mono font-bold tracking-widest text-shadow-neon ${gameState === 'feedback' ? (lastAnswerCorrect ? 'text-green-500' : 'text-red-500') : 'text-white'}`}>
                             {currentPotentialScore.toString().padStart(4, '0')}
                         </div>
                     </div>

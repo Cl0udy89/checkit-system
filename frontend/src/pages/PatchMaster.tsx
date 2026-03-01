@@ -419,18 +419,16 @@ export default function PatchMaster() {
         const pairs = hardwareState?.pairs || []
         return (
             <div className="flex-1 flex flex-col w-full max-w-4xl mx-auto z-10 relative">
-                <div className="w-full flex justify-between items-center mb-8 border-b border-gray-800 pb-4 gap-4 flex-wrap">
-                    <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-4">
-                            <h1 className="text-xl md:text-2xl font-mono text-accent flex items-center gap-2">
-                                <Zap size={24} className="shrink-0" /> GRA ROZPOCZĘTA
-                            </h1>
-                        </div>
-                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-6 md:h-8 invert opacity-70 mt-1" />
+                <div className="w-full flex justify-between items-start mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative">
+                    <div className="flex flex-col gap-1 md:gap-2 shrink-0">
+                        <h1 className="text-base md:text-2xl font-mono text-accent flex items-center gap-1 md:gap-2">
+                            <Zap size={18} className="md:w-6 md:h-6 shrink-0" /> PATCH_MASTER
+                        </h1>
+                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-4 md:h-6 w-auto object-contain invert opacity-70" />
                     </div>
-                    <div className="text-right whitespace-nowrap">
-                        <div className="text-xs text-gray-500 font-mono">AKTUALNY WYNIK</div>
-                        <div className="text-3xl md:text-4xl font-mono font-bold text-white tracking-widest text-shadow-neon">
+                    <div className="flex flex-col items-end shrink-0">
+                        <div className="text-[9px] md:text-xs text-gray-500 font-mono">AKTUALNY WYNIK</div>
+                        <div className="text-2xl md:text-5xl font-mono font-bold text-white tracking-widest text-shadow-neon">
                             {currentScore.toString().padStart(5, '0')}
                         </div>
                     </div>

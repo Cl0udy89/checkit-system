@@ -77,7 +77,7 @@ export default function Welcome() {
             </div>
 
             <div className="z-10 w-full max-w-md">
-                <div className="text-center mb-8 mt-12 md:mt-4">
+                <div className="text-center mb-8 mt-24 md:mt-4">
                     <h1 className="text-xl md:text-3xl font-mono font-bold text-white mb-4 tracking-tighter uppercase leading-snug">
                         Podejmij wyzwanie Sparks_Core<br /> i sprawdź swój tech-skill!
                     </h1>
