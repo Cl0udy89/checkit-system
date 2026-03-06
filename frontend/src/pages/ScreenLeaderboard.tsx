@@ -24,24 +24,31 @@ export default function ScreenLeaderboard() {
     const [pmScore, setPmScore] = useState(10000)
     const [hideOverlay, setHideOverlay] = useState(false)
 
+    // Effect 1: score animation during gameplay
     useEffect(() => {
-        if (pmQueue?.status === 'playing' && pmQueue?.start_time) {
-            setHideOverlay(false) // Reset hide state when a new game starts
-            const totalMs = (pmQueue.pm_total_time || 200) * 1000
-            const interval = setInterval(() => {
-                const elapsed = Date.now() - (pmQueue.start_time * 1000)
-                const ratio = elapsed / totalMs
-                setPmScore(Math.floor(Math.max(0, 10000 * (1 - ratio))))
-            }, 30) // Smooth 33fps update
-            return () => clearInterval(interval)
+        if (pmQueue?.status !== 'playing' || !pmQueue?.start_time) return
+        const totalMs = (pmQueue.pm_total_time || 200) * 1000
+        const interval = setInterval(() => {
+            const elapsed = Date.now() - (pmQueue.start_time * 1000)
+            const ratio = elapsed / totalMs
+            setPmScore(Math.floor(Math.max(0, 10000 * (1 - ratio))))
+        }, 30)
+        return () => clearInterval(interval)
+    }, [pmQueue?.status, pmQueue?.start_time, pmQueue?.pm_total_time])
+
+    // Effect 2: overlay visibility – depends only on status so start_time/pm_total_time
+    // changes during 'finished' state don't cancel the hide timeout
+    useEffect(() => {
+        if (pmQueue?.status === 'playing') {
+            setHideOverlay(false)
         } else if (pmQueue?.status === 'finished') {
-            // Keep the overlay visible for 5 seconds after finish to show W/L
+            setHideOverlay(false)
             const t = setTimeout(() => setHideOverlay(true), 5000)
             return () => clearTimeout(t)
         } else {
             setHideOverlay(false)
         }
-    }, [pmQueue?.status, pmQueue?.start_time, pmQueue?.pm_total_time])
+    }, [pmQueue?.status])
 
     if (isLoading) return <div className="p-10 text-center animate-pulse font-mono text-2xl h-screen flex items-center justify-center bg-black text-white">SYNCHRONIZACJA WYNIKÓW...</div>
 
@@ -199,11 +206,18 @@ export default function ScreenLeaderboard() {
             <AnimatePresence>
                 {(pmQueue?.status === 'playing' || (pmQueue?.status === 'finished' && !hideOverlay)) && pmQueue?.current_player && (
                     <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="absolute inset-0 flex items-center justify-center z-[100]"
+                    >
+                    <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.8, opacity: 0 }}
                         transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] bg-black/90 backdrop-blur-xl border-4 ${pmQueue?.status === 'finished' ? (pmScore >= 5000 ? 'border-green-500 shadow-[0_0_150px_rgba(34,197,94,0.6)]' : 'border-red-500 shadow-[0_0_150px_rgba(239,68,68,0.6)]') : 'border-accent shadow-[0_0_150px_rgba(243,234,95,0.4)]'} p-8 xl:p-12 rounded-3xl flex flex-col items-center gap-4 w-[90vw] max-w-5xl text-center`}
+                        className={`bg-black/90 backdrop-blur-xl border-4 ${pmQueue?.status === 'finished' ? (pmScore >= 5000 ? 'border-green-500 shadow-[0_0_150px_rgba(34,197,94,0.6)]' : 'border-red-500 shadow-[0_0_150px_rgba(239,68,68,0.6)]') : 'border-accent shadow-[0_0_150px_rgba(243,234,95,0.4)]'} p-8 xl:p-12 rounded-3xl flex flex-col items-center gap-4 w-[90vw] max-w-5xl text-center`}
                     >
                         {pmQueue?.status === 'finished' ? (
                             <>
@@ -228,6 +242,7 @@ export default function ScreenLeaderboard() {
                                 </div>
                             </>
                         )}
+                    </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
