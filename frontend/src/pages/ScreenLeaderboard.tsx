@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchLeaderboard } from '../lib/api'
+import { fetchLeaderboard, api } from '../lib/api'
+import { useState, useEffect } from 'react'
 
-import { Trophy } from 'lucide-react'
-import { motion } from 'framer-motion'
+import { Trophy, Zap } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import sparkSomeLogo from '../assets/sparkSomeLogo_Black.png'
 
 export default function ScreenLeaderboard() {
@@ -11,6 +12,26 @@ export default function ScreenLeaderboard() {
         queryFn: fetchLeaderboard,
         refetchInterval: 5000 // Live updates
     })
+
+    const { data: pmQueue } = useQuery({
+        queryKey: ['pm_queue_global'],
+        queryFn: async () => (await api.get('/game/patch-master/queue')).data,
+        refetchInterval: 1000
+    })
+
+    const [pmScore, setPmScore] = useState(10000)
+
+    useEffect(() => {
+        if (pmQueue?.status === 'playing' && pmQueue?.start_time) {
+            const totalMs = (pmQueue.pm_total_time || 200) * 1000
+            const interval = setInterval(() => {
+                const elapsed = Date.now() - (pmQueue.start_time * 1000)
+                const ratio = elapsed / totalMs
+                setPmScore(Math.floor(Math.max(0, 10000 * (1 - ratio))))
+            }, 100)
+            return () => clearInterval(interval)
+        }
+    }, [pmQueue?.status, pmQueue?.start_time, pmQueue?.pm_total_time])
 
     if (isLoading) return <div className="p-10 text-center animate-pulse font-mono text-2xl h-screen flex items-center justify-center bg-black text-white">SYNCHRONIZACJA WYNIKÓW...</div>
 
@@ -162,6 +183,30 @@ export default function ScreenLeaderboard() {
                 <div className="flex-1 min-h-0"><Section title="PATCH MASTER" list={data?.patch_master || []} /></div>
                 <div className="flex-1 min-h-0"><Section title="IT MATCH" list={data?.it_match || []} /></div>
             </motion.div>
+
+            {/* Live Patch Master Overlay */}
+            <AnimatePresence>
+                {pmQueue?.status === 'playing' && pmQueue?.current_player && (
+                    <motion.div
+                        initial={{ y: 200, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 200, opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                        className="absolute bottom-12 left-1/2 -translate-x-1/2 z-[100] bg-black/80 backdrop-blur-xl border-4 border-accent p-8 xl:p-12 rounded-3xl shadow-[0_0_150px_rgba(243,234,95,0.4)] flex flex-col items-center gap-4 w-[90vw] max-w-5xl"
+                    >
+                        <div className="flex items-center gap-4 text-3xl xl:text-4xl font-bold text-gray-300 font-mono uppercase">
+                            <Zap size={40} className="text-accent animate-pulse" /> GRA W TOKU: PATCH MASTER
+                        </div>
+                        <div className="text-6xl xl:text-7xl font-black text-white truncate font-mono mt-2 mb-2">{pmQueue.current_player.nick}</div>
+                        <div className="text-[120px] leading-none font-black text-accent tracking-widest font-mono drop-shadow-[0_0_30px_rgba(243,234,95,0.8)]">
+                            {pmScore.toString().padStart(5, '0')}
+                        </div>
+                        <div className="text-2xl xl:text-3xl font-bold text-red-500 font-mono mt-4 animate-pulse flex items-center gap-3 bg-red-900/40 px-6 py-3 rounded-xl border border-red-500/50">
+                            Musi mieć powyżej 5000 punktów, żeby odebrać nagrodę!
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }

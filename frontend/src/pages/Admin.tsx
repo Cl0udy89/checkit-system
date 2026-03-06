@@ -567,6 +567,19 @@ export default function Admin() {
                     </div>
 
                     <div className="mb-4 p-4 border border-green-800 bg-black">
+                        <label className="block text-white font-bold mb-4 border-b border-gray-800 pb-2">CZAS GRY PATCH MASTER (SEKUNDY)</label>
+                        <div className="text-xs text-gray-400 mb-2">Czas w sekundach, przez jaki gracze mogą grać, zanim zdobędą 0 punktów (domyślnie 200).</div>
+                        <input
+                            type="number"
+                            min="10"
+                            placeholder="np. 200"
+                            defaultValue={config?.pm_total_time || "200"}
+                            onBlur={(e) => configMutation.mutate({ key: 'pm_total_time', value: e.target.value })}
+                            className="bg-gray-900 border border-green-800 p-2 text-white w-full max-w-xs font-mono"
+                        />
+                    </div>
+
+                    <div className="mb-4 p-4 border border-green-800 bg-black">
                         <label className="block text-white font-bold mb-4 border-b border-gray-800 pb-2">KONFIGURACJA EMAIL (SMTP)</label>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">

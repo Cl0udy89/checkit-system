@@ -100,7 +100,7 @@ export default function BinaryBrain() {
     // Save progress continuously
     useEffect(() => {
         if (hasLoaded && user && questions && gameState === 'playing') {
-            const stateToSave = { currentQIndex, totalScore, answers, questionStartTime }
+            const stateToSave = { currentQIndex, totalScore, answers, answerStats, questionStartTime }
             localStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify(stateToSave))
         }
     }, [hasLoaded, currentQIndex, totalScore, answers, questionStartTime, user, questions, gameState])
@@ -136,7 +136,8 @@ export default function BinaryBrain() {
             }
         }, 50)
         return () => clearInterval(interval)
-    }, [questionStartTime, gameState, handleAnswer])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [questionStartTime, gameState])
 
     const submitMutation = useMutation({
         mutationFn: submitGameScore,

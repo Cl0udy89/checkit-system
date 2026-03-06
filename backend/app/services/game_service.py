@@ -45,7 +45,7 @@ class GameService:
             # It now only opens for Patch Master.
 
         elif game_type == "patch_master":
-            final_score = await self._calculate_patch_master(duration_ms)
+            final_score = await self._calculate_patch_master(duration_ms, session=session)
             # Patch Master validation is checking hardware state
             # Assuming client calls finish when it Thinks it's done.
             # Double check hardware:
@@ -125,11 +125,24 @@ class GameService:
         
         return final_score, passed
 
-    async def _calculate_patch_master(self, duration_ms: int):
-        # Score purely based on time if solved
+    async def _calculate_patch_master(self, duration_ms: int, session: AsyncSession = None):
+        # Score based on time remaining relative to total time
+        total_time_ms = 200000 # 200s default
+        
+        if session:
+            from app.models import SystemConfig
+            from sqlmodel import select
+            pm_time_res = await session.execute(select(SystemConfig).where(SystemConfig.key == "pm_total_time"))
+            pm_time_conf = pm_time_res.scalar_one_or_none()
+            if pm_time_conf and pm_time_conf.value.isdigit():
+                total_time_ms = int(pm_time_conf.value) * 1000
+
+        # Max score is 10000. Time penalty is proportionate.
+        time_ratio = duration_ms / total_time_ms
         base_score = settings.game.initial_points
-        time_penalty = duration_ms * settings.game.decay_rate_per_ms
-        return base_score - time_penalty
+        
+        # We lose points based on time_ratio
+        return max(0, base_score * (1 - time_ratio))
 
     async def _calculate_it_match(self, answers: dict, duration_ms: int):
         correct_count = 0

@@ -114,6 +114,8 @@ export default function PatchMaster() {
     useEffect(() => {
         if (!gameStartedLocal || isFinished || !startTime) return
 
+        const pmTotalTimeMs = (qState?.pm_total_time || 200) * 1000
+
         // Save state so reload doesn't wipe
         if (user) {
             localStorage.setItem(`patch_master_state_${user.id}`, JSON.stringify({ startTime }))
@@ -121,7 +123,7 @@ export default function PatchMaster() {
 
         const interval = setInterval(() => {
             const elapsed = Date.now() - startTime
-            const score = Math.max(0, 10000 - (elapsed * 0.05))
+            const score = Math.max(0, 10000 * (1 - (elapsed / pmTotalTimeMs)))
 
             if (score <= 0) {
                 clearInterval(interval)
@@ -445,8 +447,8 @@ export default function PatchMaster() {
                         <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-4 md:h-6 w-auto object-contain invert opacity-70" />
                     </div>
                     <div className="flex flex-col items-end shrink-0">
-                        <div className="text-[9px] md:text-xs text-gray-500 font-mono">AKTUALNY WYNIK</div>
-                        <div className="text-2xl md:text-5xl font-mono font-bold text-white tracking-widest text-shadow-neon">
+                        <div className="text-xs md:text-sm text-gray-500 font-mono">AKTUALNY WYNIK</div>
+                        <div className="text-4xl md:text-8xl font-mono font-bold text-white tracking-widest text-shadow-neon">
                             {currentScore.toString().padStart(5, '0')}
                         </div>
                     </div>

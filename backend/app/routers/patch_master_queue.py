@@ -15,6 +15,7 @@ queue_state = {
     "status": "available",
     "current_player": None, # Dict: {"id": 1, "nick": "Player1"}
     "queue": [], # List of Dicts: [{"id": 2, "nick": "Player2"}, ...]
+    "start_time": None # Float timestamp
 }
 
 class QueueStateResponse(BaseModel):
@@ -24,6 +25,8 @@ class QueueStateResponse(BaseModel):
     position: Optional[int] = None # Position for the requesting user
     global_status: Optional[str] = "true" # "true", "technical_break", "false"
     force_solved: Optional[bool] = False
+    start_time: Optional[float] = None
+    pm_total_time: Optional[int] = 200 # Default to 200s (approx 10000 score / 50 score/sec)
 
 # --- User Endpoints ---
 
@@ -43,6 +46,11 @@ async def get_queue_state(
     conf = conf_res.scalar_one_or_none()
     global_status = conf.value if conf else "true"
 
+    # Fetch pm_total_time
+    pm_time_res = await session.execute(select(SystemConfig).where(SystemConfig.key == "pm_total_time"))
+    pm_time_conf = pm_time_res.scalar_one_or_none()
+    pm_total_time = int(pm_time_conf.value) if pm_time_conf and pm_time_conf.value.isdigit() else 200
+
     position = None
     if x_user_id:
         try:
@@ -60,7 +68,9 @@ async def get_queue_state(
         queue=queue_state["queue"],
         position=position,
         global_status=global_status,
-        force_solved=queue_state.get("force_solved", False)
+        force_solved=queue_state.get("force_solved", False),
+        pm_total_time=pm_total_time,
+        start_time=queue_state.get("start_time")
     )
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -94,6 +104,8 @@ async def leave_queue(user: User = Depends(get_current_user)):
     queue_state["queue"] = [u for u in queue_state["queue"] if u["id"] != user.id]
     return {"message": "Left queue"}
 
+import time
+
 @router.post("/start")
 async def start_game(user: User = Depends(get_current_user)):
     if queue_state["status"] != "waiting_for_player":
@@ -103,6 +115,7 @@ async def start_game(user: User = Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="It is not your turn.")
         
     queue_state["status"] = "playing"
+    queue_state["start_time"] = time.time()
     return {"message": "Game started"}
 
 import asyncio
@@ -116,11 +129,11 @@ async def delay_reset_to_rainbow():
         pending_led_commands.append("rainbow")
 
 @router.post("/finish")
-async def finish_player_game(background_tasks: BackgroundTasks, user: User = Depends(get_current_user)):
+async def finish_player_game(user: User = Depends(get_current_user)):
     # Called by frontend right after successful game score submission
     if queue_state["current_player"] and queue_state["current_player"]["id"] == user.id:
-        queue_state["current_player"] = None
-        queue_state["status"] = "available"
+        # Do not clear current_player immediately, keep them to show "wygrana" screen and hold LED
+        queue_state["status"] = "finished"
         queue_state["force_solved"] = False
         
         import app.routers.agent as agent_router
@@ -128,9 +141,7 @@ async def finish_player_game(background_tasks: BackgroundTasks, user: User = Dep
         agent_router.current_led_effect = "green"
         pending_led_commands.append("green")
         
-        background_tasks.add_task(delay_reset_to_rainbow)
-        
-        return {"message": "Game finished, queue freed"}
+        return {"message": "Game finished, user kept in finished status"}
     return {"message": "No active game to finish"}
 
 @router.post("/timeout-flash")
@@ -143,6 +154,7 @@ async def trigger_timeout_flash(user: User = Depends(get_current_user)):
     if queue_state["current_player"] and queue_state["current_player"]["id"] == user.id:
         queue_state["current_player"] = None
         queue_state["status"] = "available"
+        queue_state["start_time"] = None
         
     return {"message": "LED timeout flash triggered and game reset"}
 
@@ -170,6 +182,7 @@ async def call_next_player(admin: User = Depends(get_current_admin)):
     if not queue_state["queue"]:
         queue_state["current_player"] = None
         queue_state["status"] = "available"
+        queue_state["start_time"] = None
         return {"message": "Queue is empty."}
         
     next_player = queue_state["queue"].pop(0)
@@ -180,7 +193,7 @@ async def call_next_player(admin: User = Depends(get_current_admin)):
 
 @router.post("/admin/set_status")
 async def set_queue_status(update: AdminStatusUpdate, admin: User = Depends(get_current_admin)):
-    valid_statuses = ["available", "waiting_for_player", "playing", "resetting"]
+    valid_statuses = ["available", "waiting_for_player", "playing", "resetting", "finished"]
     if update.status not in valid_statuses:
         raise HTTPException(status_code=400, detail="Invalid status")
         
@@ -188,6 +201,7 @@ async def set_queue_status(update: AdminStatusUpdate, admin: User = Depends(get_
     if update.status in ["available", "resetting"]:
         queue_state["current_player"] = None
         queue_state["force_solved"] = False
+        queue_state["start_time"] = None
         
     import app.routers.agent as agent_router
     from app.routers.agent import pending_led_commands
@@ -236,4 +250,5 @@ async def kick_user(user_id: int, admin: User = Depends(get_current_admin)):
     if queue_state["current_player"] and queue_state["current_player"]["id"] == user_id:
         queue_state["current_player"] = None
         queue_state["status"] = "available"
+        queue_state["start_time"] = None
     return {"message": "User kicked"}

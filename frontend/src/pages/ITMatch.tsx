@@ -81,7 +81,7 @@ export default function ITMatch() {
 
                         return // Skip shuffling since we re-loaded the old pool
                     }
-                } catch (e) { }
+                } catch (e) { console.error("Error parsing saved state", e) }
             }
 
             // If no saved state, setup a new shuffled game
