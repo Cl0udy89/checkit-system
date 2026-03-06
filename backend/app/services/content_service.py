@@ -12,6 +12,7 @@ class ContentService:
     def __init__(self):
         self.binary_brain_questions = []
         self.it_match_questions = []
+        self.text_match_questions = []
         self._load_content()
 
     def _load_content(self):
@@ -21,8 +22,12 @@ class ContentService:
         self.it_match_questions = self._load_csv(
             CONTENT_DIR / "it_match" / "questions.csv"
         )
+        self.text_match_questions = self._load_csv(
+            CONTENT_DIR / "text_match" / "questions.csv"
+        )
         logger.info(f"Loaded {len(self.binary_brain_questions)} Binary Brain questions.")
         logger.info(f"Loaded {len(self.it_match_questions)} IT Match questions.")
+        logger.info(f"Loaded {len(self.text_match_questions)} Text Match questions.")
 
     def _load_csv(self, path: Path) -> List[Dict]:
         if not path.exists():
@@ -71,6 +76,15 @@ class ContentService:
                 self._load_content()
 
             full_list = self.it_match_questions
+            count = min(len(full_list), limit)
+            if count == 0: return []
+            return random.sample(full_list, count)
+        elif game_type == "text_match":
+            if not self.text_match_questions:
+                logger.info("Reloading Text Match questions...")
+                self._load_content()
+
+            full_list = self.text_match_questions
             count = min(len(full_list), limit)
             if count == 0: return []
             return random.sample(full_list, count)

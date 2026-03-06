@@ -1,0 +1,11 @@
+id,term,definition
+1,Phishing,Atak podszywający się pod zaufaną osobę lub firmę w celu wyłudzenia danych
+2,Malware,Złośliwe oprogramowanie zaprojektowane do uszkadzania lub szpiegowania systemu
+3,VPN,Wirtualna sieć prywatna szyfrująca ruch internetowy i ukrywająca adres IP
+4,Firewall,System filtrujący ruch sieciowy i blokujący nieautoryzowane połączenia
+5,Ransomware,Wirus szyfrujący dane i żądający okupu za przywrócenie dostępu
+6,2FA,Metoda logowania wymagająca dwóch form weryfikacji tożsamości
+7,DNS,System tłumaczący nazwy domenowe na adresy IP serwerów
+8,Patch,Aktualizacja naprawiająca luki bezpieczeństwa w oprogramowaniu
+9,Backup,Kopia zapasowa chroniąca dane przed utratą lub awarią systemu
+10,SSL/TLS,Protokół szyfrujący komunikację między przeglądarką a serwerem

@@ -134,3 +134,6 @@ export const triggerTimeoutFlash = async () => (await api.post('/game/patch-mast
 export const adminPMQueueNext = async () => (await api.post('/game/patch-master/queue/admin/next')).data
 export const adminPMQueueSetStatus = async (status: string) => (await api.post('/game/patch-master/queue/admin/set_status', { status })).data
 export const adminPMQueueKick = async (userId: number) => (await api.delete(`/game/patch-master/queue/admin/kick/${userId}`)).data
+
+// Text Match
+export const fetchTextMatchQuestions = async (count: number = 8) => (await api.get(`/game/text-match/questions?count=${count}`)).data

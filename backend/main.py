@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.database import init_db
-from app.routers import auth, game, leaderboard, admin, it_match
+from app.routers import auth, game, leaderboard, admin, it_match, text_match
 from app.services.sync_service import sync_service
 from app.simple_config import settings
 from slowapi import _rate_limit_exceeded_handler
@@ -86,6 +86,7 @@ async def add_security_headers(request: Request, call_next):
     return response
 app.include_router(game.router, prefix=f"{API_V1_STR}/games", tags=["game"])
 app.include_router(it_match.router, prefix=f"{API_V1_STR}/game/it-match", tags=["it-match"])
+app.include_router(text_match.router, prefix=f"{API_V1_STR}/game/text-match", tags=["text-match"])
 app.include_router(leaderboard.router, prefix=f"{API_V1_STR}/leaderboard", tags=["leaderboard"])
 app.include_router(admin.router, prefix=f"{API_V1_STR}/admin", tags=["admin"])
 

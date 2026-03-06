@@ -50,7 +50,7 @@ export default function PatchMaster() {
         onSuccess: () => {
             setGameStartedLocal(true)
             setStartTime(Date.now())
-            api.post('/game/patch-master/queue/led', { effect: 'red' }).catch(() => { })
+            api.post('/game/patch-master/queue/led', { effect: 'blink_red' }).catch(() => { })
             queryClient.invalidateQueries({ queryKey: ['pm_queue'] })
         },
         onError: (err: any) => {

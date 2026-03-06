@@ -79,6 +79,8 @@ class LEDManager:
             self._bg_task = asyncio.create_task(self._fx_timeout_red())
         elif effect_name == "pulse":
             self._bg_task = asyncio.create_task(self._fx_pulse())
+        elif effect_name == "blink_red":
+            self._bg_task = asyncio.create_task(self._fx_blink_red())
         elif effect_name == "wire_pulse":
             self._bg_task = asyncio.create_task(self._fx_wire_pulse())
         elif effect_name.startswith("#") and len(effect_name) == 7:
@@ -211,50 +213,81 @@ class LEDManager:
             self._set_solid_color("red")
             self.current_state = "manual"  # Game is still active
 
-    async def _fx_wire_pulse(self):
-        """Symmetric cyan impulse from both ends converging to center – loops while cable is connected.
-        Triggers once on cable plug, then loops until next LED command cancels it.
-        Color: electric cyan (0, 160, 255) with fading trail."""
+    async def _fx_blink_red(self):
+        """Slow red heartbeat – game idle state during PatchMaster (loops until cancelled)."""
         Color = self.color_lib
-        n = self.strip.numPixels()
-        half = n // 2
         try:
             while True:
-                # One pass: both pulses travel from ends toward center
-                for step in range(half + 3):
-                    # Clear all pixels
-                    for i in range(n):
-                        self.strip.setPixelColor(i, Color(0, 0, 0))
-
-                    # Draw 4-pixel trailing pulse from each side
-                    for trail in range(4):
-                        brightness = max(0, 255 - trail * 68)
-                        r_val = brightness // 6       # slight red tint
-                        g_val = brightness * 2 // 3   # medium green
-                        b_val = brightness             # full blue → cyan
-
-                        left_pos = step - trail
-                        right_pos = (n - 1 - step) + trail
-
-                        if 0 <= left_pos < n:
-                            self.strip.setPixelColor(left_pos, Color(r_val, g_val, b_val))
-                        if 0 <= right_pos < n and right_pos != left_pos:
-                            self.strip.setPixelColor(right_pos, Color(r_val, g_val, b_val))
-
+                # Fade up
+                for b in range(30, 220, 8):
+                    for i in range(self.strip.numPixels()):
+                        self.strip.setPixelColor(i, Color(b, 0, 0))
                     self.strip.show()
                     await asyncio.sleep(0.018)
-
-                # Brief dark gap between cycles
-                for i in range(n):
-                    self.strip.setPixelColor(i, Color(0, 0, 0))
-                self.strip.show()
-                await asyncio.sleep(0.06)
-
+                # Fade down
+                for b in range(220, 30, -8):
+                    for i in range(self.strip.numPixels()):
+                        self.strip.setPixelColor(i, Color(b, 0, 0))
+                    self.strip.show()
+                    await asyncio.sleep(0.018)
+                await asyncio.sleep(0.12)  # brief pause at bottom
         except asyncio.CancelledError:
             pass
         finally:
             self._set_solid_color("red")
-            self.current_state = "manual"  # Game is still active
+            self.current_state = "manual"
+
+    async def _fx_wire_pulse(self):
+        """Symmetric cyan impulse from both ends converging to center – SINGLE PASS per cable plug.
+        On normal completion → restarts blink_red.
+        On cancellation (next effect called) → solid red and exits.
+        Color: electric cyan with fading trail."""
+        Color = self.color_lib
+        n = self.strip.numPixels()
+        half = n // 2
+        completed = False
+        try:
+            # Single pass: both pulses travel from ends toward center
+            for step in range(half + 3):
+                # Clear all pixels
+                for i in range(n):
+                    self.strip.setPixelColor(i, Color(0, 0, 0))
+
+                # Draw 4-pixel trailing pulse from each side
+                for trail in range(4):
+                    brightness = max(0, 255 - trail * 68)
+                    r_val = brightness // 6       # slight red tint
+                    g_val = brightness * 2 // 3   # medium green
+                    b_val = brightness             # full blue → cyan
+
+                    left_pos = step - trail
+                    right_pos = (n - 1 - step) + trail
+
+                    if 0 <= left_pos < n:
+                        self.strip.setPixelColor(left_pos, Color(r_val, g_val, b_val))
+                    if 0 <= right_pos < n and right_pos != left_pos:
+                        self.strip.setPixelColor(right_pos, Color(r_val, g_val, b_val))
+
+                self.strip.show()
+                await asyncio.sleep(0.018)
+
+            # Brief dark gap at end of pass
+            for i in range(n):
+                self.strip.setPixelColor(i, Color(0, 0, 0))
+            self.strip.show()
+            await asyncio.sleep(0.06)
+            completed = True
+
+        except asyncio.CancelledError:
+            # Cancelled by next play_effect → just set solid red and exit
+            self._set_solid_color("red")
+            self.current_state = "manual"
+            return
+
+        if completed:
+            # Pulse finished normally → chain back into blink_red
+            self.current_state = "manual"
+            self._bg_task = asyncio.create_task(self._fx_blink_red())
 
     async def trigger_connection_pulse(self):
         """Breathing effect for successful connection (Green pulse)"""

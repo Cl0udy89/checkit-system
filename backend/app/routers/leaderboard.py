@@ -36,6 +36,7 @@ async def get_leaderboard(session: AsyncSession = Depends(get_session)):
     binary_brain = await get_top("binary_brain")
     patch_master = await get_top("patch_master")
     it_match = await get_top("it_match")
+    text_match = await get_top("text_match")
     
     # 2. Grandmaster (Sum of max scores per user)
     # This is complex in SQL. 
@@ -79,6 +80,7 @@ async def get_leaderboard(session: AsyncSession = Depends(get_session)):
         "binary_brain": binary_brain,
         "patch_master": patch_master,
         "it_match": it_match,
+        "text_match": text_match,
         "grandmaster": grandmaster_top,
         "leaderboard_message": leaderboard_message
     }
