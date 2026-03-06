@@ -1,7 +1,7 @@
 import { fetchGameStatus } from '../lib/api'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
-import { Zap, Cpu, Search, Trophy, CheckCircle } from 'lucide-react'
+import { Zap, Cpu, Search, Trophy, CheckCircle, Link2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../hooks/useGameStore'
 
@@ -32,11 +32,12 @@ export default function Dashboard() {
     }
 
     const gamesLeft = useMemo(() => {
-        if (!gameStatus) return 3
+        if (!gameStatus) return 4
         let left = 0
         if (!gameStatus.binary_brain?.played) left++
         if (!gameStatus.patch_master?.played) left++
         if (!gameStatus.it_match?.played) left++
+        if (!gameStatus.text_match?.played) left++
         return left
     }, [gameStatus])
 
@@ -79,6 +80,19 @@ export default function Dashboard() {
             shadowClass: 'hover:shadow-primary/30',
             path: '/game/it-match',
             cta: 'ROZPOCZNIJ ANALIZĘ'
+        },
+        {
+            id: 'text-match',
+            title: 'TEXT_MATCH',
+            desc: 'Dopasuj pojęcia IT do ich definicji! Kliknij termin, potem pasującą definicję i pobij rekord prędkości. Czas startuje z chwilą startu!',
+            icon: <Link2 size={48} className="text-green-400" />,
+            color: 'border-green-400',
+            bgClass: 'bg-green-400',
+            textClass: 'text-green-400',
+            hoverBorderClass: 'hover:border-green-400',
+            shadowClass: 'hover:shadow-green-400/30',
+            path: '/game/text-match',
+            cta: 'DOPASUJ POJĘCIA'
         },
     ]
 
@@ -142,7 +156,7 @@ export default function Dashboard() {
 
                     <div className="relative z-10 text-center md:text-left mb-6 md:mb-0">
                         <h2 className={`text-3xl font-mono font-bold ${gamesLeft === 0 ? 'text-accent' : 'text-white'} mb-2 tracking-tight`}>
-                            {gamesLeft === 0 ? "STATUS: GRANDMASTER ELIGIBLE" : `MISJA: UKOŃCZ ${gamesLeft} GRY`}
+                            {gamesLeft === 0 ? "STATUS: GRANDMASTER ELIGIBLE" : `MISJA: UKONCZ ${gamesLeft} ${gamesLeft === 1 ? 'GRE' : 'GRY'}`}
                         </h2>
                         {gamesLeft === 0 ? (
                             <button onClick={() => navigate('/leaderboard')} className="text-accent underline font-mono text-sm max-w-lg hover:text-white transition-colors text-left">
@@ -156,14 +170,14 @@ export default function Dashboard() {
                     </div>
                     <div className="relative z-10 flex items-center justify-center bg-black/40 rounded-full w-24 h-24 border border-gray-700/50 shadow-inner">
                         <div className="text-3xl font-bold font-mono text-white">
-                            {gamesLeft === 0 ? <Trophy size={40} className="text-accent drop-shadow-[0_0_15px_rgba(255,215,0,0.5)] animate-pulse" /> : `${3 - gamesLeft}/3`}
+                            {gamesLeft === 0 ? <Trophy size={40} className="text-accent drop-shadow-[0_0_15px_rgba(255,215,0,0.5)] animate-pulse" /> : `${4 - gamesLeft}/4`}
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Symmetric Grid Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 z-10 flex-1 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 z-10 flex-1 w-full">
                 {games.map((game) => {
                     const status = gameStatus?.[game.id.replace('-', '_')]
                     const isPlayed = status?.played

@@ -239,7 +239,7 @@ export default function ScreenLeaderboard() {
     const isFinishedMode = !isPlaying && finishedData !== null
 
     return (
-        <div className="h-screen w-screen bg-black overflow-hidden p-4 xl:p-8 flex flex-col absolute top-0 left-0 right-0 bottom-0 z-50">
+        <div className="h-screen w-screen bg-black/75 overflow-hidden p-4 xl:p-8 flex flex-col absolute top-0 left-0 right-0 bottom-0 z-50">
             <AnimatedOrbs />
 
             {/* Header – plain div, no Framer Motion entrance animation */}
@@ -266,6 +266,7 @@ export default function ScreenLeaderboard() {
                 <div className="flex-1 min-h-0"><Section title="BINARY BRAIN" list={data?.binary_brain || []} /></div>
                 <div className="flex-1 min-h-0"><Section title="PATCH MASTER" list={data?.patch_master || []} /></div>
                 <div className="flex-1 min-h-0"><Section title="IT MATCH" list={data?.it_match || []} /></div>
+                <div className="flex-1 min-h-0"><Section title="TEXT MATCH" list={data?.text_match || []} /></div>
             </div>
 
             {/* ── Live Patch Master Overlay ──────────────────────────────────────────

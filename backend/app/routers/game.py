@@ -43,7 +43,8 @@ async def get_user_game_status(user=Depends(get_current_user), session: AsyncSes
     status = {
         "binary_brain": {"played": False, "score": 0},
         "patch_master": {"played": False, "score": 0},
-        "it_match": {"played": False, "score": 0}
+        "it_match": {"played": False, "score": 0},
+        "text_match": {"played": False, "score": 0}
     }
     
     for s in scores:
