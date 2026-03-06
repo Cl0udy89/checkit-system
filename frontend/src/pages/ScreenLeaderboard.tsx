@@ -5,6 +5,71 @@ import { Trophy, Zap } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import sparkSomeLogo from '../assets/sparkSomeLogo_Black.png'
 
+// ─── Neon ambient background ──────────────────────────────────────────────────
+// Rendered at z-[0], content at z-[10] – bypasses the body/stacking-context
+// issue that hides `z-[-1]` global InteractiveBackground on TV display.
+// Uses only CSS `transform` animations (compositor layer, zero repaint cost).
+// No backdrop-blur, no canvas – safe for low-power TV hardware.
+const NeonBackground = memo(() => (
+    <>
+        <style>{`
+            @keyframes nb1{0%,100%{transform:translate(0px,0px) scale(1)}50%{transform:translate(70px,-45px) scale(1.08)}}
+            @keyframes nb2{0%,100%{transform:translate(0px,0px)}33%{transform:translate(-55px,40px)}66%{transform:translate(50px,-30px)}}
+            @keyframes nb3{0%,100%{transform:translate(0px,0px) scale(1)}50%{transform:translate(-35px,55px) scale(0.94)}}
+            @keyframes nb4{0%,100%{transform:translate(0px,0px)}50%{transform:translate(40px,35px)}}
+        `}</style>
+        {/* Fixed full-viewport background layer – always behind content (z-[0] < z-[10]) */}
+        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#080c10]">
+            {/* Green blob – primary accent, top-left */}
+            <div style={{
+                position: 'absolute', top: '6%', left: '12%',
+                width: '42vw', height: '42vw', maxWidth: 620, maxHeight: 620,
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(0,255,65,0.28) 0%, rgba(0,255,65,0.06) 55%, transparent 80%)',
+                filter: 'blur(80px)',
+                animation: 'nb1 14s ease-in-out infinite',
+                willChange: 'transform',
+            }} />
+            {/* Blue blob – bottom-right */}
+            <div style={{
+                position: 'absolute', bottom: '4%', right: '7%',
+                width: '52vw', height: '52vw', maxWidth: 720, maxHeight: 720,
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(37,99,235,0.22) 0%, rgba(37,99,235,0.05) 55%, transparent 80%)',
+                filter: 'blur(100px)',
+                animation: 'nb2 20s ease-in-out infinite',
+                willChange: 'transform',
+            }} />
+            {/* Purple blob – center */}
+            <div style={{
+                position: 'absolute', top: '32%', left: '36%',
+                width: '38vw', height: '38vw', maxWidth: 560, maxHeight: 560,
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(147,51,234,0.18) 0%, rgba(147,51,234,0.04) 55%, transparent 80%)',
+                filter: 'blur(90px)',
+                animation: 'nb3 11s ease-in-out infinite',
+                willChange: 'transform',
+            }} />
+            {/* Cyan accent – mid-left */}
+            <div style={{
+                position: 'absolute', top: '50%', left: '2%',
+                width: '28vw', height: '28vw', maxWidth: 400, maxHeight: 400,
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(6,182,212,0.14) 0%, transparent 75%)',
+                filter: 'blur(70px)',
+                animation: 'nb4 9s ease-in-out infinite',
+                willChange: 'transform',
+            }} />
+            {/* Subtle grid overlay for tech aesthetic */}
+            <div style={{
+                position: 'absolute', inset: 0, opacity: 0.025,
+                backgroundImage: 'linear-gradient(to right,#fff 1px,transparent 1px),linear-gradient(to bottom,#fff 1px,transparent 1px)',
+                backgroundSize: '40px 40px',
+            }} />
+        </div>
+    </>
+))
+
 // ─── Leaderboard section ───────────────────────────────────────────────────────
 // memo + defined outside parent → never remounts on pmQueue re-render
 const Section = memo(({ title, list }: { title: string; list: any[] }) => (
@@ -171,7 +236,7 @@ export default function ScreenLeaderboard() {
     ), [data?.grandmaster])
 
     if (isLoading) return (
-        <div className="p-10 text-center font-mono text-2xl h-screen flex items-center justify-center bg-black text-white">
+        <div className="fixed inset-0 flex items-center justify-center bg-[#080c10] font-mono text-2xl text-white">
             SYNCHRONIZACJA WYNIKÓW...
         </div>
     )
@@ -183,40 +248,46 @@ export default function ScreenLeaderboard() {
     const isFinishedMode = !isPlaying && finishedData !== null
 
     return (
-        <div className="h-screen w-screen overflow-hidden p-4 xl:p-8 flex flex-col absolute top-0 left-0 right-0 bottom-0 z-10">
+        <>
+            {/* NeonBackground at z-[0] – always below content at z-[10] */}
+            <NeonBackground />
 
-            {/* Header – plain div, no Framer Motion entrance animation */}
-            <div className="flex flex-col items-center w-full mb-6 xl:mb-10 shrink-0 relative z-10">
-                <div className="flex items-center w-full relative justify-center mb-4">
-                    <div className="absolute left-0">
-                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-10 md:h-12 lg:h-16 xl:h-20 2xl:h-24 w-auto invert" />
+            {/* Content layer at z-[10] – sits above NeonBackground */}
+            <div className="fixed inset-0 overflow-hidden p-4 xl:p-8 flex flex-col z-10">
+
+                {/* Header */}
+                <div className="flex flex-col items-center w-full mb-6 xl:mb-10 shrink-0">
+                    <div className="flex items-center w-full relative justify-center mb-4">
+                        <div className="absolute left-0">
+                            <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-10 md:h-12 lg:h-16 xl:h-20 2xl:h-24 w-auto invert" />
+                        </div>
+                        <h1 className="text-4xl md:text-5xl xl:text-6xl 2xl:text-7xl font-mono font-bold text-white tracking-tighter w-full text-center">
+                            RANKING OGÓLNY
+                        </h1>
                     </div>
-                    <h1 className="text-4xl md:text-5xl xl:text-6xl 2xl:text-7xl font-mono font-bold text-white tracking-tighter w-full text-center">
-                        RANKING OGÓLNY
-                    </h1>
+                    {data?.leaderboard_message && (
+                        <div className="text-2xl xl:text-4xl font-bold font-mono text-accent px-8 py-4 bg-accent/20 border-2 border-accent rounded-xl shadow-[0_0_30px_rgba(243,234,95,0.6)] text-center">
+                            {data.leaderboard_message}
+                        </div>
+                    )}
                 </div>
-                {data?.leaderboard_message && (
-                    <div className="text-2xl xl:text-4xl font-bold font-mono text-accent px-8 py-4 bg-accent/20 border-2 border-accent rounded-xl shadow-[0_0_30px_rgba(243,234,95,0.6)] text-center">
-                        {data.leaderboard_message}
-                    </div>
-                )}
+
+                {grandmasterSection}
+
+                {/* Section grid */}
+                <div className="flex-1 flex gap-4 xl:gap-8 min-h-0">
+                    <div className="flex-1 min-h-0"><Section title="BINARY BRAIN" list={data?.binary_brain || []} /></div>
+                    <div className="flex-1 min-h-0"><Section title="PATCH MASTER" list={data?.patch_master || []} /></div>
+                    <div className="flex-1 min-h-0"><Section title="IT MATCH" list={data?.it_match || []} /></div>
+                    <div className="flex-1 min-h-0"><Section title="TEXT MATCH" list={data?.text_match || []} /></div>
+                </div>
             </div>
 
-            {grandmasterSection}
-
-            {/* Section grid – plain div, no Framer Motion */}
-            <div className="flex-1 flex gap-4 xl:gap-8 min-h-0 relative z-10">
-                <div className="flex-1 min-h-0"><Section title="BINARY BRAIN" list={data?.binary_brain || []} /></div>
-                <div className="flex-1 min-h-0"><Section title="PATCH MASTER" list={data?.patch_master || []} /></div>
-                <div className="flex-1 min-h-0"><Section title="IT MATCH" list={data?.it_match || []} /></div>
-                <div className="flex-1 min-h-0"><Section title="TEXT MATCH" list={data?.text_match || []} /></div>
-            </div>
-
-            {/* ── Live Patch Master Overlay ──────────────────────────────────────────
+            {/* ── Live Patch Master Overlay ─────────────────────────────────────────
                 fixed inset-0 → always viewport-centred, unaffected by parent flex.
                 Framer Motion used ONLY here (infrequent: appears/disappears ~2×/game).
                 bg-black/60 wrapper dims the leaderboard cheaply without backdrop-blur.
-                Inner div: simple easeOut tween (cheaper than spring on low-end CPU).   */}
+                Inner div: simple easeOut tween (cheaper than spring on low-end CPU). */}
             <AnimatePresence>
                 {overlayVisible && displayPlayer && (
                     <motion.div
@@ -270,6 +341,6 @@ export default function ScreenLeaderboard() {
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </>
     )
 }
