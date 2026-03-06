@@ -24,7 +24,7 @@ const StaticBackground = memo(() => (
 // memo + defined outside parent → never remounts on pmQueue re-render
 const Section = memo(({ title, list }: { title: string; list: any[] }) => (
     <div className="bg-surface/80 border border-gray-700 rounded-lg p-4 xl:p-6 shadow-lg h-full flex flex-col">
-        <h3 className="text-xl xl:text-2xl font-mono font-bold text-primary mb-4 border-b border-gray-800 pb-2 shrink-0">{title}</h3>
+        <h3 className="text-xl xl:text-2xl 2xl:text-3xl font-mono font-bold text-primary mb-4 border-b border-gray-800 pb-2 shrink-0">{title}</h3>
         <div className="flex justify-between text-xs xl:text-sm text-gray-500 font-mono mb-2 px-2 shrink-0">
             <span>POZYCJA / NICK</span>
             <span>SCORE</span>
@@ -32,21 +32,21 @@ const Section = memo(({ title, list }: { title: string; list: any[] }) => (
         <div className="flex-1 overflow-hidden relative flex flex-col">
             <div className={`flex flex-col gap-0 w-full shrink-0 ${list?.length > 6 ? 'animate-scroll' : ''}`}>
                 {list?.map((entry, idx) => (
-                    <div key={`item-${idx}`} className="flex justify-between items-center font-mono text-base xl:text-lg border-b border-gray-800/50 pb-1 xl:pb-2 last:border-0 px-2 py-1 rounded shrink-0">
+                    <div key={`item-${idx}`} className="flex justify-between items-center font-mono text-base xl:text-xl 2xl:text-2xl border-b border-gray-800/50 pb-1 xl:pb-2 last:border-0 px-2 py-1 rounded shrink-0">
                         <span className="text-gray-300 flex items-center gap-2 truncate flex-1 min-w-0 mr-4">
-                            <span className={`font-bold ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
+                            <span className={`font-bold shrink-0 ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
                             <span className="truncate">{entry.nick}</span>
                         </span>
-                        <span className="text-white font-bold text-lg xl:text-xl shrink-0">{entry.score} SCORE</span>
+                        <span className="text-white font-bold text-lg xl:text-xl 2xl:text-2xl shrink-0">{entry.score} SCORE</span>
                     </div>
                 ))}
                 {list?.length > 6 && list.map((entry, idx) => (
-                    <div key={`dup-${idx}`} className="flex justify-between items-center font-mono text-base xl:text-lg border-b border-gray-800/50 pb-1 xl:pb-2 last:border-0 px-2 py-1 rounded shrink-0">
+                    <div key={`dup-${idx}`} className="flex justify-between items-center font-mono text-base xl:text-xl 2xl:text-2xl border-b border-gray-800/50 pb-1 xl:pb-2 last:border-0 px-2 py-1 rounded shrink-0">
                         <span className="text-gray-300 flex items-center gap-2 truncate flex-1 min-w-0 mr-4">
-                            <span className={`font-bold ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
+                            <span className={`font-bold shrink-0 ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
                             <span className="truncate">{entry.nick}</span>
                         </span>
-                        <span className="text-white font-bold text-lg xl:text-xl shrink-0">{entry.score} SCORE</span>
+                        <span className="text-white font-bold text-lg xl:text-xl 2xl:text-2xl shrink-0">{entry.score} SCORE</span>
                     </div>
                 ))}
             </div>
@@ -148,7 +148,7 @@ export default function ScreenLeaderboard() {
         <div className="flex-none h-[45%] mb-6 relative z-10">
             <div className="bg-surface/60 border-4 border-accent/50 rounded-2xl p-4 xl:p-8 shadow-[0_0_50px_rgba(243,234,95,0.1)] h-full flex flex-col relative overflow-hidden">
                 <div className="relative z-10 flex flex-col h-full">
-                    <h3 className="text-2xl xl:text-4xl font-mono font-extrabold text-accent mb-4 xl:mb-6 border-b-2 border-accent/30 pb-2 xl:pb-4 shrink-0">
+                    <h3 className="text-2xl xl:text-3xl 2xl:text-4xl font-mono font-extrabold text-accent mb-4 xl:mb-6 border-b-2 border-accent/30 pb-2 xl:pb-4 shrink-0">
                         TOP SCORE: ALL GAMES
                     </h3>
                     <div className="flex-1 flex gap-4 xl:gap-8 justify-center overflow-hidden">
@@ -156,10 +156,10 @@ export default function ScreenLeaderboard() {
                             <div className="flex-1 flex flex-col items-center justify-center p-4 border-2 border-yellow-400/50 shadow-[0_0_30px_rgba(255,215,0,0.2)] bg-yellow-400/10 rounded-xl h-full relative">
                                 <Trophy size={64} className="text-yellow-400 mb-2" />
                                 <div className="flex items-center justify-center gap-4 w-full mb-4">
-                                    <span className="text-yellow-400 font-black text-6xl">#1</span>
-                                    <span className="text-white font-bold text-4xl xl:text-5xl truncate">{data.grandmaster[0].nick}</span>
+                                    <span className="text-yellow-400 font-black text-5xl 2xl:text-6xl shrink-0">#1</span>
+                                    <span className="text-white font-bold text-3xl xl:text-4xl 2xl:text-5xl truncate">{data.grandmaster[0].nick}</span>
                                 </div>
-                                <span className="text-yellow-400 font-black text-4xl xl:text-5xl">{data.grandmaster[0].score} SCORE</span>
+                                <span className="text-yellow-400 font-black text-3xl xl:text-4xl 2xl:text-5xl">{data.grandmaster[0].score} SCORE</span>
                             </div>
                         )}
                         <div className="flex-1 flex flex-col gap-4 justify-center">
@@ -171,10 +171,10 @@ export default function ScreenLeaderboard() {
                                         className="flex-1 flex justify-between items-center font-mono border border-accent/20 p-4 xl:p-6 rounded-xl bg-surface/40"
                                     >
                                         <span className="text-gray-100 flex items-center gap-4 flex-1 min-w-0 mr-4">
-                                            <span className={`font-black text-4xl xl:text-5xl shrink-0 ${idx === 1 ? 'text-gray-400' : 'text-amber-700'}`}>#{idx + 1}</span>
-                                            <span className="text-2xl xl:text-3xl truncate">{entry.nick}</span>
+                                            <span className={`font-black text-3xl xl:text-4xl 2xl:text-5xl shrink-0 ${idx === 1 ? 'text-gray-400' : 'text-amber-700'}`}>#{idx + 1}</span>
+                                            <span className="text-xl xl:text-2xl 2xl:text-3xl truncate">{entry.nick}</span>
                                         </span>
-                                        <span className="text-accent font-black text-3xl xl:text-4xl">{entry.score} SCORE</span>
+                                        <span className="text-accent font-black text-2xl xl:text-3xl 2xl:text-4xl">{entry.score} SCORE</span>
                                     </div>
                                 )
                             })}
@@ -205,9 +205,9 @@ export default function ScreenLeaderboard() {
             <div className="flex flex-col items-center w-full mb-6 xl:mb-10 shrink-0 relative z-10">
                 <div className="flex items-center w-full relative justify-center mb-4">
                     <div className="absolute left-0">
-                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 xl:h-24 invert" />
+                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-10 md:h-12 lg:h-16 xl:h-20 2xl:h-24 w-auto invert" />
                     </div>
-                    <h1 className="text-5xl xl:text-7xl font-mono font-bold text-white tracking-tighter w-full text-center">
+                    <h1 className="text-4xl md:text-5xl xl:text-6xl 2xl:text-7xl font-mono font-bold text-white tracking-tighter w-full text-center">
                         RANKING OGÓLNY
                     </h1>
                 </div>
