@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchPatchPanelState, submitGameScore, fetchPMQueue, joinPMQueue, leavePMQueue, startPMQueue, triggerTimeoutFlash, finishPMGame, api } from '../lib/api'
@@ -23,6 +23,9 @@ export default function PatchMaster() {
     const [lastPlugTime, setLastPlugTime] = useState<number | null>(null)
     const [lastKnownPairs, setLastKnownPairs] = useState<any[] | null>(null)
     const [finalDuration, setFinalDuration] = useState<number | null>(null)
+
+    // Refs for auto-scroll to first disconnected port
+    const portRefs = useRef<(HTMLDivElement | null)[]>([])
 
     // --- QUEUE DATA ---
     const { data: qState } = useQuery({
@@ -176,7 +179,7 @@ export default function PatchMaster() {
                 if (!prevPair.connected && currentPair.connected) {
                     const deltaMs = now - (lastPlugTime || startTime)
                     newDeltas.push({ port: currentPair.gpio, deltaMs, label: currentPair.label })
-                    api.post('/game/patch-master/queue/led', { effect: 'pulse' }).catch(() => { })
+                    api.post('/game/patch-master/queue/led', { effect: 'wire_pulse' }).catch(() => { })
                 }
             })
 
@@ -187,6 +190,18 @@ export default function PatchMaster() {
         }
         setLastKnownPairs(hardwareState.pairs)
     }, [hardwareState?.pairs, gameStartedLocal, isFinished, startTime, lastPlugTime])
+
+    // Auto-scroll to first disconnected port
+    useEffect(() => {
+        if (!gameStartedLocal || isFinished || !hardwareState?.pairs) return
+        const firstDisconnectedIdx = hardwareState.pairs.findIndex((p: any) => !p.connected)
+        if (firstDisconnectedIdx >= 0 && portRefs.current[firstDisconnectedIdx]) {
+            portRefs.current[firstDisconnectedIdx]?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            })
+        }
+    }, [hardwareState?.pairs, gameStartedLocal, isFinished])
 
     // Check Interrupt Condition
     useEffect(() => {
@@ -458,6 +473,7 @@ export default function PatchMaster() {
                     {pairs.map((pair: any, idx: number) => (
                         <div
                             key={idx}
+                            ref={(el) => { portRefs.current[idx] = el }}
                             className={clsx(
                                 "relative bg-surface border-2 p-6 md:p-10 xl:p-12 rounded-2xl flex flex-col items-center justify-center transition-all duration-300",
                                 pair.connected ? "border-primary shadow-[0_0_40px_rgba(0,255,65,0.4)] scale-105" : "border-red-500/30 opacity-80"
@@ -498,7 +514,7 @@ export default function PatchMaster() {
     }
 
     return (
-        <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden md:touch-none overflow-y-auto md:overflow-hidden custom-scrollbar">
+        <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden md:touch-none overflow-y-auto custom-scrollbar">
             {!isFinished && (
                 <button
                     onClick={handleExit}

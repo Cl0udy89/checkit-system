@@ -71,12 +71,9 @@ export default function BinaryBrain() {
                         setAnswers(savedState.answers || {})
                         setAnswerStats(savedState.answerStats || [])
 
-                        // Restore exact timestamp to keep points dropping correctly
-                        if (savedState.questionStartTime) {
-                            setQuestionStartTime(savedState.questionStartTime)
-                        } else {
-                            setQuestionStartTime(Date.now())
-                        }
+                        // Always reset to now – restoring old timestamp would make
+                        // elapsed time huge and trigger instant TIMEOUT on resume.
+                        setQuestionStartTime(Date.now())
                     }
                 } catch (e) {
                     console.error("Error parsing saved state", e)
@@ -354,13 +351,14 @@ export default function BinaryBrain() {
                         {floatingPoints.map(fp => (
                             <motion.div
                                 key={fp.id}
-                                initial={{ opacity: 0, y: 0, scale: 0.5 }}
-                                animate={{ opacity: 1, y: -150, scale: 1.5 }}
-                                exit={{ opacity: 0 }}
-                                className={`absolute font-bold text-4xl md:text-5xl whitespace-nowrap drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
+                                initial={{ opacity: 0, y: 0, scale: 0.4 }}
+                                animate={{ opacity: 1, y: -210, scale: 2.0 }}
+                                exit={{ opacity: 0, scale: 1.5 }}
+                                transition={{ duration: 0.35, ease: 'easeOut' }}
+                                className={`absolute font-black text-5xl md:text-6xl whitespace-nowrap ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_30px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,1)]'}`}
                             >
                                 {fp.val > 0 ? `+${fp.val}` : fp.val}
-                                <div className="text-xl md:text-2xl text-center opacity-90 mt-2">{fp.label}</div>
+                                <div className="text-2xl md:text-3xl text-center opacity-90 mt-1 font-bold tracking-widest">{fp.label}</div>
                             </motion.div>
                         ))}
                     </AnimatePresence>
@@ -372,8 +370,13 @@ export default function BinaryBrain() {
                         initial={{ opacity: 0, x: 50 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -50 }}
-                        className={`bg-surface border p-4 md:p-8 rounded-lg shadow-2xl relative ${gameState === 'feedback' ? (lastAnswerCorrect ? 'border-green-500/50 bg-green-900/10' : 'border-red-500/50 bg-red-900/10') : 'border-gray-700'}`}
+                        className={`bg-surface border p-4 md:p-8 rounded-lg shadow-2xl relative overflow-hidden ${gameState === 'feedback' ? (lastAnswerCorrect ? 'border-green-500/50 bg-green-900/10' : 'border-red-500/50 bg-red-900/10') : 'border-gray-700'}`}
                     >
+                        {/* Feedback dim overlay – dims card so floating points are prominent */}
+                        {gameState === 'feedback' && (
+                            <div className="absolute inset-0 bg-black/55 z-40 rounded-lg pointer-events-none transition-opacity duration-200" />
+                        )}
+
                         <div className="absolute top-0 right-0 bg-gray-800 px-2 py-1 md:px-3 text-[10px] md:text-xs font-mono rounded-bl-lg">
                             Q: {currentQIndex + 1} / {questions.length}
                         </div>

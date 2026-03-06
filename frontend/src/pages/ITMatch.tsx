@@ -234,7 +234,7 @@ export default function ITMatch() {
         const incorrectCount = stats.length - correctCount
 
         return (
-            <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col justify-center items-center relative md:touch-none overflow-x-hidden overflow-y-auto custom-scrollbar">
+            <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col items-center relative md:touch-none overflow-x-hidden overflow-y-auto custom-scrollbar pt-8 md:pt-12">
                 <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center drop-shadow-[0_0_15px_rgba(74,222,128,0.8)]">LICZENIE PUNKTÓW...</h1>
 
                 <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8">
@@ -280,7 +280,7 @@ export default function ITMatch() {
     return (
         <div className="h-[100dvh] bg-transparent flex flex-col items-center justify-between p-2 md:p-4 relative touch-none select-none overflow-hidden">
             {/* HUD */}
-            <div className="w-full max-w-lg flex justify-between items-start mb-2 md:mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative px-2">
+            <div className="w-full max-w-lg md:max-w-xl lg:max-w-3xl flex justify-between items-start mb-2 md:mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative px-2">
                 <div className="flex flex-col gap-1 md:gap-2 shrink-0">
                     <h1 className="text-base md:text-2xl font-mono text-primary flex items-center gap-1 md:gap-2">
                         <Search size={18} className="md:w-6 md:h-6 shrink-0" /> IT_MATCH
@@ -290,18 +290,18 @@ export default function ITMatch() {
                 <div className="flex gap-3 md:gap-8 text-right shrink-0">
                     <div className="flex flex-col items-end">
                         <div className="text-[9px] md:text-xs text-gray-500 font-mono">WYNIK ({currentIndex + 1}/{questions.length})</div>
-                        <div className="text-xl md:text-4xl font-mono font-bold text-accent">{score}</div>
+                        <div className="text-xl md:text-4xl lg:text-5xl font-mono font-bold text-accent">{score}</div>
                     </div>
                     <div className="flex flex-col items-end">
                         <div className="text-[9px] md:text-xs text-gray-500 font-mono">PULA</div>
-                        <div className="text-2xl md:text-5xl font-mono font-bold tracking-widest text-shadow-neon text-white">
+                        <div className="text-2xl md:text-5xl lg:text-6xl font-mono font-bold tracking-widest text-shadow-neon text-white">
                             {currentPotentialScore.toString().padStart(4, '0')}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="flex-1 w-full max-w-md relative flex justify-center items-center my-2 min-h-0">
+            <div className="flex-1 w-full max-w-md lg:max-w-2xl relative flex justify-center items-center my-2 min-h-0">
                 <AnimatePresence>
                     {floatingPoints.map(fp => (
                         <motion.div
@@ -328,7 +328,7 @@ export default function ITMatch() {
                 </AnimatePresence>
             </div>
 
-            <div className="flex gap-4 w-full max-w-md mb-2 md:mb-4 z-10 shrink-0">
+            <div className="flex gap-4 w-full max-w-md lg:max-w-2xl mb-2 md:mb-4 z-10 shrink-0">
                 <button
                     onClick={() => document.dispatchEvent(new CustomEvent('manual-swipe', { detail: 'left' }))}
                     className="flex-1 bg-red-600/80 hover:bg-red-500 py-3 md:py-4 rounded-full flex justify-center items-center"
@@ -396,7 +396,7 @@ function Card({ question, onSwipe, gameState }: { question: Question, onSwipe: (
                 )}
             </div>
 
-            <h3 className="text-lg md:text-2xl font-bold text-white mb-2 md:mb-4 z-10 select-none pointer-events-none line-clamp-4">{question.question}</h3>
+            <h3 className="text-lg md:text-2xl lg:text-3xl font-bold text-white mb-2 md:mb-4 z-10 select-none pointer-events-none line-clamp-4">{question.question}</h3>
         </motion.div>
     )
 }
