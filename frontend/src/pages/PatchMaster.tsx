@@ -351,38 +351,38 @@ export default function PatchMaster() {
         const isSuccess = currentScore > 0
 
         return (
-            <div className="flex-1 flex flex-col items-center justify-center w-full max-w-4xl mx-auto z-10 p-2 md:p-4 overflow-x-hidden overflow-y-auto md:overflow-hidden md:touch-none custom-scrollbar">
+            <div className="flex-1 flex flex-col items-center justify-center w-full max-w-7xl mx-auto z-10 p-2 md:p-8 overflow-x-hidden overflow-y-auto custom-scrollbar">
                 <h1 className={`text-4xl md:text-5xl font-mono font-bold mb-4 md:mb-8 text-center drop-shadow-md z-20 ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>
                     {isSuccess ? 'ZADANIE UKOŃCZONE' : 'CZAS MINĄŁ'}
                 </h1>
 
                 <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full z-20 relative mb-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-4 md:mb-8">
-                        <div className="text-center p-4 md:p-6 border border-gray-700 rounded-lg bg-black/50">
-                            <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">WYNIK KOŃCOWY</div>
-                            <div className="text-4xl md:text-5xl font-bold text-accent font-mono">{currentScore}</div>
+                        <div className="text-center p-4 md:p-8 border border-gray-700 rounded-lg bg-black/50">
+                            <div className="text-gray-400 font-mono mb-2 text-sm md:text-xl">WYNIK KOŃCOWY</div>
+                            <div className="text-5xl md:text-7xl xl:text-8xl font-bold text-accent font-mono">{currentScore}</div>
                         </div>
-                        <div className="text-center p-4 md:p-6 border border-gray-700 rounded-lg bg-black/50">
-                            <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">CAŁKOWITY CZAS</div>
-                            <div className="text-4xl md:text-5xl font-bold text-white font-mono">{finalDuration ? (finalDuration / 1000).toFixed(2) : '---'}s</div>
+                        <div className="text-center p-4 md:p-8 border border-gray-700 rounded-lg bg-black/50">
+                            <div className="text-gray-400 font-mono mb-2 text-sm md:text-xl">CAŁKOWITY CZAS</div>
+                            <div className="text-5xl md:text-7xl xl:text-8xl font-bold text-white font-mono">{finalDuration ? (finalDuration / 1000).toFixed(2) : '---'}s</div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-8">
-                        <div className="p-3 md:p-4 border border-green-900/50 bg-green-900/10 rounded-lg flex flex-col items-center text-center">
-                            <div className="text-[10px] md:text-xs text-green-500/80 mb-2 font-mono">NAJSZYBSZE WPIĘCIE</div>
-                            <div className="text-xl md:text-2xl font-bold text-green-400 font-mono mb-1">{fastestPlug ? (fastestPlug.deltaMs / 1000).toFixed(2) + 's' : '---'}</div>
-                            <div className="text-[10px] md:text-sm text-gray-500 font-mono">{fastestPlug ? `Port: ${fastestPlug.label}` : ''}</div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-6 mb-4 md:mb-8">
+                        <div className="p-3 md:p-6 border border-green-900/50 bg-green-900/10 rounded-lg flex flex-col items-center text-center">
+                            <div className="text-xs md:text-base text-green-500/80 mb-2 font-mono">NAJSZYBSZE WPIĘCIE</div>
+                            <div className="text-2xl md:text-4xl font-bold text-green-400 font-mono mb-2">{fastestPlug ? (fastestPlug.deltaMs / 1000).toFixed(2) + 's' : '---'}</div>
+                            <div className="text-xs md:text-lg text-gray-500 font-mono">{fastestPlug ? `Port: ${fastestPlug.label}` : ''}</div>
                         </div>
-                        <div className="p-3 md:p-4 border border-red-900/50 bg-red-900/10 rounded-lg flex flex-col items-center text-center">
-                            <div className="text-[10px] md:text-xs text-red-500/80 mb-2 font-mono">NAJDŁUŻSZE ZASTANOWIENIE</div>
-                            <div className="text-xl md:text-2xl font-bold text-red-400 font-mono mb-1">{slowestPlug ? (slowestPlug.deltaMs / 1000).toFixed(2) + 's' : '---'}</div>
-                            <div className="text-[10px] md:text-sm text-gray-500 font-mono">{slowestPlug ? `Port: ${slowestPlug.label}` : ''}</div>
+                        <div className="p-3 md:p-6 border border-red-900/50 bg-red-900/10 rounded-lg flex flex-col items-center text-center">
+                            <div className="text-xs md:text-base text-red-500/80 mb-2 font-mono">NAJDŁUŻSZE ZASTANOWIENIE</div>
+                            <div className="text-2xl md:text-4xl font-bold text-red-400 font-mono mb-2">{slowestPlug ? (slowestPlug.deltaMs / 1000).toFixed(2) + 's' : '---'}</div>
+                            <div className="text-xs md:text-lg text-gray-500 font-mono">{slowestPlug ? `Port: ${slowestPlug.label}` : ''}</div>
                         </div>
-                        <div className="p-3 md:p-4 border border-blue-900/50 bg-blue-900/10 rounded-lg flex flex-col items-center text-center">
-                            <div className="text-[10px] md:text-xs text-blue-500/80 mb-2 font-mono">ŚREDNI CZAS AKCJI</div>
-                            <div className="text-xl md:text-2xl font-bold text-blue-400 font-mono mb-1">{avgPlug ? (avgPlug / 1000).toFixed(2) + 's' : '---'}</div>
-                            <div className="text-[10px] md:text-sm text-gray-500 font-mono">na pojedynczy port</div>
+                        <div className="p-3 md:p-6 border border-blue-900/50 bg-blue-900/10 rounded-lg flex flex-col items-center text-center">
+                            <div className="text-xs md:text-base text-blue-500/80 mb-2 font-mono">ŚREDNI CZAS AKCJI</div>
+                            <div className="text-2xl md:text-4xl font-bold text-blue-400 font-mono mb-2">{avgPlug ? (avgPlug / 1000).toFixed(2) + 's' : '---'}</div>
+                            <div className="text-xs md:text-lg text-gray-500 font-mono">na pojedynczy port</div>
                         </div>
                     </div>
                 </div>
@@ -438,7 +438,7 @@ export default function PatchMaster() {
         ]
 
         return (
-            <div className="flex-1 flex flex-col w-full max-w-4xl mx-auto z-10 relative">
+            <div className="flex-1 flex flex-col w-full max-w-[90vw] xl:max-w-[80vw] mx-auto z-10 relative mt-4 md:mt-8">
                 <div className="w-full flex justify-between items-start mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative">
                     <div className="flex flex-col gap-1 md:gap-2 shrink-0">
                         <h1 className="text-base md:text-2xl font-mono text-accent flex items-center gap-1 md:gap-2">
@@ -447,40 +447,40 @@ export default function PatchMaster() {
                         <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-4 md:h-6 w-auto object-contain invert opacity-70" />
                     </div>
                     <div className="flex flex-col items-end shrink-0">
-                        <div className="text-xs md:text-sm text-gray-500 font-mono">AKTUALNY WYNIK</div>
-                        <div className="text-4xl md:text-8xl font-mono font-bold text-white tracking-widest text-shadow-neon">
+                        <div className="text-sm md:text-2xl text-gray-500 font-mono mb-2">AKTUALNY WYNIK</div>
+                        <div className="text-6xl md:text-9xl xl:text-[160px] leading-none font-mono font-black text-white tracking-widest text-shadow-neon">
                             {currentScore.toString().padStart(5, '0')}
                         </div>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 xl:gap-12 mt-4 md:mt-8">
                     {pairs.map((pair: any, idx: number) => (
                         <div
                             key={idx}
                             className={clsx(
-                                "relative bg-surface border-2 p-4 md:p-6 rounded-lg flex flex-col items-center justify-center transition-all duration-300",
-                                pair.connected ? "border-primary shadow-[0_0_20px_rgba(0,255,65,0.3)]" : "border-red-500/30 opacity-80"
+                                "relative bg-surface border-2 p-6 md:p-10 xl:p-12 rounded-2xl flex flex-col items-center justify-center transition-all duration-300",
+                                pair.connected ? "border-primary shadow-[0_0_40px_rgba(0,255,65,0.4)] scale-105" : "border-red-500/30 opacity-80"
                             )}
                         >
-                            <div className="text-xs font-mono text-gray-500 mb-2">{pair.label}</div>
+                            <div className="text-sm md:text-xl xl:text-2xl font-mono text-gray-500 mb-4">{pair.label}</div>
                             <div className={clsx(
-                                "w-4 h-4 rounded-full mb-2 md:mb-4",
-                                pair.connected ? "bg-primary animate-pulse" : "bg-red-900"
+                                "w-6 h-6 md:w-10 md:h-10 xl:w-12 xl:h-12 rounded-full mb-4 md:mb-6",
+                                pair.connected ? "bg-primary animate-pulse shadow-[0_0_20px_rgba(0,255,65,1)]" : "bg-red-900"
                             )}></div>
-                            <div className="font-bold text-white font-mono text-sm md:text-base mb-1">
+                            <div className="font-black text-white font-mono text-lg md:text-2xl xl:text-3xl mb-2">
                                 {pair.connected ? "POŁĄCZONY" : "ROZŁĄCZONY"}
                             </div>
-                            <div className="text-[14px] md:text-lg font-mono text-yellow-400 bg-black/80 px-3 py-2 rounded font-bold mt-2 border border-yellow-500/50 text-center shadow-[0_0_10px_rgba(234,179,8,0.2)]">
+                            <div className="text-base md:text-2xl xl:text-3xl font-mono text-yellow-400 bg-black/80 px-4 py-3 xl:px-6 xl:py-4 rounded-xl font-black mt-4 border-2 border-yellow-500/50 text-center shadow-[0_0_20px_rgba(234,179,8,0.3)] w-full break-normal">
                                 {portInstructions[idx]}
                             </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="mt-8 md:mt-12 text-center text-gray-400 font-mono max-w-lg mx-auto">
-                    <p className="mb-2 md:mb-4">MISJA: Połącz poprawnie wszystkie 8 kabli Patch Cord.</p>
-                    <p>Wskazówki portów znajdują się na fizycznym sprzęcie.</p>
+                <div className="mt-12 md:mt-20 text-center text-gray-400 font-mono w-full">
+                    <p className="mb-2 md:mb-4 text-xl md:text-3xl xl:text-4xl text-white">MISJA: Połącz poprawnie wszystkie 8 kabli Patch Cord.</p>
+                    <p className="text-lg md:text-2xl xl:text-3xl text-gray-500">Wskazówki portów znajdują się na fizycznym sprzęcie oraz na ekranie powyżej.</p>
                 </div>
             </div>
         )
