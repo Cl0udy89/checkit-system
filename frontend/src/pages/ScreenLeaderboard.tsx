@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchLeaderboard, api } from '../lib/api'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 import { Trophy, Zap } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -10,7 +10,7 @@ export default function ScreenLeaderboard() {
     const { data, isLoading } = useQuery({
         queryKey: ['leaderboard'],
         queryFn: fetchLeaderboard,
-        refetchInterval: 5000, // Live updates
+        refetchInterval: 5000,
         refetchIntervalInBackground: true
     })
 
@@ -22,32 +22,60 @@ export default function ScreenLeaderboard() {
     })
 
     const [pmScore, setPmScore] = useState(10000)
-    const [hideOverlay, setHideOverlay] = useState(false)
+    const pmScoreRef = useRef(10000)
 
-    // Effect 1: score animation during gameplay
+    // Saved state shown for 5s after game ends (survives status changes beyond 'finished')
+    const [finishedData, setFinishedData] = useState<{ player: any; score: number } | null>(null)
+
+    const prevStatusRef = useRef<string | undefined>(undefined)
+    const currentPlayerRef = useRef<any>(null)
+    const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+    // Keep player ref fresh so it's available at the moment game ends
+    useEffect(() => {
+        if (pmQueue?.current_player) currentPlayerRef.current = pmQueue.current_player
+    }, [pmQueue?.current_player])
+
+    // Effect 1: live score countdown during gameplay
     useEffect(() => {
         if (pmQueue?.status !== 'playing' || !pmQueue?.start_time) return
         const totalMs = (pmQueue.pm_total_time || 200) * 1000
         const interval = setInterval(() => {
             const elapsed = Date.now() - (pmQueue.start_time * 1000)
             const ratio = elapsed / totalMs
-            setPmScore(Math.floor(Math.max(0, 10000 * (1 - ratio))))
+            const score = Math.floor(Math.max(0, 10000 * (1 - ratio)))
+            setPmScore(score)
+            pmScoreRef.current = score
         }, 30)
         return () => clearInterval(interval)
     }, [pmQueue?.status, pmQueue?.start_time, pmQueue?.pm_total_time])
 
-    // Effect 2: overlay visibility – depends only on status so start_time/pm_total_time
-    // changes during 'finished' state don't cancel the hide timeout
+    // Effect 2: overlay state machine – uses ref-based timer so subsequent status changes
+    // (e.g. admin moving to next player) don't cancel the 5-second result display
     useEffect(() => {
-        if (pmQueue?.status === 'playing') {
-            setHideOverlay(false)
-        } else if (pmQueue?.status === 'finished') {
-            setHideOverlay(false)
-            const t = setTimeout(() => setHideOverlay(true), 5000)
-            return () => clearTimeout(t)
-        } else {
-            setHideOverlay(false)
+        const status = pmQueue?.status
+        const prev = prevStatusRef.current
+        prevStatusRef.current = status
+
+        if (status === 'playing') {
+            // New game started – cancel any leftover result display
+            if (hideTimerRef.current) { clearTimeout(hideTimerRef.current); hideTimerRef.current = null }
+            setFinishedData(null)
+            return
         }
+
+        // Game just ended: either backend says 'finished', or status changed FROM 'playing'
+        // (catches the case where 'finished' is skipped between polls)
+        if (prev === 'playing' || status === 'finished') {
+            if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
+            const player = pmQueue?.current_player ?? currentPlayerRef.current
+            setFinishedData({ player, score: pmScoreRef.current })
+            hideTimerRef.current = setTimeout(() => {
+                setFinishedData(null)
+                hideTimerRef.current = null
+            }, 5000)
+        }
+        // Any other status change: leave finishedData untouched – timer will clear it
     }, [pmQueue?.status])
 
     if (isLoading) return <div className="p-10 text-center animate-pulse font-mono text-2xl h-screen flex items-center justify-center bg-black text-white">SYNCHRONIZACJA WYNIKÓW...</div>
@@ -203,9 +231,18 @@ export default function ScreenLeaderboard() {
             </motion.div>
 
             {/* Live Patch Master Overlay */}
-            <AnimatePresence>
-                {(pmQueue?.status === 'playing' || (pmQueue?.status === 'finished' && !hideOverlay)) && pmQueue?.current_player && (
+            {(() => {
+                const isPlaying = pmQueue?.status === 'playing' && !!pmQueue?.current_player
+                const overlayVisible = isPlaying || finishedData !== null
+                const displayPlayer = isPlaying ? pmQueue.current_player : finishedData?.player
+                const displayScore = isPlaying ? pmScore : (finishedData?.score ?? 0)
+                const isFinishedMode = !isPlaying && finishedData !== null
+
+                return (
+                <AnimatePresence>
+                {overlayVisible && displayPlayer && (
                     <motion.div
+                        key="overlay-wrapper"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -217,25 +254,25 @@ export default function ScreenLeaderboard() {
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.8, opacity: 0 }}
                         transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                        className={`bg-black/90 backdrop-blur-xl border-4 ${pmQueue?.status === 'finished' ? (pmScore >= 5000 ? 'border-green-500 shadow-[0_0_150px_rgba(34,197,94,0.6)]' : 'border-red-500 shadow-[0_0_150px_rgba(239,68,68,0.6)]') : 'border-accent shadow-[0_0_150px_rgba(243,234,95,0.4)]'} p-8 xl:p-12 rounded-3xl flex flex-col items-center gap-4 w-[90vw] max-w-5xl text-center`}
+                        className={`bg-black/90 backdrop-blur-xl border-4 ${isFinishedMode ? (displayScore >= 5000 ? 'border-green-500 shadow-[0_0_150px_rgba(34,197,94,0.6)]' : 'border-red-500 shadow-[0_0_150px_rgba(239,68,68,0.6)]') : 'border-accent shadow-[0_0_150px_rgba(243,234,95,0.4)]'} p-8 xl:p-12 rounded-3xl flex flex-col items-center gap-4 w-[90vw] max-w-5xl text-center`}
                     >
-                        {pmQueue?.status === 'finished' ? (
+                        {isFinishedMode ? (
                             <>
                                 <div className="text-3xl xl:text-4xl font-bold text-gray-300 font-mono uppercase mb-4">GRA ZAKOŃCZONA</div>
-                                <div className="text-6xl xl:text-7xl font-black text-white truncate font-mono mt-2 mb-2">{pmQueue.current_player.nick}</div>
-                                <div className={`text-[100px] xl:text-[140px] leading-none font-black tracking-widest font-mono drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] ${pmScore >= 5000 ? 'text-green-500' : 'text-red-500'}`}>
-                                    {pmScore >= 5000 ? 'WYGRANA!' : 'PRZEGRANA'}
+                                <div className="text-6xl xl:text-7xl font-black text-white truncate font-mono mt-2 mb-2">{displayPlayer.nick}</div>
+                                <div className={`text-[100px] xl:text-[140px] leading-none font-black tracking-widest font-mono drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] ${displayScore >= 5000 ? 'text-green-500' : 'text-red-500'}`}>
+                                    {displayScore >= 5000 ? 'WYGRANA!' : 'PRZEGRANA'}
                                 </div>
-                                <div className="text-4xl font-mono text-white mt-4">{pmScore.toString().padStart(5, '0')} PUNKTÓW</div>
+                                <div className="text-4xl font-mono text-white mt-4">{displayScore.toString().padStart(5, '0')} PUNKTÓW</div>
                             </>
                         ) : (
                             <>
                                 <div className="flex items-center gap-4 text-3xl xl:text-4xl font-bold text-gray-300 font-mono uppercase">
                                     <Zap size={40} className="text-accent animate-pulse" /> GRA W TOKU: PATCH MASTER
                                 </div>
-                                <div className="text-6xl xl:text-7xl font-black text-white truncate font-mono mt-2 mb-2">{pmQueue.current_player.nick}</div>
+                                <div className="text-6xl xl:text-7xl font-black text-white truncate font-mono mt-2 mb-2">{displayPlayer.nick}</div>
                                 <div className="text-[140px] leading-none font-black text-accent tracking-widest font-mono drop-shadow-[0_0_30px_rgba(243,234,95,0.8)]">
-                                    {pmScore.toString().padStart(5, '0')}
+                                    {displayScore.toString().padStart(5, '0')}
                                 </div>
                                 <div className="text-2xl xl:text-3xl font-bold text-red-500 font-mono mt-4 animate-pulse flex items-center gap-3 bg-red-900/40 px-6 py-3 rounded-xl border border-red-500/50">
                                     Musi mieć powyżej 5000 punktów, żeby odebrać nagrodę!
@@ -246,6 +283,8 @@ export default function ScreenLeaderboard() {
                     </motion.div>
                 )}
             </AnimatePresence>
+            )
+        })()}
         </div>
     )
 }
