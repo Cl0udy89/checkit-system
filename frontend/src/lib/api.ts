@@ -98,7 +98,7 @@ export const submitGameScore = async (data: { user_id: number; game_type: string
 }
 
 export const finishPMGame = async () => {
-    const res = await api.post('/queue/patch-master/finish')
+    const res = await api.post('/game/patch-master/queue/finish')
     return res.data
 }
 
