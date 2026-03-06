@@ -5,62 +5,6 @@ import { Trophy, Zap } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import sparkSomeLogo from '../assets/sparkSomeLogo_Black.png'
 
-// ─── Animated ambient background ─────────────────────────────────────────────
-// Lightweight CSS keyframe animations using only `transform` (compositor-only,
-// zero repaint cost). No filter:blur, no Framer Motion rAF loop.
-// Orbs are small radial-gradients that drift gently – visible neon effect
-// without stressing the Radeon HD 8280E (512 MB VRAM, Mesa glamor).
-const AnimatedOrbs = memo(() => (
-    <>
-        <style>{`
-            @keyframes orb1{0%,100%{transform:translate(0px,0px) scale(1)}50%{transform:translate(30px,-22px) scale(1.05)}}
-            @keyframes orb2{0%,100%{transform:translate(0px,0px) scale(1)}33%{transform:translate(-24px,18px) scale(0.97)}66%{transform:translate(20px,-14px) scale(1.03)}}
-            @keyframes orb3{0%,100%{transform:translate(0px,0px)}50%{transform:translate(-20px,28px)}}
-            @keyframes orb4{0%,100%{transform:translate(0px,0px) scale(1)}50%{transform:translate(22px,18px) scale(1.06)}}
-        `}</style>
-        <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-            {/* Base static gradient layer */}
-            <div className="absolute inset-0" style={{
-                background:
-                    'radial-gradient(ellipse 60% 60% at 10% 10%, rgba(99,102,241,0.09) 0%, transparent 70%),' +
-                    'radial-gradient(ellipse 70% 70% at 90% 90%, rgba(243,234,95,0.06) 0%, transparent 70%)',
-            }} />
-            {/* Orb 1 – indigo/purple, top-left */}
-            <div style={{
-                position: 'absolute', top: '4%', left: '6%',
-                width: 220, height: 220, borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(99,102,241,0.26) 0%, rgba(99,102,241,0.07) 50%, transparent 80%)',
-                animation: 'orb1 9s ease-in-out infinite',
-                willChange: 'transform',
-            }} />
-            {/* Orb 2 – yellow/accent, bottom-right */}
-            <div style={{
-                position: 'absolute', bottom: '6%', right: '5%',
-                width: 260, height: 260, borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(243,234,95,0.18) 0%, rgba(243,234,95,0.05) 50%, transparent 80%)',
-                animation: 'orb2 13s ease-in-out infinite',
-                willChange: 'transform',
-            }} />
-            {/* Orb 3 – cyan, mid-right */}
-            <div style={{
-                position: 'absolute', top: '40%', right: '3%',
-                width: 170, height: 170, borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(34,211,238,0.14) 0%, transparent 72%)',
-                animation: 'orb3 7.5s ease-in-out infinite',
-                willChange: 'transform',
-            }} />
-            {/* Orb 4 – red/neon, lower-left */}
-            <div style={{
-                position: 'absolute', bottom: '14%', left: '3%',
-                width: 190, height: 190, borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(239,68,68,0.12) 0%, transparent 72%)',
-                animation: 'orb4 11s ease-in-out infinite',
-                willChange: 'transform',
-            }} />
-        </div>
-    </>
-))
-
 // ─── Leaderboard section ───────────────────────────────────────────────────────
 // memo + defined outside parent → never remounts on pmQueue re-render
 const Section = memo(({ title, list }: { title: string; list: any[] }) => (
@@ -239,8 +183,7 @@ export default function ScreenLeaderboard() {
     const isFinishedMode = !isPlaying && finishedData !== null
 
     return (
-        <div className="h-screen w-screen bg-black/75 overflow-hidden p-4 xl:p-8 flex flex-col absolute top-0 left-0 right-0 bottom-0 z-50">
-            <AnimatedOrbs />
+        <div className="h-screen w-screen overflow-hidden p-4 xl:p-8 flex flex-col absolute top-0 left-0 right-0 bottom-0 z-10">
 
             {/* Header – plain div, no Framer Motion entrance animation */}
             <div className="flex flex-col items-center w-full mb-6 xl:mb-10 shrink-0 relative z-10">
