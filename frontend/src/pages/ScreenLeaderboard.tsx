@@ -54,8 +54,9 @@ export default function ScreenLeaderboard() {
             </div>
             <div className="flex-1 overflow-hidden relative flex flex-col">
                 <div className={`flex flex-col gap-0 w-full shrink-0 ${list?.length > 6 ? 'animate-scroll' : ''}`}>
+                    {/* Primary List */}
                     {list?.map((entry, idx) => (
-                        <div key={idx} className="flex justify-between items-center font-mono text-base xl:text-lg border-b border-gray-800/50 pb-1 xl:pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded shrink-0">
+                        <div key={`item-${idx}`} className="flex justify-between items-center font-mono text-base xl:text-lg border-b border-gray-800/50 pb-1 xl:pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded shrink-0">
                             <span className="text-gray-300 flex items-center gap-2 truncate flex-1 min-w-0 mr-4">
                                 <span className={`font-bold ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
                                 <span className="truncate">{entry.nick}</span>
@@ -63,7 +64,7 @@ export default function ScreenLeaderboard() {
                             <span className="text-white font-bold text-lg xl:text-xl shrink-0">{entry.score} SCORE</span>
                         </div>
                     ))}
-                    {/* Duplicate list for seamless infinite scroll if animating */}
+                    {/* Duplicate List for seamless marquee effect (only if enough items) */}
                     {list?.length > 6 && list.map((entry, idx) => (
                         <div key={`dup-${idx}`} className="flex justify-between items-center font-mono text-base xl:text-lg border-b border-gray-800/50 pb-1 xl:pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded shrink-0">
                             <span className="text-gray-300 flex items-center gap-2 truncate flex-1 min-w-0 mr-4">
