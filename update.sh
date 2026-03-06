@@ -11,11 +11,12 @@ echo ""
 echo "2. Przebudowywanie i uruchamianie kontenerów..."
 # Zapobiega ostrzeżeniom o brakującym pliku .env w Docker Compose
 if [ ! -f ".env" ]; then
-    touch .env
+    cp .env.example .env
 fi
 docker compose down
 docker rm -f checkit-nginx checkit-backend >/dev/null 2>&1 || true
-docker compose up -d --build --no-cache
+docker compose build --no-cache
+docker compose up -d
 
 echo ""
 echo "========================================"
