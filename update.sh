@@ -13,7 +13,9 @@ echo "2. Przebudowywanie i uruchamianie kontenerów..."
 if [ ! -f ".env" ]; then
     touch .env
 fi
-docker compose up -d --build
+docker compose down
+docker rm -f checkit-nginx checkit-backend >/dev/null 2>&1 || true
+docker compose up -d --build --no-cache
 
 echo ""
 echo "========================================"
