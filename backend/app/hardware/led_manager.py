@@ -186,7 +186,7 @@ class LEDManager:
             pass
 
     async def trigger_connection_pulse(self):
-        """Breathing effect from current to Red"""
+        """Breathing effect for successful connection (Green pulse)"""
         if not self.strip or self.current_state in ["solved", "manual"]:
             return
             
@@ -195,15 +195,15 @@ class LEDManager:
         Color = self.color_lib
         
         try:
-            for brightness in range(255, -1, -15):
+            for brightness in range(0, 256, 15):
                 for i in range(self.strip.numPixels()):
-                   self.strip.setPixelColor(i, Color(max(0, brightness), 0, 0))
+                    self.strip.setPixelColor(i, Color(0, min(255, brightness), 0))
                 self.strip.show()
                 await asyncio.sleep(0.01)
                 
-            for brightness in range(0, 256, 15):
+            for brightness in range(255, -1, -15):
                 for i in range(self.strip.numPixels()):
-                    self.strip.setPixelColor(i, Color(min(255, brightness), 0, 0))
+                   self.strip.setPixelColor(i, Color(0, max(0, brightness), 0))
                 self.strip.show()
                 await asyncio.sleep(0.01)
         except asyncio.CancelledError:

@@ -70,13 +70,8 @@ export default function PatchMaster() {
         onSuccess: () => {
             // Stats UI will handle display; don't navigate yet
             // Free the queue for the next player!
-            api.post('/game/patch-master/queue/led', { effect: 'green' }).catch(() => { })
+            // Backend will handle the 'green' LED and 'rainbow' reset inside /finish to prevent race conditions.
             finishPMGame().catch((e) => console.error("Failed to finish PM game", e))
-
-            // Revert back to rainbow after 7 seconds
-            setTimeout(() => {
-                api.post('/game/patch-master/queue/led', { effect: 'rainbow' }).catch(() => { })
-            }, 7000)
         },
         onError: (err: any) => {
             if (err?.response?.status === 403) {
@@ -429,6 +424,17 @@ export default function PatchMaster() {
 
     const renderGameUI = () => {
         const pairs = hardwareState?.pairs || []
+        const portInstructions = [
+            "GÓRA 1 ↔ DÓŁ 24",
+            "GÓRA 5 ↔ DÓŁ 18",
+            "GÓRA 9 ↔ DÓŁ 3",
+            "GÓRA 13 ↔ DÓŁ 13",
+            "GÓRA 16 ↔ DÓŁ 7",
+            "GÓRA 20 ↔ DÓŁ 2",
+            "GÓRA 21 ↔ DÓŁ 23",
+            "GÓRA 22 ↔ DÓŁ 10"
+        ]
+
         return (
             <div className="flex-1 flex flex-col w-full max-w-4xl mx-auto z-10 relative">
                 <div className="w-full flex justify-between items-start mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative">
@@ -463,8 +469,8 @@ export default function PatchMaster() {
                             <div className="font-bold text-white font-mono text-sm md:text-base mb-1">
                                 {pair.connected ? "POŁĄCZONY" : "ROZŁĄCZONY"}
                             </div>
-                            <div className="text-[10px] font-mono text-gray-500 bg-black/40 px-2 py-1 rounded">
-                                GÓRA: {idx + 1} ↔ DÓŁ: {idx + 9}
+                            <div className="text-[14px] md:text-lg font-mono text-yellow-400 bg-black/80 px-3 py-2 rounded font-bold mt-2 border border-yellow-500/50 text-center shadow-[0_0_10px_rgba(234,179,8,0.2)]">
+                                {portInstructions[idx]}
                             </div>
                         </div>
                     ))}

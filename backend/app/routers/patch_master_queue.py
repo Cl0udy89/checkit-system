@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel
 from app.security import get_current_user, get_current_admin
@@ -105,13 +105,31 @@ async def start_game(user: User = Depends(get_current_user)):
     queue_state["status"] = "playing"
     return {"message": "Game started"}
 
+import asyncio
+
+async def delay_reset_to_rainbow():
+    await asyncio.sleep(7)
+    if queue_state["status"] == "available":
+        import app.routers.agent as agent_router
+        from app.routers.agent import pending_led_commands
+        agent_router.current_led_effect = "rainbow"
+        pending_led_commands.append("rainbow")
+
 @router.post("/finish")
-async def finish_player_game(user: User = Depends(get_current_user)):
+async def finish_player_game(background_tasks: BackgroundTasks, user: User = Depends(get_current_user)):
     # Called by frontend right after successful game score submission
     if queue_state["current_player"] and queue_state["current_player"]["id"] == user.id:
         queue_state["current_player"] = None
         queue_state["status"] = "available"
         queue_state["force_solved"] = False
+        
+        import app.routers.agent as agent_router
+        from app.routers.agent import pending_led_commands
+        agent_router.current_led_effect = "green"
+        pending_led_commands.append("green")
+        
+        background_tasks.add_task(delay_reset_to_rainbow)
+        
         return {"message": "Game finished, queue freed"}
     return {"message": "No active game to finish"}
 
@@ -170,6 +188,15 @@ async def set_queue_status(update: AdminStatusUpdate, admin: User = Depends(get_
     if update.status in ["available", "resetting"]:
         queue_state["current_player"] = None
         queue_state["force_solved"] = False
+        
+    import app.routers.agent as agent_router
+    from app.routers.agent import pending_led_commands
+    if update.status == "available":
+        agent_router.current_led_effect = "rainbow"
+        pending_led_commands.append("rainbow")
+    elif update.status == "resetting":
+        agent_router.current_led_effect = "red"
+        pending_led_commands.append("red")
         
     return {"message": f"Status set to {update.status}"}
 
