@@ -67,15 +67,25 @@ export default function ScreenLeaderboard() {
     const { data, isLoading } = useQuery({
         queryKey: ['leaderboard'],
         queryFn: fetchLeaderboard,
-        refetchInterval: 5000,
-        refetchIntervalInBackground: true
+        // Leaderboard rarely changes mid-game – poll every 30 s to avoid unnecessary renders
+        refetchInterval: 30000,
+        staleTime: 25000,
+        refetchIntervalInBackground: true,
     })
 
     const { data: pmQueue } = useQuery({
         queryKey: ['pm_queue_global'],
         queryFn: async () => (await api.get('/game/patch-master/queue')).data,
         refetchInterval: 1000,
-        refetchIntervalInBackground: true
+        refetchIntervalInBackground: true,
+        // Select only the fields we actually use – React Query will skip re-render
+        // when these fields haven't changed (structural equality via replaceEqualDeep)
+        select: (d: any) => ({
+            status: d.status as string | undefined,
+            current_player: d.current_player as any,
+            start_time: d.start_time as number | undefined,
+            pm_total_time: d.pm_total_time as number | undefined,
+        }),
     })
 
     // Score is updated via direct DOM ref (no re-render) for smooth countdown
@@ -249,7 +259,7 @@ export default function ScreenLeaderboard() {
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.8, opacity: 0 }}
                             transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                            className={`bg-black/90 backdrop-blur-xl border-4 ${
+                            className={`bg-black/95 border-4 ${
                                 isFinishedMode
                                     ? displayScore >= 5000
                                         ? 'border-green-500 shadow-[0_0_150px_rgba(34,197,94,0.6)]'

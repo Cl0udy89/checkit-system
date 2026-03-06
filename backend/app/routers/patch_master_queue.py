@@ -120,42 +120,54 @@ async def start_game(user: User = Depends(get_current_user)):
 
 import asyncio
 
-async def delay_reset_to_rainbow():
-    await asyncio.sleep(7)
-    if queue_state["status"] == "available":
+async def revert_led_after_finish_task():
+    """After 5 seconds of green LED (win), auto-revert to rainbow and free the slot."""
+    await asyncio.sleep(5)
+    if queue_state["status"] == "finished":
+        queue_state["status"] = "available"
+        queue_state["current_player"] = None
+        queue_state["start_time"] = None
+        queue_state["force_solved"] = False
         import app.routers.agent as agent_router
         from app.routers.agent import pending_led_commands
         agent_router.current_led_effect = "rainbow"
         pending_led_commands.append("rainbow")
+        logger.info("Auto-reverted: finished → available, LED → rainbow")
 
 @router.post("/finish")
-async def finish_player_game(user: User = Depends(get_current_user)):
+async def finish_player_game(background_tasks: BackgroundTasks, user: User = Depends(get_current_user)):
     # Called by frontend right after successful game score submission
     if queue_state["current_player"] and queue_state["current_player"]["id"] == user.id:
-        # Do not clear current_player immediately, keep them to show "wygrana" screen and hold LED
+        # Do not clear current_player immediately – keep for 5s to show win/loss screen
         queue_state["status"] = "finished"
         queue_state["force_solved"] = False
-        
+
         import app.routers.agent as agent_router
         from app.routers.agent import pending_led_commands
         agent_router.current_led_effect = "green"
         pending_led_commands.append("green")
-        
+
+        # After 5 s: revert LED to rainbow and free the queue slot
+        background_tasks.add_task(revert_led_after_finish_task)
+
         return {"message": "Game finished, user kept in finished status"}
     return {"message": "No active game to finish"}
 
 @router.post("/timeout-flash")
 async def trigger_timeout_flash(user: User = Depends(get_current_user)):
-    # Flashes the physical LED red for 5 seconds when a user runs out of time
-    from app.hardware.led_manager import led_manager
-    led_manager.play_effect("timeout_red")
-    
-    # Also kick the user and free the game
+    # Flashes the physical LED red for 5 seconds when a user runs out of time.
+    # Uses the agent queue (same path as green/rainbow) so the RPi agent picks it up.
+    import app.routers.agent as agent_router
+    from app.routers.agent import pending_led_commands
+    agent_router.current_led_effect = "timeout_red"
+    pending_led_commands.append("timeout_red")
+
+    # Kick the user and free the game slot
     if queue_state["current_player"] and queue_state["current_player"]["id"] == user.id:
         queue_state["current_player"] = None
         queue_state["status"] = "available"
         queue_state["start_time"] = None
-        
+
     return {"message": "LED timeout flash triggered and game reset"}
 
 class LEDCommand(BaseModel):
