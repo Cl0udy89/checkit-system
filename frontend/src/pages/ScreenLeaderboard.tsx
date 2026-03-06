@@ -10,26 +10,36 @@ export default function ScreenLeaderboard() {
     const { data, isLoading } = useQuery({
         queryKey: ['leaderboard'],
         queryFn: fetchLeaderboard,
-        refetchInterval: 5000 // Live updates
+        refetchInterval: 5000, // Live updates
+        refetchIntervalInBackground: true
     })
 
     const { data: pmQueue } = useQuery({
         queryKey: ['pm_queue_global'],
         queryFn: async () => (await api.get('/game/patch-master/queue')).data,
-        refetchInterval: 1000
+        refetchInterval: 1000,
+        refetchIntervalInBackground: true
     })
 
     const [pmScore, setPmScore] = useState(10000)
+    const [hideOverlay, setHideOverlay] = useState(false)
 
     useEffect(() => {
         if (pmQueue?.status === 'playing' && pmQueue?.start_time) {
+            setHideOverlay(false) // Reset hide state when a new game starts
             const totalMs = (pmQueue.pm_total_time || 200) * 1000
             const interval = setInterval(() => {
                 const elapsed = Date.now() - (pmQueue.start_time * 1000)
                 const ratio = elapsed / totalMs
                 setPmScore(Math.floor(Math.max(0, 10000 * (1 - ratio))))
-            }, 100)
+            }, 30) // Smooth 33fps update
             return () => clearInterval(interval)
+        } else if (pmQueue?.status === 'finished') {
+            // Keep the overlay visible for 5 seconds after finish to show W/L
+            const t = setTimeout(() => setHideOverlay(true), 5000)
+            return () => clearTimeout(t)
+        } else {
+            setHideOverlay(false)
         }
     }, [pmQueue?.status, pmQueue?.start_time, pmQueue?.pm_total_time])
 
@@ -186,24 +196,37 @@ export default function ScreenLeaderboard() {
 
             {/* Live Patch Master Overlay */}
             <AnimatePresence>
-                {pmQueue?.status === 'playing' && pmQueue?.current_player && (
+                {(pmQueue?.status === 'playing' || (pmQueue?.status === 'finished' && !hideOverlay)) && pmQueue?.current_player && (
                     <motion.div
-                        initial={{ y: 200, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: 200, opacity: 0 }}
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.8, opacity: 0 }}
                         transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                        className="absolute bottom-12 left-1/2 -translate-x-1/2 z-[100] bg-black/80 backdrop-blur-xl border-4 border-accent p-8 xl:p-12 rounded-3xl shadow-[0_0_150px_rgba(243,234,95,0.4)] flex flex-col items-center gap-4 w-[90vw] max-w-5xl"
+                        className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] bg-black/90 backdrop-blur-xl border-4 ${pmQueue?.status === 'finished' ? (pmScore >= 5000 ? 'border-green-500 shadow-[0_0_150px_rgba(34,197,94,0.6)]' : 'border-red-500 shadow-[0_0_150px_rgba(239,68,68,0.6)]') : 'border-accent shadow-[0_0_150px_rgba(243,234,95,0.4)]'} p-8 xl:p-12 rounded-3xl flex flex-col items-center gap-4 w-[90vw] max-w-5xl text-center`}
                     >
-                        <div className="flex items-center gap-4 text-3xl xl:text-4xl font-bold text-gray-300 font-mono uppercase">
-                            <Zap size={40} className="text-accent animate-pulse" /> GRA W TOKU: PATCH MASTER
-                        </div>
-                        <div className="text-6xl xl:text-7xl font-black text-white truncate font-mono mt-2 mb-2">{pmQueue.current_player.nick}</div>
-                        <div className="text-[120px] leading-none font-black text-accent tracking-widest font-mono drop-shadow-[0_0_30px_rgba(243,234,95,0.8)]">
-                            {pmScore.toString().padStart(5, '0')}
-                        </div>
-                        <div className="text-2xl xl:text-3xl font-bold text-red-500 font-mono mt-4 animate-pulse flex items-center gap-3 bg-red-900/40 px-6 py-3 rounded-xl border border-red-500/50">
-                            Musi mieć powyżej 5000 punktów, żeby odebrać nagrodę!
-                        </div>
+                        {pmQueue?.status === 'finished' ? (
+                            <>
+                                <div className="text-3xl xl:text-4xl font-bold text-gray-300 font-mono uppercase mb-4">GRA ZAKOŃCZONA</div>
+                                <div className="text-6xl xl:text-7xl font-black text-white truncate font-mono mt-2 mb-2">{pmQueue.current_player.nick}</div>
+                                <div className={`text-[100px] xl:text-[140px] leading-none font-black tracking-widest font-mono drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] ${pmScore >= 5000 ? 'text-green-500' : 'text-red-500'}`}>
+                                    {pmScore >= 5000 ? 'WYGRANA!' : 'PRZEGRANA'}
+                                </div>
+                                <div className="text-4xl font-mono text-white mt-4">{pmScore.toString().padStart(5, '0')} PUNKTÓW</div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="flex items-center gap-4 text-3xl xl:text-4xl font-bold text-gray-300 font-mono uppercase">
+                                    <Zap size={40} className="text-accent animate-pulse" /> GRA W TOKU: PATCH MASTER
+                                </div>
+                                <div className="text-6xl xl:text-7xl font-black text-white truncate font-mono mt-2 mb-2">{pmQueue.current_player.nick}</div>
+                                <div className="text-[140px] leading-none font-black text-accent tracking-widest font-mono drop-shadow-[0_0_30px_rgba(243,234,95,0.8)]">
+                                    {pmScore.toString().padStart(5, '0')}
+                                </div>
+                                <div className="text-2xl xl:text-3xl font-bold text-red-500 font-mono mt-4 animate-pulse flex items-center gap-3 bg-red-900/40 px-6 py-3 rounded-xl border border-red-500/50">
+                                    Musi mieć powyżej 5000 punktów, żeby odebrać nagrodę!
+                                </div>
+                            </>
+                        )}
                     </motion.div>
                 )}
             </AnimatePresence>
