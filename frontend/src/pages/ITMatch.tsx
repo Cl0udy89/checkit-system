@@ -56,7 +56,7 @@ export default function ITMatch() {
     useEffect(() => {
         if (data && user) {
             let loadedQuestions = [...data]
-            const savedStateStr = localStorage.getItem(`it_match_state_${user.id}`)
+            const savedStateStr = sessionStorage.getItem(`it_match_state_${user.id}`)
 
             if (savedStateStr) {
                 try {
@@ -64,7 +64,7 @@ export default function ITMatch() {
 
                     if (savedState.currentIndex >= savedState.questions?.length) {
                         // Game was finished, restart
-                        localStorage.removeItem(`it_match_state_${user.id}`)
+                        sessionStorage.removeItem(`it_match_state_${user.id}`)
                     } else if (savedState.questions && savedState.questions.length > 0) {
                         setQuestions(savedState.questions)
                         setCurrentIndex(savedState.currentIndex || 0)
@@ -111,7 +111,7 @@ export default function ITMatch() {
                 questionStartTime,
                 questions
             }
-            localStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))
+            sessionStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))
         }
     }, [currentIndex, score, answers, answerStats, questionStartTime, user, questions, gameOver, gameState])
 
@@ -174,7 +174,7 @@ export default function ITMatch() {
                 questionStartTime: Date.now(), // Will be reset on setTimeout anyway
                 questions: questions
             }
-            localStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))
+            sessionStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))
         }
 
         setTimeout(() => {
@@ -192,7 +192,7 @@ export default function ITMatch() {
     const finishGame = async (finalScore: number) => {
         setGameOver(true)
         if (user) {
-            localStorage.removeItem(`it_match_state_${user.id}`)
+            sessionStorage.removeItem(`it_match_state_${user.id}`)
         }
         const endTime = Date.now()
         const duration = endTime - startTime

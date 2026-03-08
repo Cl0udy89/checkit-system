@@ -55,12 +55,12 @@ export default function BinaryBrain() {
     // Load saved progress if available
     useEffect(() => {
         if (questions && user && !hasLoaded) {
-            const savedStateStr = localStorage.getItem(`binary_brain_state_${user.id}`)
+            const savedStateStr = sessionStorage.getItem(`binary_brain_state_${user.id}`)
             if (savedStateStr) {
                 try {
                     const savedState = JSON.parse(savedStateStr)
                     if (savedState.currentQIndex >= questions.length || savedState.finished) {
-                        localStorage.removeItem(`binary_brain_state_${user.id}`)
+                        sessionStorage.removeItem(`binary_brain_state_${user.id}`)
                         setCurrentQIndex(0)
                         setTotalScore(0)
                         setAnswers({})
@@ -98,7 +98,7 @@ export default function BinaryBrain() {
     useEffect(() => {
         if (hasLoaded && user && questions && gameState === 'playing') {
             const stateToSave = { currentQIndex, totalScore, answers, answerStats, questionStartTime }
-            localStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify(stateToSave))
+            sessionStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify(stateToSave))
         }
     }, [hasLoaded, currentQIndex, totalScore, answers, questionStartTime, user, questions, gameState])
 
@@ -187,7 +187,7 @@ export default function BinaryBrain() {
                 answerStats: newAnswerStats,
                 questionStartTime: Date.now()
             }
-            localStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify(nextState))
+            sessionStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify(nextState))
         }
 
         // Wait a bit then move on
@@ -212,7 +212,7 @@ export default function BinaryBrain() {
         setFinalResult({ score: finalScore, boxOpened, stats: finalStats || answerStats })
 
         if (user) {
-            localStorage.removeItem(`binary_brain_state_${user.id}`)
+            sessionStorage.removeItem(`binary_brain_state_${user.id}`)
             submitMutation.mutate({
                 user_id: user.id,
                 game_type: 'binary_brain',

@@ -13,9 +13,36 @@ interface Pair {
     definition: string
 }
 
+interface Particle {
+    id: number
+    x: number
+    y: number
+    vx: number
+    vy: number
+    color: string
+    size: number
+}
+
 const INITIAL_SCORE = 10000
 const WRONG_PENALTY = 500
-const GAME_TIMEOUT_S = 300 // 5-min hidden timeout
+const GAME_TIMEOUT_S = 300
+const PARTICLE_COLORS = ['#4ade80', '#86efac', '#facc15', '#a78bfa', '#60a5fa', '#f87171', '#fb923c']
+
+function spawnBurst(x: number, y: number, count = 14): Particle[] {
+    return Array.from({ length: count }, (_, i) => {
+        const angle = (i / count) * Math.PI * 2
+        const speed = 60 + Math.random() * 80
+        return {
+            id: Date.now() + i + Math.random(),
+            x,
+            y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 40,
+            color: PARTICLE_COLORS[i % PARTICLE_COLORS.length],
+            size: 5 + Math.random() * 5,
+        }
+    })
+}
 
 export default function TextMatch() {
     const navigate = useNavigate()
@@ -38,11 +65,15 @@ export default function TextMatch() {
 
     const [termOrder, setTermOrder] = useState<number[]>([])
     const [defOrder, setDefOrder] = useState<number[]>([])
-
     const [selectedTerm, setSelectedTerm] = useState<number | null>(null)
     const [matched, setMatched] = useState<Set<number>>(new Set())
     const [wrongPair, setWrongPair] = useState<{ term: number; def: number } | null>(null)
     const [submitted, setSubmitted] = useState(false)
+    const [particles, setParticles] = useState<Particle[]>([])
+
+    // Refs for card positions (to spawn particles)
+    const termCardRefs = useRef<Map<number, HTMLDivElement>>(new Map())
+    const defCardRefs = useRef<Map<number, HTMLDivElement>>(new Map())
 
     const pairsById: Record<number, Pair> = {}
     rawPairs?.forEach(p => { pairsById[p.id] = p })
@@ -62,6 +93,25 @@ export default function TextMatch() {
         setTermOrder(shuffle(ids))
         setDefOrder(shuffle(ids))
     }, [rawPairs])
+
+    const fireParticles = (id: number) => {
+        const sources: Particle[] = []
+        const termEl = termCardRefs.current.get(id)
+        const defEl = defCardRefs.current.get(id)
+        if (termEl) {
+            const r = termEl.getBoundingClientRect()
+            sources.push(...spawnBurst(r.left + r.width / 2, r.top + r.height / 2))
+        }
+        if (defEl) {
+            const r = defEl.getBoundingClientRect()
+            sources.push(...spawnBurst(r.left + r.width / 2, r.top + r.height / 2))
+        }
+        if (sources.length === 0) return
+        setParticles(prev => [...prev, ...sources])
+        setTimeout(() => {
+            setParticles(prev => prev.filter(p => !sources.find(s => s.id === p.id)))
+        }, 750)
+    }
 
     const submitMutation = useMutation({
         mutationFn: ({ finalScore }: { finalScore: number }) =>
@@ -84,14 +134,12 @@ export default function TextMatch() {
         }
     }, [submitted])
 
-    // Hidden timeout – ends game after GAME_TIMEOUT_S without showing countdown
     useEffect(() => {
         if (!started || finished) return
-        const timeout = setTimeout(() => endGame(scoreRef.current), GAME_TIMEOUT_S * 1000)
-        return () => clearTimeout(timeout)
+        const t = setTimeout(() => endGame(scoreRef.current), GAME_TIMEOUT_S * 1000)
+        return () => clearTimeout(t)
     }, [started, finished, endGame])
 
-    // Auto-finish when all pairs matched
     useEffect(() => {
         if (!started || finished || !rawPairs) return
         if (matched.size === rawPairs.length && rawPairs.length > 0) {
@@ -110,6 +158,7 @@ export default function TextMatch() {
         if (selectedTerm === null) return
 
         if (selectedTerm === id) {
+            fireParticles(id)
             setMatched(prev => new Set([...prev, id]))
             setSelectedTerm(null)
             setWrongPair(null)
@@ -123,7 +172,7 @@ export default function TextMatch() {
             setTimeout(() => {
                 setWrongPair(null)
                 setSelectedTerm(null)
-            }, 700)
+            }, 650)
         }
     }
 
@@ -141,9 +190,9 @@ export default function TextMatch() {
         enabled: !!user,
     })
     const alreadyPlayed = gameStatus?.text_match?.played === true
-
     const errDetail = (error as any)?.response?.data?.detail
 
+    // ── Loading & error states ───────────────────────────────────────────────
     if (isLoading) return (
         <div className="min-h-screen flex items-center justify-center font-mono text-white text-2xl animate-pulse">
             ŁADOWANIE PYTAŃ...
@@ -175,6 +224,7 @@ export default function TextMatch() {
         </div>
     )
 
+    // ── Finished screen ──────────────────────────────────────────────────────
     if (finished) return (
         <div className="min-h-screen flex flex-col items-center justify-center gap-8 font-mono text-white p-8">
             <motion.div
@@ -198,6 +248,7 @@ export default function TextMatch() {
         </div>
     )
 
+    // ── Start screen ─────────────────────────────────────────────────────────
     if (!started) return (
         <div className="min-h-screen flex flex-col items-center justify-center gap-8 font-mono text-white p-8">
             <img src={sparkSomeLogo} alt="SparkSome" className="h-12 invert mb-4" />
@@ -210,7 +261,7 @@ export default function TextMatch() {
                     Za każdą błędną odpowiedź tracisz{' '}
                     <span className="text-red-400 font-bold">500 punktów</span>!
                 </p>
-                <div className="flex items-center gap-3 mt-4 px-4 py-2 bg-accent/10 border border-accent/30 rounded-lg">
+                <div className="flex items-center gap-3 mt-3 px-5 py-2.5 bg-accent/10 border border-accent/30 rounded-xl">
                     <span className="text-accent font-black text-2xl">10 000</span>
                     <span className="text-gray-400 text-sm">punktów startowych</span>
                 </div>
@@ -229,46 +280,75 @@ export default function TextMatch() {
         </div>
     )
 
+    // ── Game screen ──────────────────────────────────────────────────────────
     const total = rawPairs?.length ?? 0
     const remaining = total - matched.size
 
     return (
-        <div className="min-h-screen flex flex-col p-4 md:p-6 font-mono text-white">
+        <div className="h-[100dvh] flex flex-col p-3 md:p-4 font-mono text-white overflow-hidden">
+
+            {/* Particle overlay */}
+            <div className="fixed inset-0 pointer-events-none z-[100]">
+                <AnimatePresence>
+                    {particles.map(p => (
+                        <motion.div
+                            key={p.id}
+                            initial={{ x: p.x, y: p.y, opacity: 1, scale: 1 }}
+                            animate={{ x: p.x + p.vx, y: p.y + p.vy + 60, opacity: 0, scale: 0.3 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.65, ease: 'easeOut' }}
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: p.size,
+                                height: p.size,
+                                borderRadius: '50%',
+                                backgroundColor: p.color,
+                                boxShadow: `0 0 ${p.size * 2}px ${p.color}`,
+                                transform: 'translate(-50%, -50%)',
+                            }}
+                        />
+                    ))}
+                </AnimatePresence>
+            </div>
+
             {/* Header */}
-            <div className="flex items-center justify-between mb-5 shrink-0">
-                <img src={sparkSomeLogo} alt="SparkSome" className="h-8 invert" />
-                <h1 className="text-xl font-bold tracking-widest text-white">TEXT_MATCH</h1>
+            <div className="flex items-center justify-between shrink-0 mb-2">
+                <img src={sparkSomeLogo} alt="SparkSome" className="h-7 invert" />
+                <h1 className="text-base font-bold tracking-widest text-white">TEXT_MATCH</h1>
                 <div className="flex flex-col items-end">
-                    <div className="text-3xl font-black text-accent tabular-nums">
+                    <div className="text-2xl font-black text-accent tabular-nums leading-none">
                         {score.toString().padStart(5, '0')}
                     </div>
-                    <div className="text-[10px] text-gray-500 uppercase tracking-widest">punkty</div>
+                    <div className="text-[9px] text-gray-500 uppercase tracking-widest">pkt</div>
                 </div>
             </div>
 
             {/* Progress bar */}
-            <div className="mb-5 shrink-0">
-                <div className="flex justify-between text-xs text-gray-500 mb-1 px-0.5">
-                    <span>Pozostało: <span className="text-white font-bold">{remaining}</span> / {total}</span>
-                    <span className="text-green-400 font-bold">{matched.size} dopasowano</span>
+            <div className="shrink-0 mb-2">
+                <div className="flex justify-between text-[10px] text-gray-500 mb-1">
+                    <span>Pozostało: <span className="text-white font-bold">{remaining}</span>/{total}</span>
+                    <span className="text-green-400 font-bold">{matched.size} ✓</span>
                 </div>
-                <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                <div className="h-1 bg-gray-800 rounded-full overflow-hidden">
                     <motion.div
                         className="h-full bg-green-400 rounded-full"
                         animate={{ width: `${total > 0 ? (matched.size / total) * 100 : 0}%` }}
-                        transition={{ duration: 0.4 }}
+                        transition={{ duration: 0.35 }}
                     />
                 </div>
             </div>
 
-            {/* Columns */}
-            <div className="flex gap-4 md:gap-6 flex-1 min-h-0">
+            {/* Two columns – fill remaining height */}
+            <div className="flex gap-3 md:gap-4 flex-1 min-h-0">
+
                 {/* LEFT: Terms */}
-                <div className="flex-1 flex flex-col">
-                    <div className="text-[11px] text-gray-500 uppercase tracking-widest text-center mb-3 font-bold">
+                <div className="flex-1 flex flex-col min-h-0">
+                    <div className="text-[10px] text-gray-500 uppercase tracking-widest text-center mb-1.5 shrink-0 font-bold">
                         Pojęcia
                     </div>
-                    <div className="flex flex-col gap-2.5">
+                    <div className="flex-1 flex flex-col min-h-0 gap-1.5">
                         <AnimatePresence mode="popLayout">
                             {termOrder.filter(id => !matched.has(id)).map(id => {
                                 const pair = pairsById[id]
@@ -279,19 +359,23 @@ export default function TextMatch() {
                                     <motion.div
                                         key={`term-${id}`}
                                         layout
-                                        initial={{ opacity: 0, y: 16 }}
+                                        initial={{ opacity: 0, y: 12 }}
                                         animate={isWrong
                                             ? { x: [0, -10, 10, -6, 6, 0], opacity: 1, y: 0 }
                                             : { x: 0, opacity: 1, y: 0 }
                                         }
-                                        exit={{ opacity: 0, y: -44, scale: 0.9 }}
-                                        transition={{ duration: 0.32 }}
+                                        exit={{ opacity: 0, y: -50, scale: 0.85 }}
+                                        transition={{ duration: 0.3 }}
+                                        ref={(el: HTMLDivElement | null) => {
+                                            if (el) termCardRefs.current.set(id, el)
+                                            else termCardRefs.current.delete(id)
+                                        }}
                                         onClick={() => handleTermClick(id)}
                                         className={[
-                                            'px-4 py-3.5 rounded-xl border-2 text-center text-sm md:text-base font-bold select-none cursor-pointer',
-                                            'min-h-[56px] flex items-center justify-center transition-colors',
+                                            'flex-1 min-h-0 flex items-center justify-center px-3 rounded-xl border-2',
+                                            'text-center text-xs md:text-sm font-bold select-none cursor-pointer transition-colors',
                                             isSelected
-                                                ? 'bg-secondary/25 border-secondary text-white shadow-[0_0_18px_rgba(99,102,241,0.35)]'
+                                                ? 'bg-secondary/25 border-secondary text-white shadow-[0_0_16px_rgba(99,102,241,0.4)]'
                                                 : isWrong
                                                     ? 'bg-red-500/20 border-red-500 text-red-400'
                                                     : 'bg-surface/60 border-gray-700 hover:border-secondary/60 hover:bg-secondary/10 text-white',
@@ -306,14 +390,14 @@ export default function TextMatch() {
                 </div>
 
                 {/* Divider */}
-                <div className="w-px bg-gray-800 self-stretch mt-7" />
+                <div className="w-px bg-gray-800 shrink-0 self-stretch" />
 
                 {/* RIGHT: Definitions */}
-                <div className="flex-1 flex flex-col">
-                    <div className="text-[11px] text-gray-500 uppercase tracking-widest text-center mb-3 font-bold">
+                <div className="flex-1 flex flex-col min-h-0">
+                    <div className="text-[10px] text-gray-500 uppercase tracking-widest text-center mb-1.5 shrink-0 font-bold">
                         Definicje
                     </div>
-                    <div className="flex flex-col gap-2.5">
+                    <div className="flex-1 flex flex-col min-h-0 gap-1.5">
                         <AnimatePresence mode="popLayout">
                             {defOrder.filter(id => !matched.has(id)).map(id => {
                                 const pair = pairsById[id]
@@ -324,17 +408,21 @@ export default function TextMatch() {
                                     <motion.div
                                         key={`def-${id}`}
                                         layout
-                                        initial={{ opacity: 0, y: 16 }}
+                                        initial={{ opacity: 0, y: 12 }}
                                         animate={isWrong
                                             ? { x: [0, 10, -10, 6, -6, 0], opacity: 1, y: 0 }
                                             : { x: 0, opacity: 1, y: 0 }
                                         }
-                                        exit={{ opacity: 0, y: -44, scale: 0.9 }}
-                                        transition={{ duration: 0.32 }}
+                                        exit={{ opacity: 0, y: -50, scale: 0.85 }}
+                                        transition={{ duration: 0.3 }}
+                                        ref={(el: HTMLDivElement | null) => {
+                                            if (el) defCardRefs.current.set(id, el)
+                                            else defCardRefs.current.delete(id)
+                                        }}
                                         onClick={() => handleDefClick(id)}
                                         className={[
-                                            'px-4 py-3.5 rounded-xl border-2 text-center text-sm leading-snug select-none cursor-pointer',
-                                            'min-h-[56px] flex items-center justify-center transition-colors',
+                                            'flex-1 min-h-0 flex items-center justify-center px-3 rounded-xl border-2',
+                                            'text-center text-xs leading-snug select-none cursor-pointer transition-colors',
                                             isWrong
                                                 ? 'bg-red-500/20 border-red-500 text-red-400'
                                                 : isHighlighted
@@ -349,6 +437,7 @@ export default function TextMatch() {
                         </AnimatePresence>
                     </div>
                 </div>
+
             </div>
         </div>
     )
