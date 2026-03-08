@@ -365,8 +365,8 @@ export default function TextMatch() {
                                         }}
                                         onClick={() => handleTermClick(id)}
                                         className={[
-                                            'flex items-center justify-center px-2 rounded-xl border-2 min-h-0',
-                                            'text-center text-xs md:text-sm font-bold select-none cursor-pointer',
+                                            'flex items-center justify-center px-3 rounded-xl border-2 min-h-0',
+                                            'text-center text-sm md:text-base lg:text-lg font-bold select-none cursor-pointer',
                                             'transition-colors leading-snug overflow-hidden',
                                             sel ? 'bg-secondary/25 border-secondary text-white shadow-[0_0_18px_rgba(99,102,241,0.5)]'
                                                 : wrong
@@ -374,7 +374,7 @@ export default function TextMatch() {
                                                     : 'bg-white/5 border-gray-600 hover:border-secondary/70 hover:bg-secondary/10 text-white',
                                         ].join(' ')}
                                     >
-                                        <span className="line-clamp-4 text-center">{pair.term}</span>
+                                        <span className="text-center">{pair.term}</span>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -421,8 +421,8 @@ export default function TextMatch() {
                                         }}
                                         onClick={() => handleDefClick(id)}
                                         className={[
-                                            'flex items-center justify-center px-2 rounded-xl border-2 min-h-0',
-                                            'text-center text-[11px] md:text-xs leading-snug select-none cursor-pointer',
+                                            'flex items-center justify-center px-3 rounded-xl border-2 min-h-0',
+                                            'text-center text-xs md:text-sm lg:text-base leading-snug select-none cursor-pointer',
                                             'transition-colors overflow-hidden',
                                             wrong ? 'bg-red-500/20 border-red-500 text-red-300'
                                                 : hilight
@@ -430,7 +430,7 @@ export default function TextMatch() {
                                                     : 'bg-white/5 border-gray-600 hover:border-primary/60 hover:bg-primary/10 text-gray-300',
                                         ].join(' ')}
                                     >
-                                        <span className="line-clamp-5 text-center">{pair.definition}</span>
+                                        <span className="text-center">{pair.definition}</span>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
