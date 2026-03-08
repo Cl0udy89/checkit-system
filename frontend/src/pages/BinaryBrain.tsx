@@ -52,55 +52,17 @@ export default function BinaryBrain() {
 
     const currentQ = questions ? questions[currentQIndex] : null
 
-    // Load saved progress if available
+    // Always start fresh – set hasLoaded once questions are available
     useEffect(() => {
         if (questions && user && !hasLoaded) {
-            const savedStateStr = sessionStorage.getItem(`binary_brain_state_${user.id}`)
-            if (savedStateStr) {
-                try {
-                    const savedState = JSON.parse(savedStateStr)
-                    if (savedState.currentQIndex >= questions.length || savedState.finished) {
-                        sessionStorage.removeItem(`binary_brain_state_${user.id}`)
-                        setCurrentQIndex(0)
-                        setTotalScore(0)
-                        setAnswers({})
-                        setQuestionStartTime(Date.now())
-                    } else {
-                        setCurrentQIndex(savedState.currentQIndex || 0)
-                        setTotalScore(savedState.totalScore || 0)
-                        setAnswers(savedState.answers || {})
-                        setAnswerStats(savedState.answerStats || [])
-
-                        // Always reset to now – restoring old timestamp would make
-                        // elapsed time huge and trigger instant TIMEOUT on resume.
-                        setQuestionStartTime(Date.now())
-                    }
-                } catch (e) {
-                    console.error("Error parsing saved state", e)
-                    setCurrentQIndex(0)
-                    setTotalScore(0)
-                    setAnswers({})
-                    setQuestionStartTime(Date.now())
-                }
-            } else {
-                setCurrentQIndex(0)
-                setTotalScore(0)
-                setAnswers({})
-                setAnswerStats([])
-                setQuestionStartTime(Date.now())
-            }
+            setCurrentQIndex(0)
+            setTotalScore(0)
+            setAnswers({})
+            setAnswerStats([])
+            setQuestionStartTime(Date.now())
             setHasLoaded(true)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [questions, user, hasLoaded])
-
-    // Save progress continuously
-    useEffect(() => {
-        if (hasLoaded && user && questions && gameState === 'playing') {
-            const stateToSave = { currentQIndex, totalScore, answers, answerStats, questionStartTime }
-            sessionStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify(stateToSave))
-        }
-    }, [hasLoaded, currentQIndex, totalScore, answers, questionStartTime, user, questions, gameState])
 
     // Shuffle options immediately during render when question changes
     const shuffledOptions = useMemo(() => {
@@ -178,18 +140,6 @@ export default function BinaryBrain() {
         const newAnswers = { ...answers, [currentQ.id]: option.text }
         setAnswers(newAnswers)
 
-        // Force anti-cheat save immediately for the next state
-        if (hasLoaded && user) {
-            const nextState = {
-                currentQIndex: currentQIndex + 1,
-                totalScore: totalScore + pointsEarned,
-                answers: newAnswers,
-                answerStats: newAnswerStats,
-                questionStartTime: Date.now()
-            }
-            sessionStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify(nextState))
-        }
-
         // Wait a bit then move on
         setTimeout(() => {
             if (currentQIndex < questions.length - 1) {
@@ -212,7 +162,6 @@ export default function BinaryBrain() {
         setFinalResult({ score: finalScore, boxOpened, stats: finalStats || answerStats })
 
         if (user) {
-            sessionStorage.removeItem(`binary_brain_state_${user.id}`)
             submitMutation.mutate({
                 user_id: user.id,
                 game_type: 'binary_brain',

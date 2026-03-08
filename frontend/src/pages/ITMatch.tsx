@@ -53,43 +53,14 @@ export default function ITMatch() {
         retry: false
     })
 
+    // Always start fresh – shuffle and reset on every game load
     useEffect(() => {
         if (data && user) {
-            let loadedQuestions = [...data]
-            const savedStateStr = sessionStorage.getItem(`it_match_state_${user.id}`)
-
-            if (savedStateStr) {
-                try {
-                    const savedState = JSON.parse(savedStateStr)
-
-                    if (savedState.currentIndex >= savedState.questions?.length) {
-                        // Game was finished, restart
-                        sessionStorage.removeItem(`it_match_state_${user.id}`)
-                    } else if (savedState.questions && savedState.questions.length > 0) {
-                        setQuestions(savedState.questions)
-                        setCurrentIndex(savedState.currentIndex || 0)
-                        setScore(savedState.score || 0)
-                        setAnswers(savedState.answers || {})
-                        setAnswerStats(savedState.answerStats || [])
-
-                        // Restore precise time if available, otherwise it will just be from 0 again
-                        if (savedState.questionStartTime) {
-                            setQuestionStartTime(savedState.questionStartTime)
-                        } else {
-                            setQuestionStartTime(Date.now())
-                        }
-
-                        return // Skip shuffling since we re-loaded the old pool
-                    }
-                } catch (e) { console.error("Error parsing saved state", e) }
-            }
-
-            // If no saved state, setup a new shuffled game
+            const loadedQuestions = [...data]
             for (let i = loadedQuestions.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [loadedQuestions[i], loadedQuestions[j]] = [loadedQuestions[j], loadedQuestions[i]];
+                [loadedQuestions[i], loadedQuestions[j]] = [loadedQuestions[j], loadedQuestions[i]]
             }
-
             setQuestions(loadedQuestions)
             setCurrentIndex(0)
             setScore(0)
@@ -99,21 +70,6 @@ export default function ITMatch() {
             setCurrentPotentialScore(MAX_Q_POINTS)
         }
     }, [data, user])
-
-    // Save progress continuously
-    useEffect(() => {
-        if (user && questions.length > 0 && !gameOver && gameState === 'playing') {
-            const stateToSave = {
-                currentIndex,
-                score,
-                answers,
-                answerStats,
-                questionStartTime,
-                questions
-            }
-            sessionStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))
-        }
-    }, [currentIndex, score, answers, answerStats, questionStartTime, user, questions, gameOver, gameState])
 
     // Timer Effect (Per Question)
     useEffect(() => {
@@ -164,19 +120,6 @@ export default function ITMatch() {
         setAnswerStats(newAnswerStats)
         setGameState('feedback')
 
-        // Force anti-cheat save immediately for the next state
-        if (user) {
-            const stateToSave = {
-                currentIndex: currentIndex + 1,
-                score: newScore,
-                answers: newAnswers,
-                answerStats: newAnswerStats,
-                questionStartTime: Date.now(), // Will be reset on setTimeout anyway
-                questions: questions
-            }
-            sessionStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))
-        }
-
         setTimeout(() => {
             if (currentIndex < questions.length - 1) {
                 setCurrentIndex(prev => prev + 1)
@@ -191,9 +134,6 @@ export default function ITMatch() {
 
     const finishGame = async (finalScore: number) => {
         setGameOver(true)
-        if (user) {
-            sessionStorage.removeItem(`it_match_state_${user.id}`)
-        }
         const endTime = Date.now()
         const duration = endTime - startTime
 
