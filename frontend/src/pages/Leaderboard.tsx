@@ -147,11 +147,12 @@ export default function Leaderboard() {
                 </div>
             </div>
 
-            {/* Game Sections - 3 Columns Below */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-10">
+            {/* Game Sections - 4 Columns Below */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 pb-10">
                 <Section title="BINARY BRAIN" list={data?.binary_brain} />
                 <Section title="PATCH MASTER" list={data?.patch_master} />
                 <Section title="IT MATCH" list={data?.it_match} />
+                <Section title="TEXT MATCH" list={data?.text_match} />
             </div>
         </div>
 

@@ -37,7 +37,7 @@ async def get_text_match_questions(
         elif conf.value == "technical_break":
             raise HTTPException(status_code=403, detail="PRZERWA_TECHNICZNA")
 
-    pairs_data = content_service.get_questions("text_match", limit=50)
+    pairs_data = content_service.get_questions("text_match", limit=100)
 
     mapped: List[TextMatchPair] = []
     for q in pairs_data:

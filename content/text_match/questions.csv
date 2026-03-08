@@ -9,3 +9,73 @@ id,term,definition
 8,Patch,Aktualizacja naprawiająca luki bezpieczeństwa w oprogramowaniu
 9,Backup,Kopia zapasowa chroniąca dane przed utratą lub awarią systemu
 10,SSL/TLS,Protokół szyfrujący komunikację między przeglądarką a serwerem
+11,Botnet,Sieć zainfekowanych komputerów kontrolowanych zdalnie przez hakera
+12,DDoS,Atak przeciążający serwer ogromną liczbą jednoczesnych żądań
+13,Keylogger,Oprogramowanie rejestrujące każde naciśnięcie klawiszy na klawiaturze
+14,Zero-day,Luka bezpieczeństwa nieznana jeszcze producentowi oprogramowania
+15,Brute Force,Metoda ataku polegająca na sprawdzaniu wszystkich możliwych kombinacji haseł
+16,SQL Injection,Atak wstrzykujący złośliwe zapytania do bazy danych przez formularz
+17,XSS,Atak polegający na wstrzyknięciu złośliwego skryptu do strony internetowej
+18,MiTM,Atak polegający na przechwytywaniu komunikacji między dwoma stronami
+19,Social Engineering,Technika manipulowania ludźmi w celu uzyskania poufnych informacji
+20,Tor,Sieć anonimizująca ruch internetowy poprzez wielokrotne szyfrowanie
+21,HTTPS,Bezpieczna wersja protokołu HTTP z szyfrowaniem SSL/TLS
+22,HTTP,Protokół transferu hipertekstu używany do komunikacji w sieci Web
+23,IP,Unikalny adres identyfikujący urządzenie w sieci komputerowej
+24,MAC Address,Unikalny identyfikator karty sieciowej przypisany przez producenta
+25,Router,Urządzenie kierujące ruchem sieciowym między różnymi sieciami
+26,Switch,Urządzenie łączące urządzenia w sieci lokalnej i przesyłające ramki danych
+27,LAN,Lokalna sieć komputerowa obejmująca ograniczony obszar geograficzny
+28,WAN,Rozległa sieć komputerowa łącząca odległe lokalizacje geograficzne
+29,VLAN,Wirtualna sieć lokalna izolująca ruch bez fizycznego podziału infrastruktury
+30,NAT,Technika tłumaczenia adresów umożliwiająca wielu urządzeniom dzielenie jednego IP
+31,DHCP,Protokół automatycznie przydzielający adresy IP urządzeniom w sieci
+32,FTP,Protokół przesyłania plików między komputerami przez sieć
+33,SSH,Bezpieczny protokół zdalnego dostępu do systemów z szyfrowaniem
+34,SMTP,Protokół wysyłania poczty elektronicznej między serwerami
+35,IMAP,Protokół dostępu do skrzynki pocztowej przechowujący e-maile na serwerze
+36,API,Interfejs umożliwiający komunikację i wymianę danych między aplikacjami
+37,Cloud,Zdalna infrastruktura IT udostępniająca zasoby obliczeniowe przez internet
+38,SaaS,Model usługowy gdzie oprogramowanie jest dostępne przez przeglądarkę
+39,IaaS,Model gdzie infrastruktura serwerów i sieci jest wynajmowana jako usługa
+40,PaaS,Model gdzie platforma programistyczna jest dostarczona jako usługa online
+41,DevOps,Metodologia łącząca programowanie i operacje IT dla szybszego wdrażania
+42,Agile,Zwinna metodologia wytwarzania oprogramowania w krótkich iteracjach
+43,Git,Rozproszony system kontroli wersji śledzący zmiany w kodzie źródłowym
+44,Docker,Platforma do konteneryzacji aplikacji razem z ich zależnościami
+45,Kubernetes,System automatycznego zarządzania i skalowania kontenerów w klastrze
+46,CI/CD,Automatyzacja procesu testowania i wdrażania kodu po każdej zmianie
+47,Load Balancer,Urządzenie lub usługa rozdzielająca ruch sieciowy między wiele serwerów
+48,CDN,Sieć serwerów rozmieszczonych globalnie dystrybuująca treści bliżej użytkowników
+49,Cache,Tymczasowa pamięć przechowująca dane w celu szybszego dostępu
+50,Cookie,Mały plik przechowywany przez przeglądarkę do zapamiętywania danych sesji
+51,Token,Ciąg znaków potwierdzający tożsamość użytkownika bez przesyłania hasła
+52,OAuth,Protokół autoryzacji umożliwiający logowanie przez zewnętrzny serwis
+53,JWT,Standard tworzenia tokenów uwierzytelniających z zakodowanymi danymi
+54,Hash,Jednostronna funkcja przekształcająca dane w ciąg o stałej długości
+55,Szyfrowanie,Proces kodowania danych tak aby były nieczytelne bez klucza
+56,Deszyfrowanie,Proces odkodowania zaszyfrowanych danych przy użyciu odpowiedniego klucza
+57,Klucz publiczny,Klucz kryptograficzny udostępniany publicznie do szyfrowania danych
+58,Klucz prywatny,Tajny klucz kryptograficzny używany wyłącznie do odszyfrowania danych
+59,Certyfikat SSL,Cyfrowy dokument potwierdzający tożsamość serwera i umożliwiający szyfrowanie
+60,Pentesting,Autoryzowany atak na system w celu wykrycia luk bezpieczeństwa
+61,Podatność,Słabość w systemie którą atakujący może wykorzystać do włamania
+62,Exploit,Kod lub technika wykorzystująca konkretną lukę bezpieczeństwa w systemie
+63,IDS,System wykrywający podejrzany ruch i nieautoryzowane próby dostępu do sieci
+64,IPS,System aktywnie blokujący wykryte ataki sieciowe w czasie rzeczywistym
+65,SIEM,System zbierający i korelujący logi bezpieczeństwa z wielu źródeł
+66,SOC,Centrum monitorowania infrastruktury IT pod kątem zagrożeń bezpieczeństwa
+67,GDPR,Europejskie rozporządzenie regulujące ochronę danych osobowych obywateli UE
+68,BYOD,Polityka pozwalająca pracownikom używać własnych urządzeń do celów służbowych
+69,IoT,Sieć fizycznych urządzeń codziennego użytku połączonych z internetem
+70,AI,Technologia symulująca ludzkie zdolności poznawcze w maszynach i oprogramowaniu
+71,Big Data,Ogromne zbiory danych wymagające zaawansowanych narzędzi do przetwarzania
+72,Blockchain,Zdecentralizowany i niezmienny rejestr transakcji zapisywanych w blokach
+73,Kryptowaluta,Cyfrowa waluta oparta na kryptografii działająca bez centralnego banku
+74,Deepfake,Realistyczne fałszywe multimedia wygenerowane przez sztuczną inteligencję
+75,Spam,Niechciane masowe wiadomości reklamowe rozsyłane pocztą elektroniczną
+76,Spyware,Oprogramowanie szpiegujące zbierające dane użytkownika bez jego wiedzy
+77,Adware,Oprogramowanie wyświetlające niechciane reklamy na urządzeniu ofiary
+78,Trojan,Złośliwe oprogramowanie ukryte wewnątrz pozornie bezpiecznej aplikacji
+79,Worm,Samoreplikujący wirus sieciowy rozprzestrzeniający się bez interakcji użytkownika
+80,Root Access,Najwyższy poziom uprawnień administracyjnych dający pełną kontrolę nad systemem
