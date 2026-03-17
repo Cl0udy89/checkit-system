@@ -18,15 +18,69 @@ const LEET: Record<string, string> = {
     '5': 's', '6': 'g', '7': 't', '8': 'b', '9': 'g',
 }
 
-// Roots (lowercase, no diacritics). Longer roots first avoids shadowing issues.
+// Roots (lowercase, no diacritics, no doubles, no special chars — only a-z0-9).
+// The nick field strips non-alphanumeric before reaching this function,
+// so roots with diacritics (ą,ę,ć…) or underscores/dots are useless and excluded.
 const BAD_ROOTS: string[] = [
-    // Polish
-    'skurwysyn', 'skurwiel', 'spierdalaj', 'spierdal', 'pierdolic', 'pierdol',
-    'jebanie', 'jebany', 'jebana', 'jebac', 'jeba',
-    'wkurwic', 'wkurw', 'kurewski', 'kurwa', 'kuwa',
-    'dziwka', 'cwel', 'dupek', 'dupa', 'cipa',
-    'pizda', 'pizd',
-    'chuj', 'huj',
+    // Polish — kurw*
+    'skurwysyn', 'skurwiel', 'kurwiszcze', 'kurwiszon', 'kurwisko', 'kurwiarski',
+    'kurewski', 'kurewstwo', 'kurwica', 'zakurwic', 'wykurwic', 'odkurwic', 'podkurwic',
+    'skurwic', 'kurwidolek', 'kurewka', 'kurwa', 'kuwa', 'qurwa',
+
+    // Polish — jeb*
+    'jebac', 'jebie', 'jebiesz', 'jebany', 'jebana', 'jebane', 'jebanca', 'jebancu',
+    'jebak', 'jebaka', 'jebanko', 'dojebac', 'dojebie', 'dojebany',
+    'odjebac', 'odjebie', 'odjebany', 'podjebac', 'podjebie', 'pojeb',
+    'pojeba', 'pojebie', 'pojebany', 'pojebana', 'przejebac', 'przejebane',
+    'rozjebac', 'rozjebie', 'rozjebany', 'ujebac', 'ujebany',
+    'wyjebac', 'wyjebie', 'wyjebany', 'wyjebka', 'zajebac', 'zajebie',
+    'zajebisty', 'zajebista', 'zajebiscie', 'zjebac', 'zjebany', 'zjeb',
+    'niedojeb', 'mozgojeb', 'jeba',
+
+    // Polish — pierd*
+    'pierdolic', 'pierdolony', 'pierdolona', 'pierdolone', 'pierdolniety', 'pierdolca',
+    'pierdolec', 'pierdolisko', 'dopierdolic', 'odpierdolic', 'odpierdalaj',
+    'opierdolic', 'opierdalac', 'popierdolic', 'popierdolony', 'przepierdolic',
+    'rozpierdolic', 'rozpierdol', 'rozpierducha', 'spierdolic', 'spierdalaj',
+    'wpierdolic', 'wpierdol', 'wypierdolic', 'wypierdalaj', 'zapierdolic',
+    'zapierdalac', 'zapierdol', 'pierdol', 'spierdal',
+
+    // Polish — chuj / huj / pizd
+    'chujowy', 'chujowa', 'chujowo', 'chujnia', 'chujec', 'chujek', 'chuj',
+    'hujowy', 'hujowa', 'hujowo', 'hujnia', 'odchuj', 'pachuj', 'nachuj', 'huj',
+    'pizda', 'pizde', 'pizdo', 'pizdy', 'pizdnac', 'pizdziel', 'pizdooki',
+    'pizdus', 'pizdnij', 'pizdaj', 'pizd',
+
+    // Polish — anatomia, seks
+    'cipka', 'cipsko', 'cipon', 'ciposzka', 'cipa', 'cipe', 'cipie', 'cipko',
+    'kutasiarz', 'kutafon', 'kutas',
+    'fiutek', 'fiucie', 'fiut',
+    'siurek', 'siusiak', 'siur',
+    'pindol', 'pindolony', 'pinda',
+    'dupsko', 'dupcia', 'dupeczka', 'dupek', 'dupoliz', 'dupowlaz', 'dupa',
+    'pochwa', 'wagina', 'penis', 'moszna', 'odbyt',
+    'cycek', 'cycki', 'cyce', 'cycol',
+    'ruchac', 'ruchanko', 'ruchacz',
+    'rznac', 'lodzik', 'lodziarz',
+
+    // Polish — obelgi / slang
+    'dziwkarz', 'dziwkarski', 'dziwka',
+    'szmaciarz', 'szmacic', 'szmata',
+    'scwelic', 'cwela', 'cwelu', 'cwel',
+    'pedalski', 'pedzio', 'pedal',
+    'ciotowaty', 'ciota',
+    'debila', 'debilu', 'debil',
+    'idiota', 'kretyn', 'imbecyl',
+    'oszolom', 'psychol', 'suczka', 'suka', 'sucz',
+    'incel', 'cuck', 'stuleja', 'stulejarz',
+    'gnojek', 'gnoju',
+    'wkurwic', 'wkurw',
+
+    // Memy / nicki
+    'twojastara', 'twojastary', 'jp2gmd', 'hwdp', 'chwdp',
+    'motherfucker', 'madofaka', 'retard',
+    'fakju', 'faken', 'bitcz', 'szit',
+
     // English
     'asshole', 'faggot', 'nigger', 'nigga',
     'bitch', 'cunt', 'fuck', 'shit',
