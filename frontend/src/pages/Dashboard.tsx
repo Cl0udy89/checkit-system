@@ -164,7 +164,7 @@ export default function Dashboard() {
                             </button>
                         ) : (
                             <p className="text-gray-400 font-mono text-sm max-w-lg">
-                                Zagraj w gry, aby zdobyć maksymalną ilość punktów APP i odblokować status Grandmastera.
+                                Zagraj w gry, aby zdobyć maksymalną ilość punktów i odblokować status Grandmastera.
                             </p>
                         )}
                     </div>

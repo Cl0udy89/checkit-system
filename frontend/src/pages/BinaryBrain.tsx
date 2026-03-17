@@ -272,21 +272,21 @@ export default function BinaryBrain() {
     return (
         <div className="min-h-[100dvh] bg-transparent flex flex-col p-2 md:p-6 relative md:touch-none overflow-x-hidden overflow-y-auto md:overflow-hidden custom-scrollbar">
             {/* HUD */}
-            <div className="w-full flex justify-between items-start mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative max-w-4xl mx-auto bg-black/50 backdrop-blur-sm rounded-xl px-3 md:px-4">
-                <div className="flex flex-col gap-1 md:gap-2 shrink-0">
-                    <h1 className="text-base md:text-2xl font-mono text-primary flex items-center gap-1 md:gap-2">
-                        <Zap size={18} className="md:w-6 md:h-6 shrink-0" /> BINARY_BRAIN
+            <div className="w-full md:w-2/3 flex justify-between items-center mb-4 pb-2 md:pb-3 gap-4 z-10 relative mx-auto bg-black/60 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-2 md:py-3 border border-gray-800/60">
+                <div className="flex flex-col gap-0.5 shrink-0">
+                    <h1 className="text-sm md:text-lg font-mono text-primary flex items-center gap-1 md:gap-2">
+                        <Zap size={16} className="md:w-5 md:h-5 shrink-0" /> BINARY_BRAIN
                     </h1>
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-4 md:h-6 w-auto object-contain invert opacity-70" />
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-3.5 md:h-5 w-auto object-contain invert opacity-60" />
                 </div>
-                <div className="flex gap-3 md:gap-8 text-right shrink-0">
-                    <div className="flex flex-col items-end">
-                        <div className="text-[9px] md:text-xs text-gray-500 font-mono">TOTAL SCORE</div>
-                        <div className="text-xl md:text-4xl font-mono font-bold text-accent">{totalScore}</div>
+                <div className="flex gap-4 md:gap-10">
+                    <div className="flex flex-col items-center">
+                        <div className="text-[9px] md:text-xs text-gray-500 font-mono tracking-widest">TOTAL SCORE</div>
+                        <div className="text-xl md:text-4xl font-mono font-bold text-accent tabular-nums">{totalScore}</div>
                     </div>
-                    <div className="flex flex-col items-end">
-                        <div className="text-[9px] md:text-xs text-gray-500 font-mono">POTENTIAL</div>
-                        <div className={`text-2xl md:text-5xl font-mono font-bold tracking-widest text-shadow-neon ${gameState === 'feedback' ? (lastAnswerCorrect ? 'text-green-500' : 'text-red-500') : 'text-white'}`}>
+                    <div className="flex flex-col items-center">
+                        <div className="text-[9px] md:text-xs text-gray-500 font-mono tracking-widest">POTENTIAL</div>
+                        <div className={`text-2xl md:text-5xl font-mono font-bold tracking-widest text-shadow-neon tabular-nums ${gameState === 'feedback' ? (lastAnswerCorrect ? 'text-green-500' : 'text-red-500') : 'text-white'}`}>
                             {currentPotentialScore.toString().padStart(4, '0')}
                         </div>
                     </div>
@@ -294,7 +294,7 @@ export default function BinaryBrain() {
             </div>
 
             {/* Question Card */}
-            <div className="flex-1 flex flex-col justify-center max-w-4xl mx-auto w-full relative mt-8 md:mt-10">
+            <div className="flex-1 flex flex-col justify-center w-full md:w-2/3 mx-auto relative mt-6 md:mt-8">
                 <div className="absolute inset-0 flex justify-center items-center pointer-events-none z-50">
                     <AnimatePresence>
                         {floatingPoints.map(fp => (
