@@ -31,21 +31,19 @@ export default function Leaderboard() {
     if (isLoading) return <div className="p-10 text-center animate-pulse font-mono text-2xl">SYNCHRONIZACJA WYNIKÓW...</div>
 
     const Section = ({ title, list }: { title: string, list: any[] }) => (
-        <div className="bg-surface border border-gray-700 rounded-lg p-6 shadow-lg h-full flex flex-col">
-            <h3 className="text-2xl font-mono font-bold text-primary mb-6 border-b border-gray-800 pb-2 shrink-0">{title}</h3>
+        <div className="bg-surface border border-gray-700 rounded-lg p-4 md:p-6 shadow-lg h-full flex flex-col">
+            <h3 className="text-xl md:text-2xl font-mono font-bold text-primary mb-4 md:mb-6 border-b border-gray-800 pb-2 shrink-0">{title}</h3>
             <div className="flex justify-between text-xs text-gray-500 font-mono mb-2 px-2 shrink-0">
                 <span>POZYCJA / NICK</span>
-                <span>SCORE</span>
+                <span>PKT</span>
             </div>
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar h-[300px]">
-                <div className="space-y-3">
+            <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar h-[300px]">
+                <div className="space-y-2">
                     {list?.map((entry, idx) => (
-                        <div key={idx} className="flex justify-between items-center font-mono text-base md:text-lg border-b border-gray-800/50 pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
-                            <span className="text-gray-300 flex items-center gap-2 truncate pr-4">
-                                <span className={`font-bold shrink-0 ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
-                                <span className="truncate">{entry.nick}</span>
-                            </span>
-                            <span className="text-white font-bold text-lg md:text-xl shrink-0">{entry.score} SCORE</span>
+                        <div key={idx} className="flex items-center font-mono text-sm md:text-base border-b border-gray-800/50 pb-1.5 last:border-0 hover:bg-white/5 px-2 py-1 rounded gap-2">
+                            <span className={`font-bold shrink-0 w-8 text-sm ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
+                            <span className="text-gray-300 truncate flex-1 min-w-0">{entry.nick}</span>
+                            <span className="text-white font-bold text-sm md:text-base shrink-0 tabular-nums">{entry.score}</span>
                         </div>
                     ))}
                     {(!list || list.length === 0) && <div className="text-gray-600 text-sm">BRAK DANYCH</div>}
@@ -56,11 +54,6 @@ export default function Leaderboard() {
 
     return (
         <div className="min-h-screen bg-transparent p-4 md:p-8 relative overflow-y-auto overflow-x-hidden flex flex-col custom-scrollbar">
-            {/* Desktop Absolute Logo */}
-            <div className="hidden md:flex absolute top-8 right-8 z-20 flex-col items-end gap-2">
-                <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-24 invert" />
-            </div>
-
             <button
                 onClick={() => navigate('/dashboard')}
                 className="mt-8 md:mt-0 mb-6 md:mb-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors relative z-30"
@@ -69,14 +62,14 @@ export default function Leaderboard() {
             </button>
 
             <div className="flex flex-col justify-center items-center mb-12 text-center mt-4 w-full">
-                {/* Mobile Flow Logo */}
-                <div className="md:hidden flex justify-center w-full mb-6">
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-20 invert opacity-90" />
-                </div>
-
-                <h1 className="text-4xl md:text-6xl font-mono font-bold text-white tracking-tighter mb-4 md:mb-6">
+                <h1 className="text-4xl md:text-6xl font-mono font-bold text-white tracking-tighter mb-3 md:mb-4">
                     RANKING OGÓLNY
                 </h1>
+
+                {/* Logo below heading — smaller than heading text */}
+                <div className="flex justify-center w-full mb-4 md:mb-6">
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-8 sm:h-9 md:h-11 invert opacity-80" />
+                </div>
                 {data?.leaderboard_message && (
                     <div className="text-lg md:text-2xl font-bold font-mono text-accent px-6 py-3 bg-accent/20 border-2 border-accent rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(243,234,95,0.6)] text-center">
                         {data.leaderboard_message}

@@ -156,7 +156,7 @@ export default function Dashboard() {
 
                     <div className="relative z-10 text-center md:text-left mb-6 md:mb-0">
                         <h2 className={`text-3xl font-mono font-bold ${gamesLeft === 0 ? 'text-accent' : 'text-white'} mb-2 tracking-tight`}>
-                            {gamesLeft === 0 ? "STATUS: GRANDMASTER ELIGIBLE" : `MISJA: UKONCZ ${gamesLeft} ${gamesLeft === 1 ? 'GRE' : 'GRY'}`}
+                            {gamesLeft === 0 ? "STATUS: GRANDMASTER ELIGIBLE" : `MISJA: UKOŃCZ ${gamesLeft} ${gamesLeft === 1 ? 'GRĘ' : 'GRY'}`}
                         </h2>
                         {gamesLeft === 0 ? (
                             <button onClick={() => navigate('/leaderboard')} className="text-accent underline font-mono text-sm max-w-lg hover:text-white transition-colors text-left">
@@ -164,7 +164,7 @@ export default function Dashboard() {
                             </button>
                         ) : (
                             <p className="text-gray-400 font-mono text-sm max-w-lg">
-                                Zagraj w pozostałe gry, aby zdobyć maksymalną ilość punktów APP i odblokować status Grandmastera.
+                                Zagraj w gry, aby zdobyć maksymalną ilość punktów APP i odblokować status Grandmastera.
                             </p>
                         )}
                     </div>

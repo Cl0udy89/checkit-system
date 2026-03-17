@@ -227,9 +227,9 @@ export default function BinaryBrain() {
 
         return (
             <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col justify-center items-center relative md:touch-none overflow-x-hidden overflow-y-auto custom-scrollbar">
-                <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center">WERYFIKACJA ZAKOŃCZONA</h1>
+                <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center bg-black/50 backdrop-blur-sm px-6 py-3 rounded-xl">WERYFIKACJA ZAKOŃCZONA</h1>
 
-                <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8">
+                <div className="bg-surface/95 border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8 backdrop-blur-sm">
                     <div className="text-center mb-6 md:mb-8 border border-gray-700 rounded-lg bg-black/50 p-6 md:p-8 flex flex-col items-center">
                         <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">WYNIK KOŃCOWY</div>
                         <div className="text-5xl md:text-7xl font-bold text-accent font-mono">{finalResult.score}</div>
@@ -272,7 +272,7 @@ export default function BinaryBrain() {
     return (
         <div className="min-h-[100dvh] bg-transparent flex flex-col p-2 md:p-6 relative md:touch-none overflow-x-hidden overflow-y-auto md:overflow-hidden custom-scrollbar">
             {/* HUD */}
-            <div className="w-full flex justify-between items-start mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative max-w-4xl mx-auto">
+            <div className="w-full flex justify-between items-start mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative max-w-4xl mx-auto bg-black/50 backdrop-blur-sm rounded-xl px-3 md:px-4">
                 <div className="flex flex-col gap-1 md:gap-2 shrink-0">
                     <h1 className="text-base md:text-2xl font-mono text-primary flex items-center gap-1 md:gap-2">
                         <Zap size={18} className="md:w-6 md:h-6 shrink-0" /> BINARY_BRAIN
@@ -304,7 +304,7 @@ export default function BinaryBrain() {
                                 animate={{ opacity: 1, y: -210, scale: 2.0 }}
                                 exit={{ opacity: 0, scale: 1.5 }}
                                 transition={{ duration: 0.35, ease: 'easeOut' }}
-                                className={`absolute font-black text-5xl md:text-6xl whitespace-nowrap ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_30px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,1)]'}`}
+                                className={`absolute font-black text-5xl md:text-6xl whitespace-nowrap text-center ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_30px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,1)]'}`}
                             >
                                 {fp.val > 0 ? `+${fp.val}` : fp.val}
                                 <div className="text-2xl md:text-3xl text-center opacity-90 mt-1 font-bold tracking-widest">{fp.label}</div>
@@ -355,7 +355,7 @@ export default function BinaryBrain() {
                                     onClick={() => handleAnswer(opt)}
                                     // Remove the hover effect if we are in feedback mode so mobile doesn't stick
                                     disabled={gameState !== 'playing'}
-                                    className={`p-3 md:p-4 text-sm md:text-base border text-left transition-all font-mono group rounded relative overflow-hidden
+                                    className={`p-3 md:p-4 text-sm md:text-base border text-left transition-all font-mono group rounded relative min-h-[3.5rem] break-words
                                             ${gameState === 'feedback'
                                             ? (opt.isCorrect
                                                 ? 'border-green-500 bg-green-500/20 text-white'

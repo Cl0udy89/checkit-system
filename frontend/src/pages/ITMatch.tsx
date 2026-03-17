@@ -175,9 +175,9 @@ export default function ITMatch() {
 
         return (
             <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col items-center relative md:touch-none overflow-x-hidden overflow-y-auto custom-scrollbar pt-8 md:pt-12">
-                <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center drop-shadow-[0_0_15px_rgba(74,222,128,0.8)]">LICZENIE PUNKTÓW...</h1>
+                <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center drop-shadow-[0_0_15px_rgba(74,222,128,0.8)] bg-black/50 backdrop-blur-sm px-6 py-3 rounded-xl">LICZENIE PUNKTÓW...</h1>
 
-                <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8">
+                <div className="bg-surface/95 border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8 backdrop-blur-sm">
                     <div className="text-center mb-6 md:mb-8 border border-gray-700 rounded-lg bg-black/50 p-6 md:p-8 flex flex-col items-center">
                         <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">WYNIK KOŃCOWY</div>
                         <div className="text-5xl md:text-7xl font-bold text-accent font-mono">{score}</div>
@@ -220,7 +220,7 @@ export default function ITMatch() {
     return (
         <div className="h-[100dvh] bg-transparent flex flex-col items-center justify-between p-2 md:p-4 relative touch-none select-none overflow-hidden">
             {/* HUD */}
-            <div className="w-full max-w-lg md:max-w-xl lg:max-w-3xl flex justify-between items-start mb-2 md:mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative px-2">
+            <div className="w-full max-w-lg md:max-w-xl lg:max-w-3xl flex justify-between items-start mb-2 md:mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative px-3 bg-black/50 backdrop-blur-sm rounded-xl">
                 <div className="flex flex-col gap-1 md:gap-2 shrink-0">
                     <h1 className="text-base md:text-2xl font-mono text-primary flex items-center gap-1 md:gap-2">
                         <Search size={18} className="md:w-6 md:h-6 shrink-0" /> IT_MATCH
@@ -249,7 +249,7 @@ export default function ITMatch() {
                             initial={{ opacity: 0, y: 0, scale: 0.5 }}
                             animate={{ opacity: 1, y: -100, scale: 1.5 }}
                             exit={{ opacity: 0 }}
-                            className={`absolute z-[60] font-bold pointer-events-none text-4xl md:text-5xl whitespace-nowrap drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
+                            className={`absolute z-[60] font-bold pointer-events-none text-4xl md:text-5xl whitespace-nowrap text-center drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
                         >
                             {fp.val > 0 ? `+${fp.val}` : fp.val}
                             <div className="text-xl md:text-2xl text-center opacity-90 mt-2">{fp.label}</div>
