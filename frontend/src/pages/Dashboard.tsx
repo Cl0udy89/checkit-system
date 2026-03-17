@@ -159,7 +159,7 @@ export default function Dashboard() {
                             {gamesLeft === 0 ? "STATUS: GRANDMASTER ELIGIBLE" : `MISJA: UKOŃCZ ${gamesLeft} ${gamesLeft === 1 ? 'GRĘ' : 'GRY'}`}
                         </h2>
                         {gamesLeft === 0 ? (
-                            <button onClick={() => navigate('/leaderboard')} className="text-accent underline font-mono text-sm max-w-lg hover:text-white transition-colors text-left">
+                            <button onClick={() => navigate('/leaderboard')} className="text-accent underline font-mono text-sm max-w-lg hover:text-white transition-colors text-left text-balance">
                                 Wszystkie systemy odblokowane! Sprawdź swoją ostateczną pozycję w rankingu głównym.
                             </button>
                         ) : (

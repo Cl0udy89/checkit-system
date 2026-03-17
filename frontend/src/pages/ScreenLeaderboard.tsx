@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchLeaderboard, api } from '../lib/api'
+import { fetchLeaderboard, api, fetchPatchPanelState } from '../lib/api'
 import { useState, useEffect, useRef, useMemo, memo } from 'react'
 import { Trophy, Zap } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -133,6 +133,15 @@ export default function ScreenLeaderboard() {
         }),
     })
 
+    // Hardware state — port mini-grid visible on screen during PM game
+    const { data: hwState } = useQuery({
+        queryKey: ['pm_hw_screen'],
+        queryFn: fetchPatchPanelState,
+        refetchInterval: 500,
+        enabled: pmQueue?.status === 'playing',
+        refetchIntervalInBackground: true,
+    })
+
     // Score countdown: direct DOM write, never triggers React re-render
     const pmScoreRef = useRef(10000)
     const scoreDisplayRef = useRef<HTMLDivElement>(null)
@@ -143,6 +152,32 @@ export default function ScreenLeaderboard() {
     const prevStatusRef = useRef<string | undefined>(undefined)
     const currentPlayerRef = useRef<any>(null)
     const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+    // Cable connection flash animations
+    const [cableFlashes, setCableFlashes] = useState<{ id: number; label: string }[]>([])
+    const prevPairsRef = useRef<any[] | null>(null)
+
+    useEffect(() => {
+        if (!hwState?.pairs || pmQueue?.status !== 'playing') {
+            prevPairsRef.current = null
+            return
+        }
+        if (prevPairsRef.current) {
+            const newFlashes: { id: number; label: string }[] = []
+            hwState.pairs.forEach((pair: any, idx: number) => {
+                const prev = prevPairsRef.current![idx]
+                if (prev && !prev.connected && pair.connected) {
+                    newFlashes.push({ id: Date.now() + Math.random(), label: pair.label })
+                }
+            })
+            if (newFlashes.length > 0) {
+                setCableFlashes(prev => [...prev, ...newFlashes])
+                const ids = newFlashes.map(f => f.id)
+                setTimeout(() => setCableFlashes(prev => prev.filter(f => !ids.includes(f.id))), 1400)
+            }
+        }
+        prevPairsRef.current = hwState.pairs
+    }, [hwState?.pairs, pmQueue?.status])
 
     // Keep player ref fresh so it's captured at the exact moment the game ends
     useEffect(() => {
@@ -328,11 +363,60 @@ export default function ScreenLeaderboard() {
                                     <div className="text-6xl xl:text-7xl font-black text-white truncate font-mono mt-2 mb-2">{displayPlayer.nick}</div>
                                     <div
                                         ref={scoreDisplayRef}
-                                        className="text-[140px] leading-none font-black text-accent tracking-widest font-mono"
+                                        className="text-[120px] leading-none font-black text-accent tracking-widest font-mono"
                                     >
                                         {pmScoreRef.current.toString().padStart(5, '0')}
                                     </div>
-                                    <div className="text-2xl xl:text-3xl font-bold text-red-500 font-mono mt-4 animate-pulse flex items-center gap-3 bg-red-900/40 px-6 py-3 rounded-xl border border-red-500/50">
+
+                                    {/* Port mini-grid + cable flash animations */}
+                                    <div className="relative w-full mt-2">
+                                        <AnimatePresence>
+                                            {cableFlashes.map(f => (
+                                                <motion.div
+                                                    key={f.id}
+                                                    initial={{ opacity: 1, y: 0, scale: 0.9 }}
+                                                    animate={{ opacity: 0, y: -70, scale: 1.3 }}
+                                                    exit={{ opacity: 0 }}
+                                                    transition={{ duration: 1.2, ease: 'easeOut' }}
+                                                    className="absolute inset-x-0 -top-6 flex justify-center pointer-events-none z-10"
+                                                >
+                                                    <span className="text-primary font-black text-2xl xl:text-3xl font-mono drop-shadow-[0_0_20px_rgba(0,255,65,1)] bg-black/60 px-4 py-1 rounded-full">
+                                                        ✓ {f.label} POŁĄCZONY!
+                                                    </span>
+                                                </motion.div>
+                                            ))}
+                                        </AnimatePresence>
+
+                                        <div className="grid grid-cols-4 gap-2 xl:gap-3 w-full">
+                                            {(hwState?.pairs ?? []).map((pair: any, idx: number) => (
+                                                <div
+                                                    key={idx}
+                                                    className={`rounded-xl border-2 p-2 xl:p-3 flex flex-col items-center gap-1.5 transition-all duration-300 ${
+                                                        pair.connected
+                                                            ? 'border-primary bg-primary/15 shadow-[0_0_15px_rgba(0,255,65,0.5)] scale-105'
+                                                            : 'border-gray-700 bg-gray-900/50 opacity-60'
+                                                    }`}
+                                                >
+                                                    <div className={`w-3 h-3 xl:w-4 xl:h-4 rounded-full ${pair.connected ? 'bg-primary animate-pulse shadow-[0_0_8px_rgba(0,255,65,1)]' : 'bg-red-900'}`} />
+                                                    <div className={`text-[10px] xl:text-xs font-mono font-bold ${pair.connected ? 'text-primary' : 'text-gray-600'}`}>
+                                                        {pair.label}
+                                                    </div>
+                                                    <div className={`text-[9px] xl:text-[10px] font-mono ${pair.connected ? 'text-primary' : 'text-gray-700'}`}>
+                                                        {pair.connected ? 'POŁĄCZONY' : 'ROZŁĄCZONY'}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {hwState?.pairs && (
+                                            <div className="mt-3 text-xl xl:text-2xl font-mono font-bold text-center">
+                                                <span className="text-primary">{hwState.pairs.filter((p: any) => p.connected).length}</span>
+                                                <span className="text-gray-400"> / {hwState.pairs.length} PORTÓW POŁĄCZONYCH</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="text-xl xl:text-2xl font-bold text-red-500 font-mono mt-2 animate-pulse flex items-center gap-3 bg-red-900/40 px-6 py-3 rounded-xl border border-red-500/50">
                                         Musi mieć powyżej 5000 punktów, żeby odebrać nagrodę!
                                     </div>
                                 </>

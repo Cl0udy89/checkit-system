@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { api } from '../lib/api'
 import { useGameStore } from '../hooks/useGameStore'
+import { containsProfanity } from '../lib/utils'
 import { User, Mail, ArrowRight, ShieldCheck } from 'lucide-react'
 import sparkSomeLogo from '../assets/sparkSomeLogo_Black.png'
 
@@ -61,7 +62,10 @@ export default function Welcome() {
             setError('Musisz zaakceptować wszystkie zgody, aby wziąć udział.')
             return
         }
-        // Basic profanity filter check could be here or backend
+        if (containsProfanity(nick)) {
+            setError('Nick zawiera niedozwolone słowa. Wybierz inny nick.')
+            return
+        }
         mutation.mutate({ nick, email })
     }
 

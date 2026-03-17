@@ -276,20 +276,23 @@ export default function ITMatch() {
             </div>
 
             <div className="flex-1 w-full max-w-md lg:max-w-2xl relative flex justify-center items-center my-2 min-h-0">
-                <AnimatePresence>
-                    {floatingPoints.map(fp => (
-                        <motion.div
-                            key={fp.id}
-                            initial={{ opacity: 0, y: 0, scale: 0.5 }}
-                            animate={{ opacity: 1, y: -100, scale: 1.5 }}
-                            exit={{ opacity: 0 }}
-                            className={`w-full z-[60] font-bold pointer-events-none text-4xl md:text-5xl text-center drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
-                        >
-                            {fp.val > 0 ? `+${fp.val}` : fp.val}
-                            <div className="text-xl md:text-2xl text-center opacity-90 mt-2">{fp.label}</div>
-                        </motion.div>
-                    ))}
-                </AnimatePresence>
+                {/* Floating points — absolute so they don't shift card layout */}
+                <div className="absolute inset-0 flex justify-center items-center pointer-events-none z-[60]">
+                    <AnimatePresence>
+                        {floatingPoints.map(fp => (
+                            <motion.div
+                                key={fp.id}
+                                initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                                animate={{ opacity: 1, y: -80, scale: 1.5 }}
+                                exit={{ opacity: 0 }}
+                                className={`w-full font-bold text-4xl md:text-5xl text-center drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
+                            >
+                                {fp.val > 0 ? `+${fp.val}` : fp.val}
+                                <div className="text-xl md:text-2xl text-center opacity-90 mt-2">{fp.label}</div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </div>
                 <AnimatePresence>
                     {questions.length > 0 && currentIndex < questions.length && (
                         <Card
