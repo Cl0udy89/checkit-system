@@ -60,6 +60,9 @@ export default function TextMatch() {
     const startTimeRef = useRef<number>(0)
     const finishedRef = useRef(false)
     const scoreRef = useRef(INITIAL_SCORE)
+    // ── PENALTY REF ── DO NOT REMOVE — accumulates wrong-pair penalties so the
+    // decay timer doesn't overwrite them on its next 100ms tick
+    const penaltyRef = useRef(0)
     const termCardRefs = useRef<Map<number, HTMLDivElement>>(new Map())
     const defCardRefs = useRef<Map<number, HTMLDivElement>>(new Map())
 
@@ -124,7 +127,9 @@ export default function TextMatch() {
         const interval = setInterval(() => {
             const elapsed = (Date.now() - startTimeRef.current) / 1000
             const remaining = Math.max(0, GAME_DURATION_S - elapsed)
-            const next = Math.max(0, Math.floor(INITIAL_SCORE - elapsed * DECAY_PER_S))
+            // ── PENALTY REF ── DO NOT REMOVE — subtract accumulated penalties so
+            // timer ticks don't overwrite the -500 deductions
+            const next = Math.max(0, Math.floor(INITIAL_SCORE - elapsed * DECAY_PER_S - penaltyRef.current))
             scoreRef.current = next
             setScore(next)
             if (remaining <= 0) endGame(0)
@@ -155,7 +160,10 @@ export default function TextMatch() {
             setWrongPair(null)
         } else {
             setWrongPair({ term: selectedTerm, def: id })
-            setScore(prev => { const n = Math.max(0, prev - WRONG_PENALTY); scoreRef.current = n; return n })
+            // ── PENALTY REF ── DO NOT REMOVE — update penaltyRef so the decay
+            // timer accounts for this penalty on its next tick
+            penaltyRef.current += WRONG_PENALTY
+            setScore(prev => Math.max(0, prev - WRONG_PENALTY))
             setTimeout(() => { setWrongPair(null); setSelectedTerm(null) }, 650)
         }
     }
@@ -164,6 +172,7 @@ export default function TextMatch() {
         startTimeRef.current = Date.now()
         finishedRef.current = false
         scoreRef.current = INITIAL_SCORE
+        penaltyRef.current = 0 // ── PENALTY REF ── DO NOT REMOVE
         setScore(INITIAL_SCORE)
         setStarted(true)
     }
@@ -288,16 +297,16 @@ export default function TextMatch() {
             </div>
 
             {/* ── header ── */}
-            <div className="flex items-center justify-between shrink-0 mb-1.5">
-                <img src={sparkSomeLogo} alt="SparkSome" className="h-7 invert" />
-                <span className="text-sm font-bold tracking-widest">TEXT_MATCH</span>
+            <div className="flex items-center justify-between shrink-0 mb-2 bg-black/50 backdrop-blur-sm rounded-xl px-3 py-2">
+                <img src={sparkSomeLogo} alt="SparkSome" className="h-8 md:h-10 invert" />
+                <span className="text-base md:text-xl font-bold tracking-widest font-mono text-primary">TEXT_MATCH</span>
                 <div className="flex flex-col items-end leading-none">
                     <motion.span
                         key={score}
                         initial={{ scale: 1.2, color: '#facc15' }}
                         animate={{ scale: 1, color: '#facc15' }}
                         transition={{ duration: 0.15 }}
-                        className="text-2xl font-black text-accent tabular-nums"
+                        className="text-2xl md:text-3xl font-black text-accent tabular-nums"
                     >
                         {score.toString().padStart(5, '0')}
                     </motion.span>

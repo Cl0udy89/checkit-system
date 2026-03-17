@@ -53,23 +53,55 @@ export default function ITMatch() {
         retry: false
     })
 
-    // Always start fresh – shuffle and reset on every game load
+    // ── SESSION PERSISTENCE ── DO NOT REMOVE (preserves in-progress game on accidental navigation)
+    // Restores question order, index and score from sessionStorage. Cleared on game finish.
     useEffect(() => {
-        if (data && user) {
-            const loadedQuestions = [...data]
-            for (let i = loadedQuestions.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [loadedQuestions[i], loadedQuestions[j]] = [loadedQuestions[j], loadedQuestions[i]]
-            }
-            setQuestions(loadedQuestions)
-            setCurrentIndex(0)
-            setScore(0)
-            setAnswers({})
-            setAnswerStats([])
-            setQuestionStartTime(Date.now())
-            setCurrentPotentialScore(MAX_Q_POINTS)
+        if (!data || !user) return
+        const sessionKey = `itm_session_${user.id}`
+        const saved = sessionStorage.getItem(sessionKey)
+        if (saved) {
+            try {
+                const s = JSON.parse(saved)
+                if (Array.isArray(s.questionIds) && s.questionIds.length === data.length) {
+                    const qMap = new Map(data.map((q: Question) => [q.id, q]))
+                    const restored = s.questionIds.map((id: number) => qMap.get(id)).filter(Boolean) as Question[]
+                    if (restored.length === data.length) {
+                        setQuestions(restored)
+                        setCurrentIndex(s.currentIndex ?? 0)
+                        setScore(s.score ?? 0)
+                        setAnswers(s.answers ?? {})
+                        setAnswerStats(s.answerStats ?? [])
+                        setQuestionStartTime(Date.now())
+                        setCurrentPotentialScore(MAX_Q_POINTS)
+                        return
+                    }
+                }
+            } catch { /* corrupt – fall through to fresh start */ }
         }
+        // Fresh start
+        const loadedQuestions = [...data]
+        for (let i = loadedQuestions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [loadedQuestions[i], loadedQuestions[j]] = [loadedQuestions[j], loadedQuestions[i]]
+        }
+        setQuestions(loadedQuestions)
+        setCurrentIndex(0)
+        setScore(0)
+        setAnswers({})
+        setAnswerStats([])
+        setQuestionStartTime(Date.now())
+        setCurrentPotentialScore(MAX_Q_POINTS)
     }, [data, user])
+
+    // ── SESSION PERSISTENCE ── DO NOT REMOVE
+    // Saves current progress after each answered question.
+    useEffect(() => {
+        if (!user || !questions.length || gameOver) return
+        sessionStorage.setItem(`itm_session_${user.id}`, JSON.stringify({
+            questionIds: questions.map(q => q.id),
+            currentIndex, score, answers, answerStats
+        }))
+    }, [currentIndex, score]) // eslint-disable-line react-hooks/exhaustive-deps
 
     // Timer Effect (Per Question)
     useEffect(() => {
@@ -133,6 +165,8 @@ export default function ITMatch() {
     }
 
     const finishGame = async (finalScore: number) => {
+        // ── SESSION PERSISTENCE ── DO NOT REMOVE — clear session on game completion
+        if (user) sessionStorage.removeItem(`itm_session_${user.id}`)
         setGameOver(true)
         const endTime = Date.now()
         const duration = endTime - startTime
@@ -249,7 +283,7 @@ export default function ITMatch() {
                             initial={{ opacity: 0, y: 0, scale: 0.5 }}
                             animate={{ opacity: 1, y: -100, scale: 1.5 }}
                             exit={{ opacity: 0 }}
-                            className={`absolute z-[60] font-bold pointer-events-none text-4xl md:text-5xl whitespace-nowrap text-center drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
+                            className={`z-[60] font-bold pointer-events-none text-4xl md:text-5xl whitespace-nowrap text-center drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
                         >
                             {fp.val > 0 ? `+${fp.val}` : fp.val}
                             <div className="text-xl md:text-2xl text-center opacity-90 mt-2">{fp.label}</div>

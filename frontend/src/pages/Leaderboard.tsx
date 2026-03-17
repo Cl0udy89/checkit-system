@@ -31,7 +31,7 @@ export default function Leaderboard() {
     if (isLoading) return <div className="p-10 text-center animate-pulse font-mono text-2xl">SYNCHRONIZACJA WYNIKÓW...</div>
 
     const Section = ({ title, list }: { title: string, list: any[] }) => (
-        <div className="bg-surface-light border border-gray-600 rounded-lg p-4 md:p-6 shadow-xl h-full flex flex-col backdrop-blur-sm">
+        <div className="bg-black/40 backdrop-blur-md border border-gray-700/60 rounded-lg p-4 md:p-6 shadow-xl h-full flex flex-col">
             <h3 className="text-xl md:text-2xl font-mono font-bold text-primary mb-4 md:mb-6 border-b border-gray-800 pb-2 shrink-0">{title}</h3>
             <div className="flex justify-between text-xs text-gray-500 font-mono mb-2 px-2 shrink-0">
                 <span>POZYCJA / NICK</span>
@@ -53,7 +53,7 @@ export default function Leaderboard() {
     )
 
     return (
-        <div className="min-h-screen bg-background/80 backdrop-blur-sm p-4 md:p-8 relative overflow-y-auto overflow-x-hidden flex flex-col custom-scrollbar">
+        <div className="min-h-screen bg-transparent p-4 md:p-8 relative overflow-y-auto overflow-x-hidden flex flex-col custom-scrollbar">
             <button
                 onClick={() => navigate('/dashboard')}
                 className="mt-8 md:mt-0 mb-6 md:mb-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors relative z-30"
@@ -79,7 +79,7 @@ export default function Leaderboard() {
 
             {/* Grandmaster Section - Full Width on Top */}
             <div className="mb-12">
-                <div className="bg-surface-light border-4 border-accent rounded-xl p-8 shadow-[0_0_50px_rgba(243,234,95,0.3)] relative overflow-hidden transform hover:scale-[1.01] transition-transform backdrop-blur-sm">
+                <div className="bg-black/50 backdrop-blur-md border-4 border-accent rounded-xl p-8 shadow-[0_0_50px_rgba(243,234,95,0.3)] relative overflow-hidden transform hover:scale-[1.01] transition-transform">
                     <div className="absolute top-0 right-0 p-32 bg-accent/10 rounded-full blur-[100px] transform translate-x-1/2 -translate-y-1/2"></div>
                     <div className="relative z-10">
                         <h3 className="text-3xl font-mono font-bold text-accent mb-8 border-b-2 border-accent/30 pb-4 flex justify-between items-center">
