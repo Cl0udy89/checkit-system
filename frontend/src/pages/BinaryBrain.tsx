@@ -322,15 +322,17 @@ export default function BinaryBrain() {
             </div>
 
             {/* Question Card */}
-            <div className="flex-1 flex flex-col justify-center w-full md:w-2/3 mx-auto relative mt-6 md:mt-8">
+            <div className="flex-1 flex flex-col justify-center">
+                {/* Card wrapper — floating points anchor here so inset-0 == card bounds */}
+                <div className="w-full md:w-2/3 mx-auto mt-6 md:mt-8 relative">
                 <div className="absolute inset-0 flex justify-center items-center pointer-events-none z-50">
                     <AnimatePresence>
                         {floatingPoints.map(fp => (
                             <motion.div
                                 key={fp.id}
                                 initial={{ opacity: 0, y: 0, scale: 0.4 }}
-                                animate={{ opacity: 1, y: -210, scale: 2.0 }}
-                                exit={{ opacity: 0, scale: 1.5 }}
+                                animate={{ opacity: 1, y: -80, scale: 1.8 }}
+                                exit={{ opacity: 0, scale: 1.4 }}
                                 transition={{ duration: 0.35, ease: 'easeOut' }}
                                 className={`w-full font-black text-5xl md:text-6xl text-center ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_30px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,1)]'}`}
                             >
@@ -409,6 +411,7 @@ export default function BinaryBrain() {
                         {lastAnswerCorrect ? "POPRAWNA ODPOWIEDŹ (+PUNKTY)" : "NIEPOPRAWNA (0 PUNKTÓW)"}
                     </motion.div>
                 )}
+                </div>{/* end card wrapper */}
             </div>
 
             {/* Progress Bar */}
