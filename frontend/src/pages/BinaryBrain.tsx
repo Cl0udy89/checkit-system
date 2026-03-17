@@ -66,7 +66,7 @@ export default function BinaryBrain() {
                         setTotalScore(s.totalScore ?? 0)
                         setAnswers(s.answers ?? {})
                         setAnswerStats(s.answerStats ?? [])
-                        setQuestionStartTime(Date.now())
+                        setQuestionStartTime(s.questionStartTime ?? Date.now())
                         setHasLoaded(true)
                         return
                     }
@@ -86,7 +86,7 @@ export default function BinaryBrain() {
     useEffect(() => {
         if (!user || !hasLoaded || gameState === 'finished') return
         sessionStorage.setItem(`bb_session_${user.id}`, JSON.stringify({
-            currentQIndex, totalScore, answers, answerStats
+            currentQIndex, totalScore, answers, answerStats, questionStartTime
         }))
     }, [currentQIndex, totalScore]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -302,10 +302,10 @@ export default function BinaryBrain() {
             {/* HUD */}
             <div className="w-full md:w-2/3 flex justify-between items-center mb-4 pb-2 md:pb-3 gap-4 z-10 relative mx-auto bg-black/60 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3 md:py-4 border border-gray-800/60">
                 <div className="flex flex-col gap-1 shrink-0">
-                    <h1 className="text-base md:text-2xl font-mono text-primary flex items-center gap-1.5 md:gap-2 font-bold tracking-wider">
-                        <Zap size={18} className="md:w-6 md:h-6 shrink-0" /> BINARY_BRAIN
+                    <h1 className="text-xl md:text-3xl font-mono text-primary flex items-center gap-2 md:gap-3 font-bold tracking-wider">
+                        <Zap size={22} className="md:w-7 md:h-7 shrink-0" /> BINARY_BRAIN
                     </h1>
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-5 md:h-7 w-auto object-contain invert opacity-70" />
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-7 md:h-9 w-auto object-contain invert opacity-70" />
                 </div>
                 <div className="flex gap-4 md:gap-10">
                     <div className="flex flex-col items-center">
@@ -332,7 +332,7 @@ export default function BinaryBrain() {
                                 animate={{ opacity: 1, y: -210, scale: 2.0 }}
                                 exit={{ opacity: 0, scale: 1.5 }}
                                 transition={{ duration: 0.35, ease: 'easeOut' }}
-                                className={`font-black text-5xl md:text-6xl whitespace-nowrap text-center ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_30px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,1)]'}`}
+                                className={`w-full font-black text-5xl md:text-6xl text-center ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_30px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,1)]'}`}
                             >
                                 {fp.val > 0 ? `+${fp.val}` : fp.val}
                                 <div className="text-2xl md:text-3xl text-center opacity-90 mt-1 font-bold tracking-widest">{fp.label}</div>

@@ -71,7 +71,7 @@ export default function ITMatch() {
                         setScore(s.score ?? 0)
                         setAnswers(s.answers ?? {})
                         setAnswerStats(s.answerStats ?? [])
-                        setQuestionStartTime(Date.now())
+                        setQuestionStartTime(s.questionStartTime ?? Date.now())
                         setCurrentPotentialScore(MAX_Q_POINTS)
                         return
                     }
@@ -99,7 +99,7 @@ export default function ITMatch() {
         if (!user || !questions.length || gameOver) return
         sessionStorage.setItem(`itm_session_${user.id}`, JSON.stringify({
             questionIds: questions.map(q => q.id),
-            currentIndex, score, answers, answerStats
+            currentIndex, score, answers, answerStats, questionStartTime
         }))
     }, [currentIndex, score]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -256,10 +256,10 @@ export default function ITMatch() {
             {/* HUD */}
             <div className="w-full max-w-lg md:max-w-xl lg:max-w-3xl flex justify-between items-start mb-2 md:mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative px-3 bg-black/50 backdrop-blur-sm rounded-xl">
                 <div className="flex flex-col gap-1 md:gap-2 shrink-0">
-                    <h1 className="text-base md:text-2xl font-mono text-primary flex items-center gap-1 md:gap-2">
-                        <Search size={18} className="md:w-6 md:h-6 shrink-0" /> IT_MATCH
+                    <h1 className="text-xl md:text-3xl font-mono text-primary flex items-center gap-2 md:gap-3">
+                        <Search size={22} className="md:w-7 md:h-7 shrink-0" /> IT_MATCH
                     </h1>
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-4 md:h-6 w-auto object-contain invert opacity-70" />
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-6 md:h-8 w-auto object-contain invert opacity-70" />
                 </div>
                 <div className="flex gap-3 md:gap-8 text-right shrink-0">
                     <div className="flex flex-col items-end">
@@ -283,7 +283,7 @@ export default function ITMatch() {
                             initial={{ opacity: 0, y: 0, scale: 0.5 }}
                             animate={{ opacity: 1, y: -100, scale: 1.5 }}
                             exit={{ opacity: 0 }}
-                            className={`z-[60] font-bold pointer-events-none text-4xl md:text-5xl whitespace-nowrap text-center drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
+                            className={`w-full z-[60] font-bold pointer-events-none text-4xl md:text-5xl text-center drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
                         >
                             {fp.val > 0 ? `+${fp.val}` : fp.val}
                             <div className="text-xl md:text-2xl text-center opacity-90 mt-2">{fp.label}</div>
