@@ -10,6 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 //   1. Leet-speak substitution  (k4rwa → karwa → kurwa via regex)
 //   2. Repeated-char collapse   (kuurwwaa → kurwa)
 //   3. Single-char insertion    (kXurwa matches k.?u.?r.?w.?a)
+//   4. o/u vowel swap           (sk0rwiel → skorwiel → skurwiel)
 // Nick field already strips non-alphanumeric, so only [a-z0-9] reach here.
 
 const LEET: Record<string, string> = {
@@ -43,16 +44,22 @@ function normalizeProfanity(s: string): string {
  *  including common obfuscation techniques. */
 export function containsProfanity(nick: string): boolean {
     const norm = normalizeProfanity(nick)
+    // Polish o/ó/u ambiguity: '0' maps to 'o' by leet but users also use it for 'u'
+    // (sk0rwiel → skorwiel → after o→u: skurwiel). Run a second pass with o→u.
+    const normOU = norm.replace(/o/g, 'u')
 
     for (const root of BAD_ROOTS) {
         // Direct substring match (covers basic + leet + collapsed)
         if (norm.includes(root)) return true
+        if (normOU.includes(root)) return true
 
         // Insertion obfuscation: allow up to 1 extra char between each letter
         // e.g. "kXurwa" → matches k.?u.?r.?w.?a
         if (root.length >= 4) {
             const pattern = root.split('').join('.{0,1}')
-            if (new RegExp(pattern).test(norm)) return true
+            const re = new RegExp(pattern)
+            if (re.test(norm)) return true
+            if (re.test(normOU)) return true
         }
     }
     return false
