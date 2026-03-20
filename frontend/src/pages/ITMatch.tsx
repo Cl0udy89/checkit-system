@@ -55,41 +55,13 @@ export default function ITMatch() {
 
     useEffect(() => {
         if (data && user) {
-            let loadedQuestions = [...data]
-            const savedStateStr = localStorage.getItem(`it_match_state_${user.id}`)
-
-            if (savedStateStr) {
-                try {
-                    const savedState = JSON.parse(savedStateStr)
-
-                    if (savedState.currentIndex >= savedState.questions?.length) {
-                        // Game was finished, restart
-                        localStorage.removeItem(`it_match_state_${user.id}`)
-                    } else if (savedState.questions && savedState.questions.length > 0) {
-                        setQuestions(savedState.questions)
-                        setCurrentIndex(savedState.currentIndex || 0)
-                        setScore(savedState.score || 0)
-                        setAnswers(savedState.answers || {})
-                        setAnswerStats(savedState.answerStats || [])
-
-                        // Restore precise time if available, otherwise it will just be from 0 again
-                        if (savedState.questionStartTime) {
-                            setQuestionStartTime(savedState.questionStartTime)
-                        } else {
-                            setQuestionStartTime(Date.now())
-                        }
-
-                        return // Skip shuffling since we re-loaded the old pool
-                    }
-                } catch (e) { console.error("Error parsing saved state", e) }
-            }
-
-            // If no saved state, setup a new shuffled game
+            // Always start fresh from question 1
+            localStorage.removeItem(`it_match_state_${user.id}`)
+            const loadedQuestions = [...data]
             for (let i = loadedQuestions.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [loadedQuestions[i], loadedQuestions[j]] = [loadedQuestions[j], loadedQuestions[i]];
             }
-
             setQuestions(loadedQuestions)
             setCurrentIndex(0)
             setScore(0)
@@ -99,21 +71,6 @@ export default function ITMatch() {
             setCurrentPotentialScore(MAX_Q_POINTS)
         }
     }, [data, user])
-
-    // Save progress continuously
-    useEffect(() => {
-        if (user && questions.length > 0 && !gameOver && gameState === 'playing') {
-            const stateToSave = {
-                currentIndex,
-                score,
-                answers,
-                answerStats,
-                questionStartTime,
-                questions
-            }
-            localStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))
-        }
-    }, [currentIndex, score, answers, answerStats, questionStartTime, user, questions, gameOver, gameState])
 
     // Timer Effect (Per Question)
     useEffect(() => {
@@ -163,19 +120,6 @@ export default function ITMatch() {
         setAnswers(newAnswers)
         setAnswerStats(newAnswerStats)
         setGameState('feedback')
-
-        // Force anti-cheat save immediately for the next state
-        if (user) {
-            const stateToSave = {
-                currentIndex: currentIndex + 1,
-                score: newScore,
-                answers: newAnswers,
-                answerStats: newAnswerStats,
-                questionStartTime: Date.now(), // Will be reset on setTimeout anyway
-                questions: questions
-            }
-            localStorage.setItem(`it_match_state_${user.id}`, JSON.stringify(stateToSave))
-        }
 
         setTimeout(() => {
             if (currentIndex < questions.length - 1) {
@@ -306,10 +250,11 @@ export default function ITMatch() {
                     {floatingPoints.map(fp => (
                         <motion.div
                             key={fp.id}
-                            initial={{ opacity: 0, y: 0, scale: 0.5 }}
-                            animate={{ opacity: 1, y: -100, scale: 1.5 }}
-                            exit={{ opacity: 0 }}
-                            className={`absolute z-[60] font-bold pointer-events-none text-4xl md:text-5xl whitespace-nowrap drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
+                            initial={{ opacity: 0, y: 10, scale: 0.7 }}
+                            animate={{ opacity: 1, y: -80, scale: 1.3 }}
+                            exit={{ opacity: 0, y: -120, scale: 1.0 }}
+                            transition={{ duration: 0.8, ease: 'easeOut' }}
+                            className={`absolute z-[60] font-bold pointer-events-none text-4xl md:text-5xl whitespace-nowrap ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,0.8)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]'}`}
                         >
                             {fp.val > 0 ? `+${fp.val}` : fp.val}
                             <div className="text-xl md:text-2xl text-center opacity-90 mt-2">{fp.label}</div>

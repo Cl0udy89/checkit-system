@@ -97,8 +97,8 @@ export default function Dashboard() {
     ]
 
     return (
-        <div className="min-h-screen lg:h-screen p-4 md:p-8 flex flex-col relative overflow-x-hidden overflow-y-auto lg:overflow-hidden bg-transparent w-full mx-auto">
-            <header className="flex flex-col lg:flex-row w-full justify-between items-center mb-12 z-10 gap-6 lg:gap-8 mt-4 relative">
+        <div className="min-h-screen p-4 md:p-8 flex flex-col relative overflow-x-hidden overflow-y-auto bg-transparent w-full mx-auto">
+            <header className="flex flex-col lg:flex-row w-full justify-between items-center mb-6 lg:mb-10 z-10 gap-6 lg:gap-8 mt-4 relative">
                 <div className="flex flex-col md:flex-row items-center justify-center md:justify-start w-full lg:w-auto gap-6 md:gap-8">
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
@@ -148,7 +148,7 @@ export default function Dashboard() {
             </header>
 
             {/* Grandmaster Progress Banner */}
-            <div className="mb-12 z-10 w-full">
+            <div className="mb-6 lg:mb-8 z-10 w-full">
                 <div className={`p-8 rounded-2xl border-2 ${gamesLeft === 0 ? 'bg-gradient-to-r from-accent/20 to-accent/5 border-accent' : 'bg-surface/80 backdrop-blur-xl border-gray-700/50'} flex flex-col md:flex-row items-center justify-between shadow-2xl transition-all relative overflow-hidden group`}>
 
                     {/* Background glow on hover */}
@@ -177,7 +177,7 @@ export default function Dashboard() {
             </div>
 
             {/* Symmetric Grid Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 z-10 flex-1 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 z-10 w-full">
                 {games.map((game) => {
                     const status = gameStatus?.[game.id.replace('-', '_')]
                     const isPlayed = status?.played
@@ -194,7 +194,7 @@ export default function Dashboard() {
                             className={`
                                 bg-white/5 backdrop-blur-xl border border-white/10 p-6 md:p-8 rounded-2xl
                                 ${isPlayed ? 'opacity-60 grayscale-[30%] bg-black/40' : `${game.hoverBorderClass} cursor-pointer shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:shadow-[0_16px_64px_rgba(255,255,255,0.05)] hover:bg-white/10`} 
-                                transition-all duration-300 group relative overflow-hidden flex flex-col h-full
+                                transition-all duration-300 group relative overflow-hidden flex flex-col
                             `}
                         >
                             {/* Inner glass light spot */}

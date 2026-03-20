@@ -27,7 +27,6 @@ export default function BinaryBrain() {
     const [currentPotentialScore, setCurrentPotentialScore] = useState(1000)
     const [questionStartTime, setQuestionStartTime] = useState(Date.now())
     const [gameStartTime] = useState(Date.now())
-    const [hasLoaded, setHasLoaded] = useState(false)
 
     // UI State
     const [gameState, setGameState] = useState<'playing' | 'feedback' | 'finished'>('playing')
@@ -52,55 +51,18 @@ export default function BinaryBrain() {
 
     const currentQ = questions ? questions[currentQIndex] : null
 
-    // Load saved progress if available
+    // Always start fresh from question 1
     useEffect(() => {
-        if (questions && user && !hasLoaded) {
-            const savedStateStr = localStorage.getItem(`binary_brain_state_${user.id}`)
-            if (savedStateStr) {
-                try {
-                    const savedState = JSON.parse(savedStateStr)
-                    if (savedState.currentQIndex >= questions.length || savedState.finished) {
-                        localStorage.removeItem(`binary_brain_state_${user.id}`)
-                        setCurrentQIndex(0)
-                        setTotalScore(0)
-                        setAnswers({})
-                        setQuestionStartTime(Date.now())
-                    } else {
-                        setCurrentQIndex(savedState.currentQIndex || 0)
-                        setTotalScore(savedState.totalScore || 0)
-                        setAnswers(savedState.answers || {})
-                        setAnswerStats(savedState.answerStats || [])
-
-                        // Always reset to now – restoring old timestamp would make
-                        // elapsed time huge and trigger instant TIMEOUT on resume.
-                        setQuestionStartTime(Date.now())
-                    }
-                } catch (e) {
-                    console.error("Error parsing saved state", e)
-                    setCurrentQIndex(0)
-                    setTotalScore(0)
-                    setAnswers({})
-                    setQuestionStartTime(Date.now())
-                }
-            } else {
-                setCurrentQIndex(0)
-                setTotalScore(0)
-                setAnswers({})
-                setAnswerStats([])
-                setQuestionStartTime(Date.now())
-            }
-            setHasLoaded(true)
+        if (questions && user) {
+            localStorage.removeItem(`binary_brain_state_${user.id}`)
+            setCurrentQIndex(0)
+            setTotalScore(0)
+            setAnswers({})
+            setAnswerStats([])
+            setQuestionStartTime(Date.now())
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [questions, user, hasLoaded])
-
-    // Save progress continuously
-    useEffect(() => {
-        if (hasLoaded && user && questions && gameState === 'playing') {
-            const stateToSave = { currentQIndex, totalScore, answers, answerStats, questionStartTime }
-            localStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify(stateToSave))
-        }
-    }, [hasLoaded, currentQIndex, totalScore, answers, questionStartTime, user, questions, gameState])
+    }, [questions])
 
     // Shuffle options immediately during render when question changes
     const shuffledOptions = useMemo(() => {
@@ -177,18 +139,6 @@ export default function BinaryBrain() {
         // Record Answer
         const newAnswers = { ...answers, [currentQ.id]: option.text }
         setAnswers(newAnswers)
-
-        // Force anti-cheat save immediately for the next state
-        if (hasLoaded && user) {
-            const nextState = {
-                currentQIndex: currentQIndex + 1,
-                totalScore: totalScore + pointsEarned,
-                answers: newAnswers,
-                answerStats: newAnswerStats,
-                questionStartTime: Date.now()
-            }
-            localStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify(nextState))
-        }
 
         // Wait a bit then move on
         setTimeout(() => {
@@ -351,11 +301,11 @@ export default function BinaryBrain() {
                         {floatingPoints.map(fp => (
                             <motion.div
                                 key={fp.id}
-                                initial={{ opacity: 0, y: 0, scale: 0.4 }}
-                                animate={{ opacity: 1, y: -210, scale: 2.0 }}
-                                exit={{ opacity: 0, scale: 1.5 }}
-                                transition={{ duration: 0.35, ease: 'easeOut' }}
-                                className={`absolute font-black text-5xl md:text-6xl whitespace-nowrap ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_30px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,1)]'}`}
+                                initial={{ opacity: 0, y: 10, scale: 0.7 }}
+                                animate={{ opacity: 1, y: -80, scale: 1.3 }}
+                                exit={{ opacity: 0, y: -120, scale: 1.0 }}
+                                transition={{ duration: 0.8, ease: 'easeOut' }}
+                                className={`absolute font-black text-4xl md:text-5xl whitespace-nowrap ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,0.8)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]'}`}
                             >
                                 {fp.val > 0 ? `+${fp.val}` : fp.val}
                                 <div className="text-2xl md:text-3xl text-center opacity-90 mt-1 font-bold tracking-widest">{fp.label}</div>
