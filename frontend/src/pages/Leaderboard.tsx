@@ -97,11 +97,11 @@ export default function Leaderboard() {
                             {data?.grandmaster?.length > 0 && (
                                 <div className="flex justify-center">
                                     <div className="w-full max-w-2xl flex justify-between items-center font-mono border-2 border-yellow-400/50 shadow-[0_0_30px_rgba(255,215,0,0.3)] bg-yellow-400/10 pb-2 px-6 py-4 rounded transition-colors hover:bg-accent/10">
-                                        <div className="flex items-center gap-6 overflow-hidden">
-                                            <span className="font-black text-yellow-400 text-5xl shrink-0 w-20">#1</span>
-                                            <span className="font-bold text-3xl md:text-4xl text-white truncate">{data.grandmaster[0].nick}</span>
+                                        <div className="flex items-center gap-3 md:gap-6 overflow-hidden">
+                                            <span className="font-black text-yellow-400 text-3xl md:text-5xl shrink-0 w-14 md:w-20">#1</span>
+                                            <span className="font-bold text-2xl md:text-4xl text-white truncate">{data.grandmaster[0].nick}</span>
                                         </div>
-                                        <span className="text-accent font-black text-3xl md:text-4xl shrink-0 ml-4">{data.grandmaster[0].score} SCORE</span>
+                                        <span className="text-accent font-black text-xl md:text-4xl shrink-0 ml-2 md:ml-4">{data.grandmaster[0].score}<span className="hidden md:inline"> SCORE</span></span>
                                     </div>
                                 </div>
                             )}
@@ -114,12 +114,12 @@ export default function Leaderboard() {
                                         {data.grandmaster.slice(1, Math.ceil((data.grandmaster.length - 1) / 2) + 1).map((entry: any, i: number) => {
                                             const idx = i + 1; // 1-indexed for the slice
                                             return (
-                                                <div key={idx} className="flex justify-between items-center font-mono text-xl md:text-2xl border-b border-accent/20 pb-2 px-4 py-3 rounded transition-colors hover:bg-accent/10">
-                                                    <span className="text-gray-100 flex items-center gap-4">
-                                                        <span className={`font-black w-16 ${idx === 1 ? 'text-gray-400 text-3xl' : idx === 2 ? 'text-amber-700 text-3xl' : 'text-accent text-3xl'}`}>#{idx + 1}</span>
-                                                        {entry.nick}
+                                                <div key={idx} className="flex justify-between items-center font-mono text-base md:text-2xl border-b border-accent/20 pb-2 px-4 py-3 rounded transition-colors hover:bg-accent/10">
+                                                    <span className="text-gray-100 flex items-center gap-2 md:gap-4 overflow-hidden">
+                                                        <span className={`font-black w-12 md:w-16 shrink-0 ${idx === 1 ? 'text-gray-400 text-xl md:text-3xl' : idx === 2 ? 'text-amber-700 text-xl md:text-3xl' : 'text-accent text-xl md:text-3xl'}`}>#{idx + 1}</span>
+                                                        <span className="truncate">{entry.nick}</span>
                                                     </span>
-                                                    <span className="text-accent font-black text-2xl md:text-3xl">{entry.score} SCORE</span>
+                                                    <span className="text-accent font-black text-base md:text-3xl shrink-0 ml-2">{entry.score}<span className="hidden md:inline"> SCORE</span></span>
                                                 </div>
                                             )
                                         })}
@@ -130,12 +130,12 @@ export default function Leaderboard() {
                                         {data.grandmaster.slice(Math.ceil((data.grandmaster.length - 1) / 2) + 1).map((entry: any, i: number) => {
                                             const idx = i + Math.ceil((data.grandmaster.length - 1) / 2) + 1; // 1-indexed for the slice
                                             return (
-                                                <div key={idx} className="flex justify-between items-center font-mono text-xl md:text-2xl border-b border-accent/20 pb-2 px-4 py-3 rounded transition-colors hover:bg-accent/10">
-                                                    <span className="text-gray-100 flex items-center gap-4">
-                                                        <span className={`font-black w-16 ${idx === 1 ? 'text-gray-400 text-3xl' : idx === 2 ? 'text-amber-700 text-3xl' : 'text-accent text-3xl'}`}>#{idx + 1}</span>
-                                                        {entry.nick}
+                                                <div key={idx} className="flex justify-between items-center font-mono text-base md:text-2xl border-b border-accent/20 pb-2 px-4 py-3 rounded transition-colors hover:bg-accent/10">
+                                                    <span className="text-gray-100 flex items-center gap-2 md:gap-4 overflow-hidden">
+                                                        <span className={`font-black w-12 md:w-16 shrink-0 ${idx === 1 ? 'text-gray-400 text-xl md:text-3xl' : idx === 2 ? 'text-amber-700 text-xl md:text-3xl' : 'text-accent text-xl md:text-3xl'}`}>#{idx + 1}</span>
+                                                        <span className="truncate">{entry.nick}</span>
                                                     </span>
-                                                    <span className="text-accent font-black text-2xl md:text-3xl">{entry.score} SCORE</span>
+                                                    <span className="text-accent font-black text-base md:text-3xl shrink-0 ml-2">{entry.score}<span className="hidden md:inline"> SCORE</span></span>
                                                 </div>
                                             )
                                         })}

@@ -242,8 +242,15 @@ export default function Dashboard() {
             </div>
 
             {/* Footer */}
-            <div className="mt-8 text-center text-sm text-gray-400 font-mono">
-                SYSTEM_ID: CHECKIT_NODE_01 // SECURE_CONNECTION // POWERED BY SPARKS.ENGINE
+            <div className="mt-8 text-center font-mono space-y-1">
+                <div>
+                    <a href="https://sparklublin.it/regulamin" target="_blank" rel="noreferrer" className="text-xs text-gray-500 hover:text-primary transition-colors">
+                        Regulamin
+                    </a>
+                </div>
+                <div className="text-sm text-gray-400">
+                    SYSTEM_ID: CHECKIT_NODE_01 // SECURE_CONNECTION // POWERED BY SPARKS.ENGINE
+                </div>
             </div>
         </div >
     )
