@@ -135,16 +135,16 @@ export default function Welcome() {
                             </p>
                             <div className="bg-black/40 p-3 rounded-lg border border-gray-800 space-y-3">
                                 <label className="flex items-start gap-2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
-                                    <input type="checkbox" checked={agreeRules} onChange={e => setAgreeRules(e.target.checked)} className="mt-0.5 w-4 h-4 accent-primary shrink-0 transition-transform hover:scale-110" />
-                                    <span>Zapoznałem/am się z <a href="https://sparklublin.it/regulamin" target="_blank" rel="noreferrer" className="text-primary hover:underline font-bold">Regulaminem</a> konkursów i aktywacji organizowanych przez SparkSome Venture Sp. z o.o. i akceptuję jego postanowienia.</span>
+                                    <input type="checkbox" checked={agreeRules} onChange={e => setAgreeRules(e.target.checked)} className="mt-0.5 w-4 h-4 accent-primary shrink-0" />
+                                    <span className="text-xs">Zapoznałem/am się z <a href="https://sparklublin.it/regulamin" target="_blank" rel="noreferrer" className="text-primary hover:underline font-bold">Regulaminem</a> konkursów i aktywacji organizowanych przez SparkSome Venture Sp. z o.o. i akceptuję jego postanowienia.</span>
                                 </label>
                                 <label className="flex items-start gap-2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
                                     <input type="checkbox" checked={agreeAge} onChange={e => setAgreeAge(e.target.checked)} className="mt-0.5 w-4 h-4 accent-primary shrink-0" />
-                                    <span>Oświadczam, że mam ukończone 18 lat lub posiadam zgodę opiekuna prawnego na udział w konkursie/aktywacji.</span>
+                                    <span className="text-xs">Oświadczam, że mam ukończone 18 lat lub posiadam zgodę opiekuna prawnego na udział w konkursie/aktywacji.</span>
                                 </label>
                                 <label className="flex items-start gap-2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
                                     <input type="checkbox" checked={agreeData} onChange={e => setAgreeData(e.target.checked)} className="mt-0.5 w-4 h-4 accent-primary shrink-0" />
-                                    <span>Przyjmuję do wiadomości, że moje dane osobowe (nick, adres e-mail) będą przetwarzane przez SparkSome Venture Sp. z o.o. w celu organizacji i przeprowadzenia konkursu, publikacji wyników oraz wydania nagród, zgodnie z Regulaminem i Polityką prywatności.</span>
+                                    <span className="text-xs">Przyjmuję do wiadomości, że moje dane osobowe (nick, adres e-mail) będą przetwarzane przez SparkSome Venture Sp. z o.o. w celu organizacji i przeprowadzenia konkursu, publikacji wyników oraz wydania nagród, zgodnie z Regulaminem i Polityką prywatności.</span>
                                 </label>
                             </div>
                         </div>

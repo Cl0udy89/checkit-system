@@ -33,19 +33,18 @@ export default function Leaderboard() {
     const Section = ({ title, list }: { title: string, list: any[] }) => (
         <div className="bg-surface border border-gray-700 rounded-lg p-6 shadow-lg h-full flex flex-col">
             <h3 className="text-2xl font-mono font-bold text-primary mb-6 border-b border-gray-800 pb-2 shrink-0">{title}</h3>
-            <div className="flex justify-between text-xs text-gray-500 font-mono mb-2 px-2 shrink-0">
-                <span>POZYCJA / NICK</span>
-                <span>SCORE</span>
+            <div className="grid grid-cols-[2.5rem_1fr_auto] text-xs text-gray-500 font-mono mb-2 px-2 shrink-0">
+                <span>POS</span>
+                <span>NICK</span>
+                <span>PUNKTY</span>
             </div>
             <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar h-[300px]">
                 <div className="space-y-3">
                     {list?.map((entry, idx) => (
-                        <div key={idx} className="flex justify-between items-center font-mono text-base md:text-lg border-b border-gray-800/50 pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
-                            <span className="text-gray-300 flex items-center gap-2 truncate pr-4">
-                                <span className={`font-bold shrink-0 ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
-                                <span className="truncate">{entry.nick}</span>
-                            </span>
-                            <span className="text-white font-bold text-lg md:text-xl shrink-0">{entry.score}<span className="hidden md:inline"> SCORE</span></span>
+                        <div key={idx} className="grid grid-cols-[2.5rem_1fr_auto] items-center font-mono text-base border-b border-gray-800/50 pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
+                            <span className={`font-bold shrink-0 ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
+                            <span className="truncate pr-2 text-gray-300">{entry.nick}</span>
+                            <span className="text-white font-bold text-lg shrink-0">{entry.score}</span>
                         </div>
                     ))}
                     {(!list || list.length === 0) && <div className="text-gray-600 text-sm">BRAK DANYCH</div>}
@@ -86,61 +85,32 @@ export default function Leaderboard() {
 
             {/* Grandmaster Section - Full Width on Top */}
             <div className="mb-12">
-                <div className="bg-surface border-4 border-accent rounded-xl p-8 shadow-[0_0_50px_rgba(243,234,95,0.2)] relative overflow-hidden transform hover:scale-[1.01] transition-transform">
-                    <div className="absolute top-0 right-0 p-32 bg-accent/10 rounded-full blur-[100px] transform translate-x-1/2 -translate-y-1/2"></div>
+                <div className="bg-surface border-4 border-accent rounded-xl p-6 md:p-8 shadow-[0_0_50px_rgba(243,234,95,0.2)] relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-32 bg-accent/10 rounded-full blur-[100px] transform translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
                     <div className="relative z-10">
-                        <h3 className="text-3xl font-mono font-bold text-accent mb-8 border-b-2 border-accent/30 pb-4 flex justify-between items-center">
-                            <span>TOP SCORE: ALL GAMES</span>
+                        <h3 className="text-2xl md:text-3xl font-mono font-bold text-accent mb-6 border-b-2 border-accent/30 pb-4">
+                            TOP SCORE: ALL GAMES
                         </h3>
-                        <div className="flex flex-col gap-8 max-w-5xl mx-auto">
-                            {/* 1st Place */}
-                            {data?.grandmaster?.length > 0 && (
-                                <div className="flex justify-center">
-                                    <div className="w-full max-w-2xl flex justify-between items-center font-mono border-2 border-yellow-400/50 shadow-[0_0_30px_rgba(255,215,0,0.3)] bg-yellow-400/10 pb-2 px-6 py-4 rounded transition-colors hover:bg-accent/10">
-                                        <div className="flex items-center gap-3 md:gap-6 overflow-hidden">
-                                            <span className="font-black text-yellow-400 text-3xl md:text-5xl shrink-0 w-14 md:w-20">#1</span>
-                                            <span className="font-bold text-2xl md:text-4xl text-white truncate">{data.grandmaster[0].nick}</span>
-                                        </div>
-                                        <span className="text-accent font-black text-xl md:text-4xl shrink-0 ml-2 md:ml-4">{data.grandmaster[0].score}<span className="hidden md:inline"> SCORE</span></span>
-                                    </div>
+                        <div className="grid grid-cols-[2.5rem_1fr_auto] text-xs text-gray-500 font-mono mb-2 px-2">
+                            <span>POS</span>
+                            <span>NICK</span>
+                            <span>PUNKTY</span>
+                        </div>
+                        <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1 custom-scrollbar">
+                            {data?.grandmaster?.map((entry: any, idx: number) => (
+                                <div key={idx} className={`grid grid-cols-[2.5rem_1fr_auto] items-center font-mono border-b border-accent/20 pb-2 px-2 py-2 rounded hover:bg-accent/5 transition-colors ${idx === 0 ? 'bg-yellow-400/5 border-yellow-400/30' : ''}`}>
+                                    <span className={`font-black shrink-0 text-xl md:text-2xl ${
+                                        idx === 0 ? 'text-yellow-400' :
+                                        idx === 1 ? 'text-gray-400' :
+                                        idx === 2 ? 'text-amber-700' :
+                                        'text-accent'
+                                    }`}>#{idx + 1}</span>
+                                    <span className={`truncate pr-2 font-bold text-base md:text-xl ${idx === 0 ? 'text-white' : 'text-gray-100'}`}>{entry.nick}</span>
+                                    <span className={`font-black text-base md:text-2xl shrink-0 ${idx === 0 ? 'text-accent' : 'text-accent/80'}`}>{entry.score}</span>
                                 </div>
-                            )}
-
-                            {/* Remaining Places in 2 Columns */}
-                            {data?.grandmaster?.length > 1 && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-                                    {/* Left Column */}
-                                    <div className="flex flex-col gap-4">
-                                        {data.grandmaster.slice(1, Math.ceil((data.grandmaster.length - 1) / 2) + 1).map((entry: any, i: number) => {
-                                            const idx = i + 1; // 1-indexed for the slice
-                                            return (
-                                                <div key={idx} className="flex justify-between items-center font-mono text-base md:text-2xl border-b border-accent/20 pb-2 px-4 py-3 rounded transition-colors hover:bg-accent/10">
-                                                    <span className="text-gray-100 flex items-center gap-2 md:gap-4 overflow-hidden">
-                                                        <span className={`font-black w-12 md:w-16 shrink-0 ${idx === 1 ? 'text-gray-400 text-xl md:text-3xl' : idx === 2 ? 'text-amber-700 text-xl md:text-3xl' : 'text-accent text-xl md:text-3xl'}`}>#{idx + 1}</span>
-                                                        <span className="truncate">{entry.nick}</span>
-                                                    </span>
-                                                    <span className="text-accent font-black text-base md:text-3xl shrink-0 ml-2">{entry.score}<span className="hidden md:inline"> SCORE</span></span>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-
-                                    {/* Right Column */}
-                                    <div className="flex flex-col gap-4">
-                                        {data.grandmaster.slice(Math.ceil((data.grandmaster.length - 1) / 2) + 1).map((entry: any, i: number) => {
-                                            const idx = i + Math.ceil((data.grandmaster.length - 1) / 2) + 1; // 1-indexed for the slice
-                                            return (
-                                                <div key={idx} className="flex justify-between items-center font-mono text-base md:text-2xl border-b border-accent/20 pb-2 px-4 py-3 rounded transition-colors hover:bg-accent/10">
-                                                    <span className="text-gray-100 flex items-center gap-2 md:gap-4 overflow-hidden">
-                                                        <span className={`font-black w-12 md:w-16 shrink-0 ${idx === 1 ? 'text-gray-400 text-xl md:text-3xl' : idx === 2 ? 'text-amber-700 text-xl md:text-3xl' : 'text-accent text-xl md:text-3xl'}`}>#{idx + 1}</span>
-                                                        <span className="truncate">{entry.nick}</span>
-                                                    </span>
-                                                    <span className="text-accent font-black text-base md:text-3xl shrink-0 ml-2">{entry.score}<span className="hidden md:inline"> SCORE</span></span>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
+                            ))}
+                            {(!data?.grandmaster || data.grandmaster.length === 0) && (
+                                <div className="text-gray-600 text-sm font-mono">BRAK DANYCH</div>
                             )}
                         </div>
                     </div>
