@@ -55,27 +55,20 @@ export default function Leaderboard() {
 
     return (
         <div className="min-h-screen bg-transparent p-4 md:p-8 relative overflow-y-auto overflow-x-hidden flex flex-col custom-scrollbar">
-            {/* Desktop Absolute Logo */}
-            <div className="hidden md:flex absolute top-8 right-8 z-20 flex-col items-end gap-2">
-                <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-24 invert" />
-            </div>
-
             <button
                 onClick={() => navigate('/dashboard')}
-                className="mt-8 md:mt-0 mb-6 md:mb-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors relative z-30"
+                className="mt-4 mb-6 flex items-center gap-2 text-gray-400 hover:text-white transition-colors relative z-30"
             >
                 <ArrowLeft size={20} /> POWRÓT
             </button>
 
-            <div className="flex flex-col justify-center items-center mb-12 text-center mt-4 w-full">
-                {/* Mobile Flow Logo */}
-                <div className="md:hidden flex justify-center w-full mb-6">
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-20 invert opacity-90" />
+            <div className="flex flex-col justify-center items-center mb-12 text-center mt-2 w-full">
+                <div className="flex items-center justify-center gap-4 md:gap-6 mb-4 md:mb-6">
+                    <h1 className="text-4xl md:text-6xl font-mono font-bold text-white tracking-tighter">
+                        RANKING OGÓLNY
+                    </h1>
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-10 md:h-14 invert opacity-90 shrink-0" />
                 </div>
-
-                <h1 className="text-4xl md:text-6xl font-mono font-bold text-white tracking-tighter mb-4 md:mb-6">
-                    RANKING OGÓLNY
-                </h1>
                 {data?.leaderboard_message && (
                     <div className="text-lg md:text-2xl font-bold font-mono text-accent px-6 py-3 bg-accent/20 border-2 border-accent rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(243,234,95,0.6)] text-center">
                         {data.leaderboard_message}

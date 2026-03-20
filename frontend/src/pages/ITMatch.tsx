@@ -53,10 +53,18 @@ export default function ITMatch() {
         retry: false
     })
 
+    // Block re-entry if game was already started this session
+    useEffect(() => {
+        if (user && sessionStorage.getItem(`it_match_started_${user.id}`)) {
+            navigate('/dashboard')
+        }
+    }, [user, navigate])
+
     useEffect(() => {
         if (data && user) {
             // Always start fresh from question 1
             localStorage.removeItem(`it_match_state_${user.id}`)
+            sessionStorage.setItem(`it_match_started_${user.id}`, 'true')
             const loadedQuestions = [...data]
             for (let i = loadedQuestions.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -137,6 +145,7 @@ export default function ITMatch() {
         setGameOver(true)
         if (user) {
             localStorage.removeItem(`it_match_state_${user.id}`)
+            sessionStorage.removeItem(`it_match_started_${user.id}`)
         }
         const endTime = Date.now()
         const duration = endTime - startTime
