@@ -45,7 +45,7 @@ export default function Leaderboard() {
                                 <span className={`font-bold shrink-0 ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
                                 <span className="truncate">{entry.nick}</span>
                             </span>
-                            <span className="text-white font-bold text-lg md:text-xl shrink-0">{entry.score} SCORE</span>
+                            <span className="text-white font-bold text-lg md:text-xl shrink-0">{entry.score}<span className="hidden md:inline"> SCORE</span></span>
                         </div>
                     ))}
                     {(!list || list.length === 0) && <div className="text-gray-600 text-sm">BRAK DANYCH</div>}
