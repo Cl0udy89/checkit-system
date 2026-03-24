@@ -51,9 +51,23 @@ export default function BinaryBrain() {
 
     const currentQ = questions ? questions[currentQIndex] : null
 
-    // Always start fresh from question 1
+    // Resume saved state or start fresh from Q1
     useEffect(() => {
         if (questions && user) {
+            const savedStr = localStorage.getItem(`binary_brain_state_${user.id}`)
+            if (savedStr) {
+                try {
+                    const saved = JSON.parse(savedStr)
+                    if (typeof saved.currentQIndex === 'number' && saved.currentQIndex < questions.length) {
+                        setCurrentQIndex(saved.currentQIndex)
+                        setTotalScore(saved.totalScore || 0)
+                        setAnswers(saved.answers || {})
+                        setAnswerStats(saved.answerStats || [])
+                        setQuestionStartTime(Date.now())
+                        return
+                    }
+                } catch (e) {}
+            }
             localStorage.removeItem(`binary_brain_state_${user.id}`)
             setCurrentQIndex(0)
             setTotalScore(0)
@@ -143,12 +157,22 @@ export default function BinaryBrain() {
         // Wait a bit then move on
         setTimeout(() => {
             if (currentQIndex < questions.length - 1) {
+                const nextQIndex = currentQIndex + 1
+                // Save progress so user can resume if they exit
+                if (user) {
+                    localStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify({
+                        currentQIndex: nextQIndex,
+                        totalScore: totalScore + pointsEarned,
+                        answers: newAnswers,
+                        answerStats: newAnswerStats
+                    }))
+                }
                 // IMPORTANT: Change state fully FIRST
                 setGameState('playing')
                 setLastAnswerCorrect(null)
                 setCurrentPotentialScore(MAX_Q_POINTS)
                 // THEN Change question
-                setCurrentQIndex(prev => prev + 1)
+                setCurrentQIndex(nextQIndex)
                 setQuestionStartTime(Date.now())
             } else {
                 finishGame(totalScore + pointsEarned, newAnswers, newAnswerStats) // Pass final updated score

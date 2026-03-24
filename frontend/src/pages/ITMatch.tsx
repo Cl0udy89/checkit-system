@@ -55,7 +55,24 @@ export default function ITMatch() {
 
     useEffect(() => {
         if (data && user) {
-            // Always start fresh from question 1
+            // Try to resume saved state
+            const savedStr = localStorage.getItem(`it_match_state_${user.id}`)
+            if (savedStr) {
+                try {
+                    const saved = JSON.parse(savedStr)
+                    if (saved.questions && Array.isArray(saved.questions) && typeof saved.currentIndex === 'number' && saved.currentIndex < saved.questions.length) {
+                        setQuestions(saved.questions)
+                        setCurrentIndex(saved.currentIndex)
+                        setScore(saved.score || 0)
+                        setAnswers(saved.answers || {})
+                        setAnswerStats(saved.answerStats || [])
+                        setQuestionStartTime(Date.now())
+                        setCurrentPotentialScore(MAX_Q_POINTS)
+                        return
+                    }
+                } catch (e) {}
+            }
+            // Fresh start
             localStorage.removeItem(`it_match_state_${user.id}`)
             const loadedQuestions = [...data]
             for (let i = loadedQuestions.length - 1; i > 0; i--) {
@@ -123,7 +140,18 @@ export default function ITMatch() {
 
         setTimeout(() => {
             if (currentIndex < questions.length - 1) {
-                setCurrentIndex(prev => prev + 1)
+                const nextIndex = currentIndex + 1
+                // Save progress so user can resume if they exit
+                if (user) {
+                    localStorage.setItem(`it_match_state_${user.id}`, JSON.stringify({
+                        questions,
+                        currentIndex: nextIndex,
+                        score: newScore,
+                        answers: newAnswers,
+                        answerStats: newAnswerStats
+                    }))
+                }
+                setCurrentIndex(nextIndex)
                 setQuestionStartTime(Date.now())
                 setCurrentPotentialScore(MAX_Q_POINTS)
                 setGameState('playing')
