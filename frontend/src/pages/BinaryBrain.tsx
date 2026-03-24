@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchGameContent, submitGameScore, BACKEND_URL } from '../lib/api'
@@ -51,27 +51,10 @@ export default function BinaryBrain() {
 
     const currentQ = questions ? questions[currentQIndex] : null
 
-    // Track user id for cleanup on unmount
-    const userIdRef = useRef<string | null>(null)
-    useEffect(() => { userIdRef.current = user?.id ?? null }, [user])
-    useEffect(() => {
-        return () => {
-            if (userIdRef.current) sessionStorage.removeItem(`binary_brain_started_${userIdRef.current}`)
-        }
-    }, [])
-
-    // Block re-entry if game was already started this session
-    useEffect(() => {
-        if (user && sessionStorage.getItem(`binary_brain_started_${user.id}`)) {
-            navigate('/dashboard')
-        }
-    }, [user, navigate])
-
     // Always start fresh from question 1
     useEffect(() => {
         if (questions && user) {
             localStorage.removeItem(`binary_brain_state_${user.id}`)
-            sessionStorage.setItem(`binary_brain_started_${user.id}`, 'true')
             setCurrentQIndex(0)
             setTotalScore(0)
             setAnswers({})
@@ -174,7 +157,6 @@ export default function BinaryBrain() {
     }
 
     function finishGame(finalScore: number, finalAnswers?: Record<string, string>, finalStats?: any[]) {
-        if (user) sessionStorage.removeItem(`binary_brain_started_${user.id}`)
         setGameState('finished')
         const boxOpened = false
         setFinalResult({ score: finalScore, boxOpened, stats: finalStats || answerStats })

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchITMatchQuestions, submitGameScore, BACKEND_URL } from '../lib/api'
@@ -53,27 +53,10 @@ export default function ITMatch() {
         retry: false
     })
 
-    // Track user id for cleanup on unmount
-    const userIdRef = useRef<string | null>(null)
-    useEffect(() => { userIdRef.current = user?.id ?? null }, [user])
-    useEffect(() => {
-        return () => {
-            if (userIdRef.current) sessionStorage.removeItem(`it_match_started_${userIdRef.current}`)
-        }
-    }, [])
-
-    // Block re-entry if game was already started this session
-    useEffect(() => {
-        if (user && sessionStorage.getItem(`it_match_started_${user.id}`)) {
-            navigate('/dashboard')
-        }
-    }, [user, navigate])
-
     useEffect(() => {
         if (data && user) {
             // Always start fresh from question 1
             localStorage.removeItem(`it_match_state_${user.id}`)
-            sessionStorage.setItem(`it_match_started_${user.id}`, 'true')
             const loadedQuestions = [...data]
             for (let i = loadedQuestions.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -154,7 +137,6 @@ export default function ITMatch() {
         setGameOver(true)
         if (user) {
             localStorage.removeItem(`it_match_state_${user.id}`)
-            sessionStorage.removeItem(`it_match_started_${user.id}`)
         }
         const endTime = Date.now()
         const duration = endTime - startTime
