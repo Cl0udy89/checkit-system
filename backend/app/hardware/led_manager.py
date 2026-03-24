@@ -279,8 +279,7 @@ class LEDManager:
             completed = True
 
         except asyncio.CancelledError:
-            # Cancelled by next play_effect → just set solid red and exit
-            self._set_solid_color("red")
+            # Cancelled by next play_effect → do NOT override color, the caller already set it
             self.current_state = "manual"
             return
 
