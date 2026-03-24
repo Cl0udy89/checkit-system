@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchITMatchQuestions, submitGameScore, BACKEND_URL } from '../lib/api'
@@ -52,6 +52,15 @@ export default function ITMatch() {
         refetchOnWindowFocus: false,
         retry: false
     })
+
+    // Track user id for cleanup on unmount
+    const userIdRef = useRef<string | null>(null)
+    useEffect(() => { userIdRef.current = user?.id ?? null }, [user])
+    useEffect(() => {
+        return () => {
+            if (userIdRef.current) sessionStorage.removeItem(`it_match_started_${userIdRef.current}`)
+        }
+    }, [])
 
     // Block re-entry if game was already started this session
     useEffect(() => {
