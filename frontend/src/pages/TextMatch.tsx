@@ -177,6 +177,17 @@ export default function TextMatch() {
         setStarted(true)
     }
 
+    // Mid-game status polling (anti-cheat)
+    const { isError: isPollError, error: pollError } = useQuery({
+        queryKey: ['tmStatusPoll'],
+        queryFn: () => fetchTextMatchQuestions(8),
+        refetchInterval: 5000,
+        retry: false,
+        enabled: started && !finished
+    })
+    const pollDetail = (pollError as any)?.response?.data?.detail
+    const pollBlocked = isPollError && (pollDetail === 'ZAWODY_ZAKONCZONE' || pollDetail === 'PRZERWA_TECHNICZNA')
+
     // ── game-status (already played) ──────────────────────────────────────────
     const { data: gameStatus } = useQuery({
         queryKey: ['gameStatus', user?.id],
@@ -190,6 +201,17 @@ export default function TextMatch() {
     if (isLoading) return (
         <div className="min-h-screen flex items-center justify-center font-mono text-primary text-xl animate-pulse">
             &gt; ŁADOWANIE_PYTAŃ..._
+        </div>
+    )
+
+    if (pollBlocked) return (
+        <div className="min-h-screen flex flex-col items-center justify-center gap-6 font-mono">
+            <div className="crt-border bg-surface p-8 max-w-md w-full text-center">
+                <p className="text-primary/50 text-[10px] uppercase tracking-widest mb-2">&gt; SYSTEM_STATUS</p>
+                <h1 className="text-2xl font-bold text-red-400 mb-4">{pollDetail === 'PRZERWA_TECHNICZNA' ? 'PRZERWA TECHNICZNA' : 'ZAWODY ZAKOŃCZONE'}</h1>
+                <p className="text-primary/40 mb-8">{pollDetail === 'PRZERWA_TECHNICZNA' ? 'System chwilowo niedostępny.' : 'System zablokowany przez administratora.'}</p>
+                <button onClick={() => navigate('/dashboard')} className="border border-primary/25 hover:border-primary/60 text-primary/60 hover:text-primary px-6 py-3 font-mono text-sm transition-all">&gt; POWRÓT</button>
+            </div>
         </div>
     )
 

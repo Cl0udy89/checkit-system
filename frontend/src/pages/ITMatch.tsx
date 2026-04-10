@@ -50,6 +50,18 @@ export default function ITMatch() {
         retry: false
     })
 
+    // Mid-game status polling (anti-cheat — mirrors BinaryBrain approach)
+    const { isError: isPollError, error: pollError } = useQuery({
+        queryKey: ['itmStatusPoll'],
+        queryFn: fetchITMatchQuestions,
+        refetchInterval: 5000,
+        retry: false,
+        enabled: !gameOver && questions.length > 0
+    })
+
+    const activeError = isError ? error : (isPollError ? pollError : null)
+    const hasError = isError || isPollError
+
     // ── SESSION PERSISTENCE ── DO NOT REMOVE (preserves in-progress game on accidental navigation)
     // Restores question order, index and score from sessionStorage. Cleared on game finish.
     useEffect(() => {
@@ -184,11 +196,11 @@ export default function ITMatch() {
         </div>
     )
 
-    if (isError) {
+    if (hasError) {
         // @ts-ignore
-        if (error?.response?.status === 403) {
+        if (activeError?.response?.status === 403) {
             // @ts-ignore
-            const isBreak = error?.response?.data?.detail === "PRZERWA_TECHNICZNA"
+            const isBreak = activeError?.response?.data?.detail === "PRZERWA_TECHNICZNA"
             return (
                 <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center font-mono">
                     <div className="crt-border bg-surface p-8 max-w-md w-full">
