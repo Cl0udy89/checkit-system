@@ -127,7 +127,6 @@ export default function BinaryBrain() {
     const submitMutation = useMutation({
         mutationFn: submitGameScore,
         onSuccess: (data) => {
-            // Already handled by local state, this is just to confirm save
             console.log("Score saved:", data)
         },
         onError: (err) => {
@@ -140,13 +139,11 @@ export default function BinaryBrain() {
         if (!questions || gameState !== 'playing') return
         const currentQ = questions[currentQIndex]
 
-        // Stop timer visually
         setGameState('feedback')
 
         const isCorrect = option.isCorrect
         setLastAnswerCorrect(isCorrect)
 
-        // Calculate points for this question
         let pointsEarned = 0
         if (option.text === "TIMEOUT") {
             showPoints(0, "CZAS MINĄŁ")
@@ -162,22 +159,18 @@ export default function BinaryBrain() {
         const newAnswerStats = [...answerStats, { isCorrect, timeMs: timeElapsed }]
         setAnswerStats(newAnswerStats)
 
-        // Record Answer
         const newAnswers = { ...answers, [currentQ.id]: option.text }
         setAnswers(newAnswers)
 
-        // Wait a bit then move on
         setTimeout(() => {
             if (currentQIndex < questions.length - 1) {
-                // IMPORTANT: Change state fully FIRST
                 setGameState('playing')
                 setLastAnswerCorrect(null)
                 setCurrentPotentialScore(MAX_Q_POINTS)
-                // THEN Change question
                 setCurrentQIndex(prev => prev + 1)
                 setQuestionStartTime(Date.now())
             } else {
-                finishGame(totalScore + pointsEarned, newAnswers, newAnswerStats) // Pass final updated score
+                finishGame(totalScore + pointsEarned, newAnswers, newAnswerStats)
             }
         }, 1500)
     }
@@ -204,7 +197,6 @@ export default function BinaryBrain() {
     const { isError: isPollError, error: pollError } = useQuery({
         queryKey: ['gameStatusPoll'],
         queryFn: () => fetchGameContent('binary_brain'),
-        // We poll the content endpoint which throws 403 if blocked
         refetchInterval: 5000,
         retry: false,
         enabled: gameState === 'playing' || gameState === 'feedback'
@@ -213,7 +205,11 @@ export default function BinaryBrain() {
     const activeError = isError ? error : (isPollError ? pollError : null)
     const hasError = isError || isPollError
 
-    if (isLoading) return <div className="p-10 text-center animate-pulse">LOADING_NEURAL_LINK...</div>
+    if (isLoading) return (
+        <div className="min-h-screen flex items-center justify-center font-mono text-primary text-xl animate-pulse">
+            &gt; LOADING_NEURAL_LINK..._
+        </div>
+    )
 
     if (hasError) {
         // @ts-ignore
@@ -222,29 +218,35 @@ export default function BinaryBrain() {
             const detail = activeError?.response?.data?.detail
             if (detail === "ALREADY_PLAYED") {
                 return (
-                    <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
-                        <h1 className="text-4xl font-bold mb-4">GRA ZAKOŃCZONA</h1>
-                        <p className="mb-8 text-xl">Masz już zapisany wynik dla tej gry. Dozwolona jest tylko jedna gra w każdej kategorii!</p>
-                        <button onClick={() => navigate('/dashboard')} className="border border-red-500 text-red-500 px-6 py-3 hover:bg-red-900/20">POWRÓT</button>
+                    <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center font-mono">
+                        <div className="crt-border bg-surface p-8 max-w-md w-full">
+                            <p className="text-primary/50 text-[10px] uppercase tracking-widest mb-2">&gt; ERROR</p>
+                            <h1 className="text-2xl font-bold text-red-400 mb-4">GRA ZAKOŃCZONA</h1>
+                            <p className="text-primary/40 mb-8">Masz już zapisany wynik dla tej gry. Dozwolona jest tylko jedna gra w każdej kategorii!</p>
+                            <button onClick={() => navigate('/dashboard')} className="border border-primary/25 hover:border-primary/60 text-primary/60 hover:text-primary px-6 py-3 font-mono text-sm transition-all">&gt; POWRÓT</button>
+                        </div>
                     </div>
                 )
             }
             const isBreak = detail === "PRZERWA_TECHNICZNA"
             return (
-                <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
-                    <h1 className="text-4xl font-bold mb-4">{isBreak ? "PRZERWA TECHNICZNA" : "ZAWODY ZAKOŃCZONE"}</h1>
-                    <p className="mb-8 text-xl">{isBreak ? "System chwilowo niedostępny. Zostań na stanowisku!" : "System został zablokowany przez administratora."}</p>
-                    <button onClick={() => navigate('/dashboard')} className="border border-red-500 text-red-500 px-6 py-3 hover:bg-red-900/20">POWRÓT</button>
+                <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center font-mono">
+                    <div className="crt-border bg-surface p-8 max-w-md w-full">
+                        <p className="text-primary/50 text-[10px] uppercase tracking-widest mb-2">&gt; SYSTEM_STATUS</p>
+                        <h1 className="text-2xl font-bold text-red-400 mb-4">{isBreak ? "PRZERWA TECHNICZNA" : "ZAWODY ZAKOŃCZONE"}</h1>
+                        <p className="text-primary/40 mb-8">{isBreak ? "System chwilowo niedostępny. Zostań na stanowisku!" : "System został zablokowany przez administratora."}</p>
+                        <button onClick={() => navigate('/dashboard')} className="border border-primary/25 hover:border-primary/60 text-primary/60 hover:text-primary px-6 py-3 font-mono text-sm transition-all">&gt; POWRÓT</button>
+                    </div>
                 </div>
             )
         }
-        return <div className="p-10 text-center text-red-500">SYSTEM_ERROR: {(activeError as any)?.message || "Unknown error"}</div>
+        return <div className="p-10 text-center text-red-500 font-mono">SYSTEM_ERROR: {(activeError as any)?.message || "Unknown error"}</div>
     }
 
-    if (!questions || questions.length === 0) return <div className="p-10 text-center text-red-500">NO_DATA_FOUND</div>
+    if (!questions || questions.length === 0) return <div className="p-10 text-center text-red-500 font-mono">NO_DATA_FOUND</div>
 
     const q = questions ? questions[currentQIndex] : null
-    if (!q && gameState !== 'finished') return <div className="p-10 text-center text-red-500">ERROR_LOADING_QUESTION</div>
+    if (!q && gameState !== 'finished') return <div className="p-10 text-center text-red-500 font-mono">ERROR_LOADING_QUESTION</div>
 
     if (gameState === 'finished' && finalResult) {
         const stats = finalResult.stats || []
@@ -254,42 +256,57 @@ export default function BinaryBrain() {
         const incorrectCount = stats.length - correctCount
 
         return (
-            <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col justify-center items-center relative md:touch-none overflow-x-hidden overflow-y-auto custom-scrollbar">
-                <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center bg-black/50 backdrop-blur-sm px-6 py-3 rounded-xl">WERYFIKACJA ZAKOŃCZONA</h1>
+            <div className="min-h-[100dvh] p-4 md:p-8 flex flex-col justify-center items-center relative overflow-x-hidden overflow-y-auto custom-scrollbar">
+                {/* Grid bg */}
+                <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{
+                    backgroundImage: 'linear-gradient(rgba(0,255,65,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,1) 1px, transparent 1px)',
+                    backgroundSize: '40px 40px'
+                }} />
 
-                <div className="bg-surface/95 border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8 backdrop-blur-sm">
-                    <div className="text-center mb-6 md:mb-8 border border-gray-700 rounded-lg bg-black/50 p-6 md:p-8 flex flex-col items-center">
-                        <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">WYNIK KOŃCOWY</div>
-                        <div className="text-5xl md:text-7xl font-bold text-accent font-mono">{finalResult.score}</div>
+                <p className="text-primary/50 text-[10px] font-mono uppercase tracking-widest mb-2 z-10">&gt; BINARY_BRAIN</p>
+                <h1 className="text-3xl md:text-4xl font-mono font-bold text-primary text-glow mb-8 text-center z-10">WERYFIKACJA ZAKOŃCZONA</h1>
+
+                <div className="crt-border bg-surface p-4 md:p-8 w-full max-w-4xl z-10 mb-8">
+                    {/* Terminal titlebar */}
+                    <div className="flex items-center gap-2 pb-4 mb-6 border-b border-primary/20">
+                        <div className="w-2 h-2 bg-primary/40" />
+                        <div className="w-2 h-2 bg-primary/20" />
+                        <div className="w-2 h-2 bg-primary/20" />
+                        <span className="text-primary/40 text-[10px] ml-2">results.sh</span>
+                    </div>
+
+                    <div className="text-center mb-6 md:mb-8 border border-primary/20 bg-black/50 p-6 md:p-8 flex flex-col items-center">
+                        <p className="text-primary/50 text-[10px] font-mono uppercase tracking-widest mb-2">&gt; WYNIK_KOŃCOWY</p>
+                        <span className="font-mono font-black text-primary text-glow-lg tabular-nums" style={{ fontSize: 'clamp(3rem, 10vw, 5rem)' }}>{finalResult.score}</span>
                         {!user && <div className="text-red-500 mt-4 text-sm font-mono tracking-widest">BRAK SESJI LOGOWANIA. WYNIK NIE ZOSTAŁ ZAPISANY.</div>}
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-8">
-                        <div className="p-3 md:p-4 border border-green-900/50 bg-green-900/10 rounded-lg flex flex-col items-center text-center">
-                            <div className="text-[10px] md:text-xs text-green-500/80 mb-2 font-mono">NAJSZYBSZA ODPOWIEDŹ</div>
-                            <div className="text-xl md:text-2xl font-bold text-green-400 font-mono mb-1">{fastestAnswer ? (fastestAnswer.timeMs / 1000).toFixed(2) + 's' : '---'}</div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-6 md:mb-8">
+                        <div className="p-3 md:p-4 border border-primary/20 bg-primary/[0.03] flex flex-col items-center text-center">
+                            <p className="text-[10px] text-primary/50 mb-2 font-mono uppercase tracking-widest">&gt; NAJSZYBSZA</p>
+                            <span className="text-xl md:text-2xl font-bold text-primary font-mono">{fastestAnswer ? (fastestAnswer.timeMs / 1000).toFixed(2) + 's' : '---'}</span>
                         </div>
-                        <div className="p-3 md:p-4 border border-red-900/50 bg-red-900/10 rounded-lg flex flex-col items-center text-center">
-                            <div className="text-[10px] md:text-xs text-red-500/80 mb-2 font-mono">NAJDŁUŻSZE ZASTANOWIENIE</div>
-                            <div className="text-xl md:text-2xl font-bold text-red-400 font-mono mb-1">{slowestAnswer ? (slowestAnswer.timeMs / 1000).toFixed(2) + 's' : '---'}</div>
+                        <div className="p-3 md:p-4 border border-red-500/20 bg-red-500/[0.03] flex flex-col items-center text-center">
+                            <p className="text-[10px] text-red-400/50 mb-2 font-mono uppercase tracking-widest">&gt; NAJDŁUŻSZA</p>
+                            <span className="text-xl md:text-2xl font-bold text-red-400 font-mono">{slowestAnswer ? (slowestAnswer.timeMs / 1000).toFixed(2) + 's' : '---'}</span>
                         </div>
-                        <div className="p-3 md:p-4 border border-blue-900/50 bg-blue-900/10 rounded-lg flex flex-col items-center text-center">
-                            <div className="text-[10px] md:text-xs text-blue-500/80 mb-2 font-mono">POPRAWNE</div>
-                            <div className="text-xl md:text-2xl font-bold text-blue-400 font-mono mb-1">{correctCount}</div>
+                        <div className="p-3 md:p-4 border border-primary/20 bg-primary/[0.03] flex flex-col items-center text-center">
+                            <p className="text-[10px] text-primary/50 mb-2 font-mono uppercase tracking-widest">&gt; POPRAWNE</p>
+                            <span className="text-xl md:text-2xl font-bold text-primary font-mono">{correctCount}</span>
                         </div>
-                        <div className="p-3 md:p-4 border border-orange-900/50 bg-orange-900/10 rounded-lg flex flex-col items-center text-center">
-                            <div className="text-[10px] md:text-xs text-orange-500/80 mb-2 font-mono">BŁĘDNE</div>
-                            <div className="text-xl md:text-2xl font-bold text-orange-400 font-mono mb-1">{incorrectCount}</div>
+                        <div className="p-3 md:p-4 border border-red-500/20 bg-red-500/[0.03] flex flex-col items-center text-center">
+                            <p className="text-[10px] text-red-400/50 mb-2 font-mono uppercase tracking-widest">&gt; BŁĘDNE</p>
+                            <span className="text-xl md:text-2xl font-bold text-red-400 font-mono">{incorrectCount}</span>
                         </div>
                     </div>
 
                     <div className="flex flex-col items-center mt-6 md:mt-8">
-                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert mb-8 opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-12 md:h-16 invert mb-8 opacity-60" />
                         <button
                             onClick={() => navigate('/dashboard')}
-                            className="bg-gray-800 hover:bg-gray-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-lg font-bold font-mono text-lg md:text-xl transition-colors border border-gray-600"
+                            className="border border-primary/25 hover:border-primary/60 bg-primary/[0.04] hover:bg-primary/[0.08] text-primary/60 hover:text-primary px-8 py-4 font-bold font-mono text-lg transition-all"
                         >
-                            POWRÓT DO BAZY
+                            &gt; POWRÓT_DO_BAZY
                         </button>
                     </div>
                 </div>
@@ -298,124 +315,129 @@ export default function BinaryBrain() {
     }
 
     return (
-        <div className="min-h-[100dvh] bg-transparent flex flex-col p-2 md:p-6 relative md:touch-none overflow-x-hidden overflow-y-auto md:overflow-hidden custom-scrollbar">
+        <div className="min-h-[100dvh] flex flex-col p-2 md:p-6 relative overflow-x-hidden overflow-y-auto md:overflow-hidden custom-scrollbar">
+            {/* Grid bg */}
+            <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{
+                backgroundImage: 'linear-gradient(rgba(0,255,65,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,1) 1px, transparent 1px)',
+                backgroundSize: '40px 40px'
+            }} />
+
             {/* HUD */}
-            <div className="w-full md:w-2/3 flex justify-between items-center mb-4 pb-2 md:pb-3 gap-4 z-10 relative mx-auto bg-black/60 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3 md:py-4 border border-gray-800/60">
+            <div className="w-full md:w-2/3 flex justify-between items-center mb-4 gap-4 z-10 relative mx-auto crt-border bg-surface px-4 md:px-6 py-3 md:py-4">
                 <div className="flex flex-col gap-1 shrink-0">
-                    <h1 className="text-xl md:text-3xl font-mono text-primary flex items-center gap-2 md:gap-3 font-bold tracking-wider">
-                        <Zap size={22} className="md:w-7 md:h-7 shrink-0" /> BINARY_BRAIN
+                    <p className="text-primary/50 text-[9px] font-mono uppercase tracking-widest">&gt; BINARY_BRAIN</p>
+                    <h1 className="text-lg md:text-2xl font-mono text-primary flex items-center gap-2 font-bold tracking-wider">
+                        <Zap size={18} className="shrink-0" />
+                        <span className="text-glow">BINARY_BRAIN</span>
                     </h1>
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-7 md:h-9 w-auto object-contain invert opacity-70" />
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-6 md:h-8 w-auto object-contain invert opacity-40" />
                 </div>
                 <div className="flex gap-4 md:gap-10">
                     <div className="flex flex-col items-center">
-                        <div className="text-[9px] md:text-xs text-gray-500 font-mono tracking-widest">TOTAL SCORE</div>
-                        <div className="text-xl md:text-4xl font-mono font-bold text-accent tabular-nums">{totalScore}</div>
+                        <p className="text-[9px] md:text-[10px] text-primary/40 font-mono tracking-widest uppercase">TOTAL</p>
+                        <span className="font-mono font-black text-primary text-glow tabular-nums text-xl md:text-4xl">{totalScore}</span>
                     </div>
                     <div className="flex flex-col items-center">
-                        <div className="text-[9px] md:text-xs text-gray-500 font-mono tracking-widest">POTENTIAL</div>
-                        <div className={`text-2xl md:text-5xl font-mono font-bold tracking-widest text-shadow-neon tabular-nums ${gameState === 'feedback' ? (lastAnswerCorrect ? 'text-green-500' : 'text-red-500') : 'text-white'}`}>
+                        <p className="text-[9px] md:text-[10px] text-primary/40 font-mono tracking-widest uppercase">PULA</p>
+                        <span className={`text-2xl md:text-5xl font-mono font-bold tracking-widest tabular-nums ${gameState === 'feedback' ? (lastAnswerCorrect ? 'text-primary text-glow-lg' : 'text-red-400') : 'text-white'}`}>
                             {currentPotentialScore.toString().padStart(4, '0')}
-                        </div>
+                        </span>
                     </div>
                 </div>
             </div>
 
             {/* Question Card */}
             <div className="flex-1 flex flex-col justify-center">
-                {/* Card wrapper — floating points anchor here so inset-0 == card bounds */}
-                <div className="w-full md:w-2/3 mx-auto mt-6 md:mt-8 relative">
-                <div className="absolute inset-0 flex justify-center items-center pointer-events-none z-50">
-                    <AnimatePresence>
-                        {floatingPoints.map(fp => (
-                            <motion.div
-                                key={fp.id}
-                                initial={{ opacity: 0, y: 0, scale: 0.4 }}
-                                animate={{ opacity: 1, y: -80, scale: 1.8 }}
-                                exit={{ opacity: 0, scale: 1.4 }}
-                                transition={{ duration: 0.35, ease: 'easeOut' }}
-                                className={`w-full font-black text-5xl md:text-6xl text-center ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_30px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,1)]'}`}
-                            >
-                                {fp.val > 0 ? `+${fp.val}` : fp.val}
-                                <div className="text-2xl md:text-3xl text-center opacity-90 mt-1 font-bold tracking-widest">{fp.label}</div>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
-                </div>
-
-                <AnimatePresence mode='wait'>
-                    <motion.div
-                        key={currentQIndex}
-                        initial={{ opacity: 0, x: 50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -50 }}
-                        className={`bg-surface border p-4 md:p-8 rounded-lg shadow-2xl relative overflow-hidden ${gameState === 'feedback' ? (lastAnswerCorrect ? 'border-green-500/50 bg-green-900/10' : 'border-red-500/50 bg-red-900/10') : 'border-gray-700'}`}
-                    >
-                        {/* Feedback dim overlay – dims card so floating points are prominent */}
-                        {gameState === 'feedback' && (
-                            <div className="absolute inset-0 bg-black/55 z-40 rounded-lg pointer-events-none transition-opacity duration-200" />
-                        )}
-
-                        <div className="absolute top-0 right-0 bg-gray-800 px-2 py-1 md:px-3 text-[10px] md:text-xs font-mono rounded-bl-lg">
-                            Q: {currentQIndex + 1} / {questions.length}
-                        </div>
-
-                        <h2 className="text-lg md:text-2xl font-bold mb-4 md:mb-8 text-white pr-12 md:pr-16">{q?.question}</h2>
-
-                        {/* Image Logic */}
-                        {q?.image && (
-                            <div className="mb-4 md:mb-6 flex justify-center mx-auto w-full">
-                                <img
-                                    src={`${BACKEND_URL}/content/binary_brain/images/${q.image}`}
-                                    className="max-h-[12rem] md:max-h-[20rem] w-auto max-w-full object-contain rounded-lg border border-gray-700 bg-black/50 shadow-lg"
-                                    onError={(e) => {
-                                        if (e.currentTarget.parentElement) {
-                                            e.currentTarget.parentElement.style.display = 'none';
-                                        }
-                                    }}
-                                    alt="Question Visual"
-                                />
-                            </div>
-                        )}
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
-                            {shuffledOptions.map((opt, idx) => (
-                                <button
-                                    key={`${currentQIndex}-${idx}`}
-                                    onClick={() => handleAnswer(opt)}
-                                    // Remove the hover effect if we are in feedback mode so mobile doesn't stick
-                                    disabled={gameState !== 'playing'}
-                                    className={`p-3 md:p-4 text-sm md:text-base border text-left transition-all font-mono group rounded relative min-h-[3.5rem] break-words
-                                            ${gameState === 'feedback'
-                                            ? (opt.isCorrect
-                                                ? 'border-green-500 bg-green-500/20 text-white'
-                                                : 'border-gray-800 opacity-50')
-                                            : 'border-gray-600 md:hover:border-primary md:hover:bg-primary/10 text-gray-300 md:hover:text-white active:border-primary active:bg-primary/20 active:text-white'
-                                        }`}
+                <div className="w-full md:w-2/3 mx-auto mt-4 md:mt-6 relative">
+                    <div className="absolute inset-0 flex justify-center items-center pointer-events-none z-50">
+                        <AnimatePresence>
+                            {floatingPoints.map(fp => (
+                                <motion.div
+                                    key={fp.id}
+                                    initial={{ opacity: 0, y: 0, scale: 0.4 }}
+                                    animate={{ opacity: 1, y: -80, scale: 1.8 }}
+                                    exit={{ opacity: 0, scale: 1.4 }}
+                                    transition={{ duration: 0.35, ease: 'easeOut' }}
+                                    className={`w-full font-black text-4xl md:text-5xl text-center ${fp.val > 0 ? 'text-primary text-glow-lg' : 'text-red-400 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
                                 >
-                                    <span className={`font-bold mr-2 ${gameState === 'feedback' && opt.isCorrect ? 'text-green-400' : 'text-primary'}`}>[{idx + 1}]</span>
-                                    {opt.text}
-                                </button>
+                                    {fp.val > 0 ? `+${fp.val}` : fp.val}
+                                    <div className="text-xl md:text-2xl text-center opacity-90 mt-1 font-bold tracking-widest">{fp.label}</div>
+                                </motion.div>
                             ))}
-                        </div>
-                    </motion.div>
-                </AnimatePresence>
+                        </AnimatePresence>
+                    </div>
 
-                {/* Feedback Overlay Message (Fallback in case floating is missed) */}
-                {gameState === 'feedback' && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={`absolute top-[-25px] md:top-[-30px] left-0 w-full text-center text-lg md:text-xl font-bold font-mono ${lastAnswerCorrect ? 'text-green-500' : 'text-red-500'}`}
-                    >
-                        {lastAnswerCorrect ? "POPRAWNA ODPOWIEDŹ (+PUNKTY)" : "NIEPOPRAWNA (0 PUNKTÓW)"}
-                    </motion.div>
-                )}
-                </div>{/* end card wrapper */}
+                    <AnimatePresence mode='wait'>
+                        <motion.div
+                            key={currentQIndex}
+                            initial={{ opacity: 0, x: 50 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -50 }}
+                            className={`crt-border bg-surface p-4 md:p-8 relative overflow-hidden ${gameState === 'feedback' ? (lastAnswerCorrect ? 'shadow-[0_0_40px_rgba(0,255,65,0.2)]' : 'shadow-[0_0_40px_rgba(239,68,68,0.2)]') : ''}`}
+                        >
+                            {/* Feedback dim overlay */}
+                            {gameState === 'feedback' && (
+                                <div className="absolute inset-0 bg-black/55 z-40 pointer-events-none transition-opacity duration-200" />
+                            )}
+
+                            <div className="absolute top-0 right-0 border-l border-b border-primary/20 bg-surface px-3 py-1 text-[10px] font-mono text-primary/50">
+                                Q:{currentQIndex + 1}/{questions.length}
+                            </div>
+
+                            <h2 className="text-lg md:text-2xl font-bold mb-4 md:mb-8 text-white pr-12 md:pr-16 font-mono">{q?.question}</h2>
+
+                            {q?.image && (
+                                <div className="mb-4 md:mb-6 flex justify-center mx-auto w-full">
+                                    <img
+                                        src={`${BACKEND_URL}/content/binary_brain/images/${q.image}`}
+                                        className="max-h-[12rem] md:max-h-[20rem] w-auto max-w-full object-contain border border-primary/20 bg-black/50"
+                                        onError={(e) => {
+                                            if (e.currentTarget.parentElement) {
+                                                e.currentTarget.parentElement.style.display = 'none';
+                                            }
+                                        }}
+                                        alt="Question Visual"
+                                    />
+                                </div>
+                            )}
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
+                                {shuffledOptions.map((opt, idx) => (
+                                    <button
+                                        key={`${currentQIndex}-${idx}`}
+                                        onClick={() => handleAnswer(opt)}
+                                        disabled={gameState !== 'playing'}
+                                        className={`p-3 md:p-4 text-sm md:text-base border text-left transition-all font-mono relative min-h-[3.5rem] break-words
+                                            ${gameState === 'feedback'
+                                                ? (opt.isCorrect
+                                                    ? 'border-primary bg-primary/10 text-white shadow-[0_0_20px_rgba(0,255,65,0.15)]'
+                                                    : 'border-primary/10 opacity-40')
+                                                : 'border-primary/20 hover:border-primary/60 hover:bg-primary/[0.06] text-primary/70 hover:text-white active:border-primary active:bg-primary/10 active:text-white'
+                                            }`}
+                                    >
+                                        <span className={`font-bold mr-2 ${gameState === 'feedback' && opt.isCorrect ? 'text-primary text-glow' : 'text-primary/50'}`}>[ {String.fromCharCode(65 + idx)} ]</span>
+                                        {opt.text}
+                                    </button>
+                                ))}
+                            </div>
+                        </motion.div>
+                    </AnimatePresence>
+
+                    {/* Feedback message */}
+                    {gameState === 'feedback' && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={`absolute top-[-28px] left-0 w-full text-center text-sm font-bold font-mono ${lastAnswerCorrect ? 'text-primary text-glow' : 'text-red-400'}`}
+                        >
+                            {lastAnswerCorrect ? "POPRAWNA ODPOWIEDŹ (+PUNKTY)" : "NIEPOPRAWNA (0 PUNKTÓW)"}
+                        </motion.div>
+                    )}
+                </div>
             </div>
 
             {/* Progress Bar */}
-            <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent w-full opacity-50"></div>
+            <div className="absolute bottom-0 left-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent w-full opacity-50" />
         </div>
     )
 }

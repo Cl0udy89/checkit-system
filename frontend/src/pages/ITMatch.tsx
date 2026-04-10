@@ -3,7 +3,7 @@ import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-mo
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchITMatchQuestions, submitGameScore, BACKEND_URL } from '../lib/api'
 import { useNavigate } from 'react-router-dom'
-import { Check, X, Info, Search } from 'lucide-react'
+import { Check, X, Search } from 'lucide-react'
 import { useGameStore } from '../hooks/useGameStore'
 import sparkSomeLogo from '../assets/sparkSomeLogo_Black.png'
 
@@ -40,12 +40,9 @@ export default function ITMatch() {
 
     const submitMutation = useMutation({
         mutationFn: submitGameScore,
-        onSuccess: () => {
-            // navigate('/dashboard') // Optional: wait for user to click button
-        }
+        onSuccess: () => { }
     })
 
-    // Fetch questions
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['it_match_questions'],
         queryFn: fetchITMatchQuestions,
@@ -78,7 +75,6 @@ export default function ITMatch() {
                 }
             } catch { /* corrupt – fall through to fresh start */ }
         }
-        // Fresh start
         const loadedQuestions = [...data]
         for (let i = loadedQuestions.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -182,7 +178,11 @@ export default function ITMatch() {
         }
     }
 
-    if (isLoading) return <div className="text-white text-center mt-20 font-mono">LOADING_ASSETS...</div>
+    if (isLoading) return (
+        <div className="min-h-screen flex items-center justify-center font-mono text-primary text-xl animate-pulse">
+            &gt; LOADING_ASSETS..._
+        </div>
+    )
 
     if (isError) {
         // @ts-ignore
@@ -190,14 +190,17 @@ export default function ITMatch() {
             // @ts-ignore
             const isBreak = error?.response?.data?.detail === "PRZERWA_TECHNICZNA"
             return (
-                <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-8 text-center text-red-500 font-mono">
-                    <h1 className="text-4xl font-bold mb-4">{isBreak ? "PRZERWA TECHNICZNA" : "ZAWODY ZAKOŃCZONE"}</h1>
-                    <p className="mb-8 text-xl">{isBreak ? "System chwilowo niedostępny. Zostań na stanowisku!" : "System został zablokowany przez administratora."}</p>
-                    <button onClick={() => navigate('/dashboard')} className="border border-red-500 text-red-500 px-6 py-3 hover:bg-red-900/20">POWRÓT</button>
+                <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center font-mono">
+                    <div className="crt-border bg-surface p-8 max-w-md w-full">
+                        <p className="text-primary/50 text-[10px] uppercase tracking-widest mb-2">&gt; SYSTEM_STATUS</p>
+                        <h1 className="text-2xl font-bold text-red-400 mb-4">{isBreak ? "PRZERWA TECHNICZNA" : "ZAWODY ZAKOŃCZONE"}</h1>
+                        <p className="text-primary/40 mb-8">{isBreak ? "System chwilowo niedostępny. Zostań na stanowisku!" : "System został zablokowany przez administratora."}</p>
+                        <button onClick={() => navigate('/dashboard')} className="border border-primary/25 hover:border-primary/60 text-primary/60 hover:text-primary px-6 py-3 font-mono text-sm transition-all">&gt; POWRÓT</button>
+                    </div>
                 </div>
             )
         }
-        return <div className="text-red-500 text-center mt-20">CONNECTION_ERROR</div>
+        return <div className="text-red-500 text-center mt-20 font-mono">CONNECTION_ERROR</div>
     }
 
     if (gameOver) {
@@ -208,42 +211,56 @@ export default function ITMatch() {
         const incorrectCount = stats.length - correctCount
 
         return (
-            <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col items-center relative md:touch-none overflow-x-hidden overflow-y-auto custom-scrollbar pt-8 md:pt-12">
-                <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center drop-shadow-[0_0_15px_rgba(74,222,128,0.8)] bg-black/50 backdrop-blur-sm px-6 py-3 rounded-xl">LICZENIE PUNKTÓW...</h1>
+            <div className="min-h-[100dvh] p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden overflow-y-auto custom-scrollbar pt-8 md:pt-12">
+                {/* Grid bg */}
+                <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{
+                    backgroundImage: 'linear-gradient(rgba(0,255,65,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,1) 1px, transparent 1px)',
+                    backgroundSize: '40px 40px'
+                }} />
 
-                <div className="bg-surface/95 border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8 backdrop-blur-sm">
-                    <div className="text-center mb-6 md:mb-8 border border-gray-700 rounded-lg bg-black/50 p-6 md:p-8 flex flex-col items-center">
-                        <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">WYNIK KOŃCOWY</div>
-                        <div className="text-5xl md:text-7xl font-bold text-accent font-mono">{score}</div>
+                <p className="text-primary/50 text-[10px] font-mono uppercase tracking-widest mb-2 z-10">&gt; IT_MATCH</p>
+                <h1 className="text-3xl md:text-4xl font-mono font-bold text-primary text-glow mb-8 text-center z-10">LICZENIE PUNKTÓW</h1>
+
+                <div className="crt-border bg-surface p-4 md:p-8 w-full max-w-4xl z-10 mb-8">
+                    <div className="flex items-center gap-2 pb-4 mb-6 border-b border-primary/20">
+                        <div className="w-2 h-2 bg-primary/40" />
+                        <div className="w-2 h-2 bg-primary/20" />
+                        <div className="w-2 h-2 bg-primary/20" />
+                        <span className="text-primary/40 text-[10px] ml-2">results.sh</span>
+                    </div>
+
+                    <div className="text-center mb-6 md:mb-8 border border-primary/20 bg-black/50 p-6 md:p-8 flex flex-col items-center">
+                        <p className="text-primary/50 text-[10px] font-mono uppercase tracking-widest mb-2">&gt; WYNIK_KOŃCOWY</p>
+                        <span className="font-mono font-black text-primary text-glow-lg tabular-nums" style={{ fontSize: 'clamp(3rem, 10vw, 5rem)' }}>{score}</span>
                         {!user && <div className="text-red-500 mt-4 text-sm font-mono tracking-widest">BRAK SESJI LOGOWANIA. WYNIK NIE ZOSTAŁ ZAPISANY.</div>}
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-8">
-                        <div className="p-3 md:p-4 border border-green-900/50 bg-green-900/10 rounded-lg flex flex-col items-center text-center">
-                            <div className="text-[10px] md:text-xs text-green-500/80 mb-2 font-mono">NAJSZYBSZA ODPOWIEDŹ</div>
-                            <div className="text-xl md:text-2xl font-bold text-green-400 font-mono mb-1">{fastestAnswer ? (fastestAnswer.timeMs / 1000).toFixed(2) + 's' : '---'}</div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-6 md:mb-8">
+                        <div className="p-3 md:p-4 border border-primary/20 bg-primary/[0.03] flex flex-col items-center text-center">
+                            <p className="text-[10px] text-primary/50 mb-2 font-mono uppercase tracking-widest">&gt; NAJSZYBSZA</p>
+                            <span className="text-xl md:text-2xl font-bold text-primary font-mono">{fastestAnswer ? (fastestAnswer.timeMs / 1000).toFixed(2) + 's' : '---'}</span>
                         </div>
-                        <div className="p-3 md:p-4 border border-red-900/50 bg-red-900/10 rounded-lg flex flex-col items-center text-center">
-                            <div className="text-[10px] md:text-xs text-red-500/80 mb-2 font-mono">NAJDŁUŻSZE ZASTANOWIENIE</div>
-                            <div className="text-xl md:text-2xl font-bold text-red-400 font-mono mb-1">{slowestAnswer ? (slowestAnswer.timeMs / 1000).toFixed(2) + 's' : '---'}</div>
+                        <div className="p-3 md:p-4 border border-red-500/20 bg-red-500/[0.03] flex flex-col items-center text-center">
+                            <p className="text-[10px] text-red-400/50 mb-2 font-mono uppercase tracking-widest">&gt; NAJDŁUŻSZA</p>
+                            <span className="text-xl md:text-2xl font-bold text-red-400 font-mono">{slowestAnswer ? (slowestAnswer.timeMs / 1000).toFixed(2) + 's' : '---'}</span>
                         </div>
-                        <div className="p-3 md:p-4 border border-blue-900/50 bg-blue-900/10 rounded-lg flex flex-col items-center text-center">
-                            <div className="text-[10px] md:text-xs text-blue-500/80 mb-2 font-mono">POPRAWNE</div>
-                            <div className="text-xl md:text-2xl font-bold text-blue-400 font-mono mb-1">{correctCount}</div>
+                        <div className="p-3 md:p-4 border border-primary/20 bg-primary/[0.03] flex flex-col items-center text-center">
+                            <p className="text-[10px] text-primary/50 mb-2 font-mono uppercase tracking-widest">&gt; POPRAWNE</p>
+                            <span className="text-xl md:text-2xl font-bold text-primary font-mono">{correctCount}</span>
                         </div>
-                        <div className="p-3 md:p-4 border border-orange-900/50 bg-orange-900/10 rounded-lg flex flex-col items-center text-center">
-                            <div className="text-[10px] md:text-xs text-orange-500/80 mb-2 font-mono">BŁĘDNE</div>
-                            <div className="text-xl md:text-2xl font-bold text-orange-400 font-mono mb-1">{incorrectCount}</div>
+                        <div className="p-3 md:p-4 border border-red-500/20 bg-red-500/[0.03] flex flex-col items-center text-center">
+                            <p className="text-[10px] text-red-400/50 mb-2 font-mono uppercase tracking-widest">&gt; BŁĘDNE</p>
+                            <span className="text-xl md:text-2xl font-bold text-red-400 font-mono">{incorrectCount}</span>
                         </div>
                     </div>
 
                     <div className="flex flex-col items-center mt-6 md:mt-8">
-                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-16 md:h-24 invert mb-8 opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-12 md:h-16 invert mb-8 opacity-60" />
                         <button
                             onClick={() => navigate('/dashboard')}
-                            className="bg-primary text-black px-6 md:px-8 py-3 md:py-4 rounded-lg font-bold font-mono text-lg md:text-xl transition-colors shadow-[0_0_20px_rgba(74,222,128,0.5)] hover:bg-green-400"
+                            className="border border-primary/25 hover:border-primary/60 bg-primary/[0.04] hover:bg-primary/[0.08] text-primary/60 hover:text-primary px-8 py-4 font-bold font-mono text-lg transition-all"
                         >
-                            POWRÓT DO BAZY
+                            &gt; POWRÓT_DO_BAZY
                         </button>
                     </div>
                 </div>
@@ -252,31 +269,39 @@ export default function ITMatch() {
     }
 
     return (
-        <div className="h-[100dvh] bg-transparent flex flex-col items-center justify-between p-2 md:p-4 relative touch-none select-none overflow-hidden">
+        <div className="h-[100dvh] flex flex-col items-center justify-between p-2 md:p-4 relative touch-none select-none overflow-hidden">
+            {/* Grid bg */}
+            <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{
+                backgroundImage: 'linear-gradient(rgba(0,255,65,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,1) 1px, transparent 1px)',
+                backgroundSize: '40px 40px'
+            }} />
+
             {/* HUD */}
-            <div className="w-full max-w-lg md:max-w-xl lg:max-w-3xl flex justify-between items-start mb-2 md:mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative px-3 bg-black/50 backdrop-blur-sm rounded-xl">
-                <div className="flex flex-col gap-1 md:gap-2 shrink-0">
-                    <h1 className="text-xl md:text-3xl font-mono text-primary flex items-center gap-2 md:gap-3">
-                        <Search size={22} className="md:w-7 md:h-7 shrink-0" /> IT_MATCH
+            <div className="w-full max-w-lg md:max-w-xl lg:max-w-3xl flex justify-between items-start mb-2 md:mb-4 gap-2 z-10 relative crt-border bg-surface px-3 py-3">
+                <div className="flex flex-col gap-1 shrink-0">
+                    <p className="text-primary/50 text-[9px] font-mono uppercase tracking-widest">&gt; IT_MATCH</p>
+                    <h1 className="text-lg md:text-2xl font-mono text-primary flex items-center gap-2 font-bold">
+                        <Search size={18} className="shrink-0" />
+                        <span className="text-glow">IT_MATCH</span>
                     </h1>
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-6 md:h-8 w-auto object-contain invert opacity-70" />
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-5 md:h-7 w-auto object-contain invert opacity-40" />
                 </div>
-                <div className="flex gap-3 md:gap-8 text-right shrink-0">
+                <div className="flex gap-4 md:gap-8 text-right shrink-0">
                     <div className="flex flex-col items-end">
-                        <div className="text-[9px] md:text-xs text-gray-500 font-mono">WYNIK ({currentIndex + 1}/{questions.length})</div>
-                        <div className="text-xl md:text-4xl lg:text-5xl font-mono font-bold text-accent">{score}</div>
+                        <p className="text-[9px] md:text-[10px] text-primary/40 font-mono uppercase tracking-widest">WYNIK ({currentIndex + 1}/{questions.length})</p>
+                        <span className="font-mono font-black text-primary text-glow tabular-nums text-xl md:text-3xl">{score}</span>
                     </div>
                     <div className="flex flex-col items-end">
-                        <div className="text-[9px] md:text-xs text-gray-500 font-mono">PULA</div>
-                        <div className="text-2xl md:text-5xl lg:text-6xl font-mono font-bold tracking-widest text-shadow-neon text-white">
+                        <p className="text-[9px] md:text-[10px] text-primary/40 font-mono uppercase tracking-widest">PULA</p>
+                        <span className="text-2xl md:text-4xl font-mono font-bold tracking-widest text-white tabular-nums">
                             {currentPotentialScore.toString().padStart(4, '0')}
-                        </div>
+                        </span>
                     </div>
                 </div>
             </div>
 
             <div className="flex-1 w-full max-w-md lg:max-w-2xl relative flex justify-center items-center my-2 min-h-0">
-                {/* Floating points — absolute so they don't shift card layout */}
+                {/* Floating points */}
                 <div className="absolute inset-0 flex justify-center items-center pointer-events-none z-[60]">
                     <AnimatePresence>
                         {floatingPoints.map(fp => (
@@ -285,7 +310,7 @@ export default function ITMatch() {
                                 initial={{ opacity: 0, y: 0, scale: 0.5 }}
                                 animate={{ opacity: 1, y: -80, scale: 1.5 }}
                                 exit={{ opacity: 0 }}
-                                className={`w-full font-bold text-4xl md:text-5xl text-center drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
+                                className={`w-full font-bold text-4xl md:text-5xl text-center ${fp.val > 0 ? 'text-primary text-glow-lg' : 'text-red-400 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
                             >
                                 {fp.val > 0 ? `+${fp.val}` : fp.val}
                                 <div className="text-xl md:text-2xl text-center opacity-90 mt-2">{fp.label}</div>
@@ -305,23 +330,19 @@ export default function ITMatch() {
                 </AnimatePresence>
             </div>
 
-            <div className="flex gap-4 w-full max-w-md lg:max-w-2xl mb-2 md:mb-4 z-10 shrink-0">
+            {/* Swipe buttons — terminal DANGER / SAFE style */}
+            <div className="flex gap-3 w-full max-w-md lg:max-w-2xl mb-2 md:mb-4 z-10 shrink-0">
                 <button
                     onClick={() => document.dispatchEvent(new CustomEvent('manual-swipe', { detail: 'left' }))}
-                    className="flex-1 bg-red-600/80 hover:bg-red-500 py-3 md:py-4 rounded-full flex justify-center items-center"
+                    className="flex-1 border-2 border-red-500/60 bg-red-500/[0.06] hover:bg-red-500/[0.15] py-3 md:py-4 font-mono font-bold text-red-400 tracking-widest text-sm transition-all flex items-center justify-center gap-2"
                 >
-                    <X size={28} color="white" className="md:w-8 md:h-8" />
+                    <X size={20} /> ZAGROŻENIE
                 </button>
-                <div className="flex items-center text-gray-500 text-[10px] md:text-xs font-mono uppercase tracking-widest whitespace-nowrap">
-                    <span className="mr-1 md:mr-2">Zagrożenie</span>
-                    <Info size={14} className="md:w-4 md:h-4" />
-                    <span className="ml-1 md:ml-2">Bezpieczny</span>
-                </div>
                 <button
                     onClick={() => document.dispatchEvent(new CustomEvent('manual-swipe', { detail: 'right' }))}
-                    className="flex-1 bg-green-600/80 hover:bg-green-500 py-3 md:py-4 rounded-full flex justify-center items-center"
+                    className="flex-1 border-2 border-primary/60 bg-primary/[0.06] hover:bg-primary/[0.15] py-3 md:py-4 font-mono font-bold text-primary tracking-widest text-sm transition-all flex items-center justify-center gap-2"
                 >
-                    <Check size={28} color="white" className="md:w-8 md:h-8" />
+                    <Check size={20} /> BEZPIECZNY
                 </button>
             </div>
         </div>
@@ -330,9 +351,12 @@ export default function ITMatch() {
 
 function Card({ question, onSwipe, gameState }: { question: Question, onSwipe: (dir: 'left' | 'right') => void, gameState: string }) {
     const x = useMotionValue(0)
-    const rotate = useTransform(x, [-200, 200], [-30, 30])
+    const rotate = useTransform(x, [-200, 200], [-15, 15])
     const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0])
-    const bg = useTransform(x, [-100, 0, 100], ['rgba(255, 0, 0, 0.3)', 'rgba(0,0,0,0)', 'rgba(0, 255, 0, 0.3)'])
+
+    // Danger/Safe overlay opacity
+    const dangerOpacity = useTransform(x, [-150, 0], [1, 0])
+    const safeOpacity = useTransform(x, [0, 150], [0, 1])
 
     useEffect(() => {
         const handler = (e: any) => {
@@ -355,25 +379,38 @@ function Card({ question, onSwipe, gameState }: { question: Question, onSwipe: (
                 else if (info.offset.x < -100) onSwipe('left')
                 x.set(0)
             }}
-            className="absolute w-full h-full bg-black border border-gray-700 rounded-2xl shadow-2xl p-6 flex flex-col items-center text-center cursor-grab active:cursor-grabbing select-none relative overflow-hidden"
+            className="absolute w-full h-full bg-surface border border-primary/25 shadow-[0_0_30px_rgba(0,0,0,0.8)] p-4 flex flex-col items-center text-center cursor-grab active:cursor-grabbing select-none relative overflow-hidden"
         >
-            <motion.div className="absolute inset-0 rounded-2xl pointer-events-none z-0" style={{ backgroundColor: bg }} />
+            {/* Danger label overlay */}
+            <motion.div
+                style={{ opacity: dangerOpacity }}
+                className="absolute top-6 left-6 z-20 border-2 border-red-500 text-red-400 font-mono font-black text-xl px-4 py-2 tracking-widest"
+            >
+                ZAGROŻENIE
+            </motion.div>
 
-            {/* Feedback overlay INSIDE the card so only the card darkens */}
+            {/* Safe label overlay */}
+            <motion.div
+                style={{ opacity: safeOpacity }}
+                className="absolute top-6 right-6 z-20 border-2 border-primary text-primary font-mono font-black text-xl px-4 py-2 tracking-widest text-glow"
+            >
+                BEZPIECZNY
+            </motion.div>
+
+            {/* Feedback overlay */}
             {gameState === 'feedback' && (
-                <div className="absolute inset-0 bg-black/70 z-40 rounded-2xl pointer-events-none backdrop-blur-sm transition-all duration-300"></div>
+                <div className="absolute inset-0 bg-black/70 z-40 pointer-events-none transition-all duration-300" />
             )}
 
-            <div className="w-full h-auto flex-1 bg-gray-800 rounded-xl mb-3 md:mb-6 flex items-center justify-center overflow-hidden relative z-10 max-h-[45vh] md:max-h-[55vh]">
+            <div className="w-full h-auto flex-1 bg-black/40 border border-primary/10 mb-3 md:mb-6 flex items-center justify-center overflow-hidden relative z-10 max-h-[45vh] md:max-h-[55vh]">
                 {question.image && question.image !== 'none' ? (
-                    // Image fetched from backend
                     <img src={`${BACKEND_URL}/content/it_match/images/${question.image}`} alt="Quiz" draggable={false} className="object-cover w-full h-full pointer-events-none" onError={(e) => e.currentTarget.style.display = 'none'} />
                 ) : (
-                    <span className="text-gray-600 font-mono">BRAK ZDJĘCIA</span>
+                    <span className="text-primary/20 font-mono text-sm">BRAK_ZDJĘCIA</span>
                 )}
             </div>
 
-            <h3 className="text-lg md:text-2xl lg:text-3xl font-bold text-white mb-2 md:mb-4 z-10 select-none pointer-events-none line-clamp-4">{question.question}</h3>
+            <h3 className="text-lg md:text-2xl lg:text-3xl font-bold text-white mb-2 md:mb-4 z-10 select-none pointer-events-none line-clamp-4 font-mono">{question.question}</h3>
         </motion.div>
     )
 }

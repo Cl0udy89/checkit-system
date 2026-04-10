@@ -34,7 +34,7 @@ export default function PatchMaster() {
     const { data: qState } = useQuery({
         queryKey: ['pm_queue'],
         queryFn: fetchPMQueue,
-        refetchInterval: 1500 // Poll frequently
+        refetchInterval: 1500
     })
 
     // Mutations
@@ -67,16 +67,13 @@ export default function PatchMaster() {
     const { data: hardwareState } = useQuery({
         queryKey: ['patch_panel'],
         queryFn: fetchPatchPanelState,
-        refetchInterval: 500, // Poll enough to see connections
+        refetchInterval: 500,
         enabled: (gameStartedLocal && !isFinished) || qState?.status === 'resetting' || qState?.status === 'waiting_for_player'
     })
 
     const submitMutation = useMutation({
         mutationFn: submitGameScore,
         onSuccess: () => {
-            // Stats UI will handle display; don't navigate yet
-            // Free the queue for the next player!
-            // Backend will handle the 'green' LED and 'rainbow' reset inside /finish to prevent race conditions.
             finishPMGame().catch((e) => console.error("Failed to finish PM game", e))
         },
         onError: (err: any) => {
@@ -90,7 +87,6 @@ export default function PatchMaster() {
     useEffect(() => {
         return () => {
             if (user && !gameStartedLocal && !isFinished) {
-                // Fire and forget upon leaving the page
                 leavePMQueue().catch(() => { })
             }
         }
@@ -103,11 +99,10 @@ export default function PatchMaster() {
             if (savedStateStr) {
                 try {
                     const savedState = JSON.parse(savedStateStr)
-                    // Only resume if It's relatively fresh (within an hour) to prevent weird bugs
                     if (Date.now() - savedState.startTime < 3600000) {
                         setStartTime(savedState.startTime)
                         setGameStartedLocal(true)
-                        return // Exit early so we don't overwrite
+                        return
                     }
                 } catch (e) {
                     console.error("Error parsing saved state", e)
@@ -122,7 +117,6 @@ export default function PatchMaster() {
 
         const pmTotalTimeMs = (qState?.pm_total_time || 200) * 1000
 
-        // Save state so reload doesn't wipe
         if (user) {
             localStorage.setItem(`patch_master_state_${user.id}`, JSON.stringify({ startTime }))
         }
@@ -235,7 +229,6 @@ export default function PatchMaster() {
     const isQueued = qState?.queue?.some((u: any) => u.id === user?.id)
     const position = qState?.position
 
-    // Someone else holds the lock
     const someoneElsePlaying = qState?.status === 'playing' && qState?.current_player?.id !== user?.id
     const someoneElseWaiting = qState?.status === 'waiting_for_player' && qState?.current_player?.id !== user?.id
     const isResetting = qState?.status === 'resetting'
@@ -244,38 +237,50 @@ export default function PatchMaster() {
         const isGlobalBreak = qState?.global_status === 'technical_break'
         const isGlobalLocked = qState?.global_status === 'false'
 
-        // If completely locked
         if (isGlobalLocked) {
             return (
-                <div className="flex-1 flex flex-col items-center justify-center w-full max-w-2xl mx-auto z-10 text-center text-red-500 font-mono">
-                    <h1 className="text-4xl font-bold mb-4">ZAWODY ZAKOŃCZONE</h1>
-                    <p className="text-xl">Gra została zablokowana przez administratora.</p>
+                <div className="flex-1 flex flex-col items-center justify-center w-full max-w-2xl mx-auto z-10 text-center font-mono p-4">
+                    <div className="crt-border bg-surface p-8 w-full">
+                        <p className="text-primary/50 text-[10px] uppercase tracking-widest mb-2">&gt; SYSTEM_STATUS</p>
+                        <h1 className="text-2xl font-bold text-red-400 mb-4">ZAWODY ZAKOŃCZONE</h1>
+                        <p className="text-primary/40">Gra została zablokowana przez administratora.</p>
+                    </div>
                 </div>
             )
         }
 
         return (
-            <div className="flex-1 flex flex-col items-center justify-center w-full max-w-2xl mx-auto z-10 text-center">
-                <div className="bg-surface border-2 border-gray-700 rounded-2xl p-8 shadow-2xl w-full">
-                    {/* GLOBAL BREAK TOP HEADER */}
+            <div className="flex-1 flex flex-col items-center justify-center w-full max-w-2xl mx-auto z-10 text-center p-4">
+                <div className="crt-border bg-surface p-6 md:p-8 w-full font-mono">
+                    {/* Terminal titlebar */}
+                    <div className="flex items-center gap-2 pb-4 mb-6 border-b border-primary/20">
+                        <div className="w-2 h-2 bg-primary/40" />
+                        <div className="w-2 h-2 bg-primary/20" />
+                        <div className="w-2 h-2 bg-primary/20" />
+                        <span className="text-primary/40 text-[10px] ml-2">patch_master.sh</span>
+                    </div>
+
+                    {/* GLOBAL BREAK */}
                     {isGlobalBreak && (
-                        <div className="text-yellow-500 flex flex-col items-center animate-pulse mb-8 border-b border-gray-700 pb-6">
-                            <ShieldAlert size={48} className="mb-2" />
-                            <h2 className="text-2xl font-mono font-bold">PRZYGOTOWYWANIE STANOWISKA</h2>
-                            <p className="text-gray-400 font-mono text-sm">System na chwilę wstrzymany. Zachowaj miejsce w kolejce!</p>
+                        <div className="text-accent flex flex-col items-center animate-pulse mb-8 border border-accent/30 bg-accent/[0.04] p-6">
+                            <ShieldAlert size={40} className="mb-2 text-glow" />
+                            <p className="text-[10px] text-accent/60 uppercase tracking-widest mb-1">&gt; SYSTEM_STATUS</p>
+                            <h2 className="text-xl font-bold">PRZYGOTOWYWANIE STANOWISKA</h2>
+                            <p className="text-primary/40 text-sm mt-2">System na chwilę wstrzymany. Zachowaj miejsce w kolejce!</p>
                         </div>
                     )}
 
                     {/* LOCAL RESETTING */}
                     {isResetting && !isGlobalBreak && (
-                        <div className="text-yellow-500 flex flex-col items-center animate-pulse mb-8">
-                            <ShieldAlert size={64} className="mb-4" />
-                            <h2 className="text-3xl font-mono font-bold mb-2">PRZERWA TECHNICZNA</h2>
-                            <p className="text-gray-400 font-mono mb-6">Administrator oczekuje na reset kabli.</p>
+                        <div className="text-accent flex flex-col items-center animate-pulse mb-8">
+                            <ShieldAlert size={48} className="mb-4" />
+                            <p className="text-[10px] text-accent/60 uppercase tracking-widest mb-1">&gt; PRZERWA</p>
+                            <h2 className="text-2xl font-bold mb-2">PRZERWA TECHNICZNA</h2>
+                            <p className="text-primary/40 mb-6">Administrator oczekuje na reset kabli.</p>
 
                             {hardwareState?.pairs?.some((p: any) => p.connected) && (
-                                <div className="bg-red-900/50 border border-red-500 text-red-200 px-6 py-4 rounded-lg font-mono text-center shadow-[0_0_20px_rgba(255,0,0,0.5)]">
-                                    <strong>UWAGA ZAWODNIKU:</strong><br />
+                                <div className="border-2 border-red-500 bg-red-500/10 text-red-300 px-6 py-4 font-mono text-center shadow-[0_0_20px_rgba(255,0,0,0.3)]">
+                                    <strong className="text-red-400">UWAGA ZAWODNIKU:</strong><br />
                                     Kable wciąż są podłączone w maszynie.<br />
                                     <strong>ODŁĄCZ WSZYSTKIE KABLE</strong> zanim system wpuści kolejną osobę!
                                 </div>
@@ -285,35 +290,38 @@ export default function PatchMaster() {
 
                     {/* SOMEONE ELSE PLAYING */}
                     {!isResetting && !isGlobalBreak && someoneElsePlaying && (
-                        <div className="text-blue-400 flex flex-col items-center mb-8">
-                            <h2 className="text-2xl font-mono font-bold mb-2">GRA W TOKU</h2>
-                            <p className="text-white font-mono text-xl">Gra aktualnie: <span className="text-accent font-bold">{qState.current_player.nick}</span></p>
+                        <div className="flex flex-col items-center mb-8">
+                            <p className="text-[10px] text-primary/40 uppercase tracking-widest mb-1">&gt; STATUS</p>
+                            <h2 className="text-xl font-bold text-white mb-2">GRA W TOKU</h2>
+                            <p className="text-primary/40">Gra aktualnie: <span className="text-primary font-black text-glow">{qState.current_player.nick}</span></p>
                         </div>
                     )}
 
                     {/* SOMEONE ELSE WAITING */}
                     {!isResetting && !isGlobalBreak && someoneElseWaiting && (
-                        <div className="text-purple-400 flex flex-col items-center mb-8">
-                            <h2 className="text-2xl font-mono font-bold mb-2">OCZEKIWANIE NA GRACZA</h2>
-                            <p className="text-white font-mono text-xl">Wezwano: <span className="text-accent font-bold">{qState.current_player.nick}</span></p>
+                        <div className="flex flex-col items-center mb-8">
+                            <p className="text-[10px] text-primary/40 uppercase tracking-widest mb-1">&gt; STATUS</p>
+                            <h2 className="text-xl font-bold text-white mb-2">OCZEKIWANIE NA GRACZA</h2>
+                            <p className="text-primary/40">Wezwano: <span className="text-primary font-black text-glow">{qState.current_player.nick}</span></p>
                         </div>
                     )}
 
-                    {/* IT'S YOUR TURN - NOT BREAK */}
+                    {/* IT'S YOUR TURN */}
                     {!isResetting && !isGlobalBreak && isMyTurn && (
-                        <div className="text-green-500 flex flex-col items-center mb-8 animate-pulse shadow-[0_0_50px_rgba(0,255,0,0.2)] p-4 rounded-xl border border-green-500/50">
-                            <h2 className="text-4xl font-mono font-bold mb-2">TO TWOJA KOLEJ!</h2>
-                            <p className="text-white font-mono text-xl mb-6">Podejdź do skrzynki i kliknij start.</p>
+                        <div className="flex flex-col items-center mb-8 border-2 border-primary bg-primary/[0.05] p-6 shadow-[0_0_40px_rgba(0,255,65,0.15)]">
+                            <p className="text-[10px] text-primary/60 uppercase tracking-widest mb-1">&gt; TWOJA_KOLEJ</p>
+                            <h2 className="text-3xl md:text-4xl font-black text-primary text-glow-lg mb-3 animate-pulse">TO TWOJA KOLEJ!</h2>
+                            <p className="text-white mb-6 font-mono">Podejdź do skrzynki i kliknij start.</p>
                             <button
                                 onClick={() => startMutation.mutate()}
-                                className="bg-green-600 hover:bg-green-500 text-white px-8 py-4 rounded font-mono font-bold text-2xl flex items-center gap-2 transition-all"
+                                className="bg-primary hover:bg-green-300 text-black px-8 py-4 font-mono font-black text-xl flex items-center gap-2 transition-all tracking-widest"
                             >
-                                <PlayCircle size={32} />
-                                START GRY
+                                <PlayCircle size={28} />
+                                START_GRY
                             </button>
 
                             {hardwareState?.pairs?.some((p: any) => p.connected) && (
-                                <div className="mt-4 text-red-400 font-mono text-sm border border-red-500/50 p-2 rounded bg-red-900/20">
+                                <div className="mt-4 text-red-400 font-mono text-sm border border-red-500/30 p-2 bg-red-500/[0.04]">
                                     Pamiętaj o odłączeniu kabli po poprzedniku!
                                 </div>
                             )}
@@ -322,34 +330,38 @@ export default function PatchMaster() {
 
                     {/* IT'S YOUR TURN - DURING BREAK */}
                     {isGlobalBreak && isMyTurn && (
-                        <div className="text-green-500 flex flex-col items-center mb-8 border border-green-500/50 p-4 rounded-xl">
-                            <h2 className="text-3xl font-mono font-bold mb-2">JESTEŚ PIERWSZY!</h2>
-                            <p className="text-gray-400 font-mono mb-4 text-sm">Czekaj na stanowisku na wznowienie gry.</p>
+                        <div className="flex flex-col items-center mb-8 border border-primary/30 p-4">
+                            <p className="text-[10px] text-primary/60 uppercase tracking-widest mb-1">&gt; PRIORYTET</p>
+                            <h2 className="text-2xl font-bold text-primary text-glow mb-2">JESTEŚ PIERWSZY!</h2>
+                            <p className="text-primary/40 text-sm">Czekaj na stanowisku na wznowienie gry.</p>
                         </div>
                     )}
 
                     {/* QUEUE ACTIONS */}
                     {!isMyTurn && (
-                        <div className="flex flex-col items-center border-t border-gray-700 pt-8 mt-4">
+                        <div className="flex flex-col items-center border-t border-primary/15 pt-6 mt-4">
                             {!isQueued && !isResetting && !isGlobalBreak && (
-                                <div className="mb-8 p-4 bg-accent/10 border border-accent/30 rounded-xl text-center w-full max-w-sm">
-                                    <h3 className="text-accent font-mono font-bold text-lg mb-2 flex items-center justify-center gap-2"><Zap size={20} /> GRA FIZYCZNA</h3>
-                                    <p className="text-gray-300 font-mono text-sm leading-relaxed">
-                                        Podejdź do maszyny <strong>PATCH MASTER</strong> i połącz wprawnie kable! Zapisz się do kolejki w telefonie – najszybsi mają szansę <strong>otworzyć skrytkę z nagrodą!</strong> 🎁
+                                <div className="mb-6 p-4 border border-accent/30 bg-accent/[0.04] text-center w-full max-w-sm">
+                                    <p className="text-[10px] text-accent/60 uppercase tracking-widest mb-2">&gt; INFO</p>
+                                    <h3 className="text-accent font-bold text-base mb-2 flex items-center justify-center gap-2 text-glow"><Zap size={16} /> GRA FIZYCZNA</h3>
+                                    <p className="text-primary/40 text-sm leading-relaxed">
+                                        Podejdź do maszyny <strong className="text-white">PATCH MASTER</strong> i połącz kable! Zapisz się do kolejki — najszybsi mają szansę <strong className="text-accent">otworzyć skrytkę z nagrodą!</strong>
                                     </p>
                                 </div>
                             )}
 
-                            <Users size={48} className="text-gray-500 mb-4" />
-                            <h3 className="text-xl font-mono text-white mb-6">KOLEJKA GRACZY ({qState?.queue?.length || 0})</h3>
+                            <Users size={36} className="text-primary/30 mb-4" />
+                            <p className="text-[10px] text-primary/40 uppercase tracking-widest mb-1">&gt; KOLEJKA</p>
+                            <h3 className="text-lg font-bold text-white mb-6 font-mono">GRACZY: {qState?.queue?.length || 0}</h3>
 
                             {isQueued ? (
                                 <div className="flex flex-col items-center">
-                                    <div className="text-6xl font-black text-accent font-mono mb-2">#{position}</div>
-                                    <p className="text-gray-400 font-mono mb-6">Twoja pozycja w kolejce.</p>
+                                    <p className="text-[10px] text-primary/40 uppercase tracking-widest mb-1">&gt; POZYCJA</p>
+                                    <span className="font-mono font-black text-primary text-glow-lg tabular-nums text-5xl mb-2">#{position}</span>
+                                    <p className="text-primary/40 text-sm mb-6">Twoja pozycja w kolejce.</p>
                                     <button
                                         onClick={() => leaveMutation.mutate()}
-                                        className="border border-red-500 text-red-500 hover:bg-red-500/20 px-6 py-2 rounded font-mono transition-colors"
+                                        className="border border-red-500/30 text-red-400/60 hover:border-red-500/60 hover:text-red-400 px-6 py-2 font-mono text-sm transition-all"
                                     >
                                         OPUŚĆ KOLEJKĘ
                                     </button>
@@ -358,12 +370,12 @@ export default function PatchMaster() {
                                 !isGlobalBreak && !isResetting ? (
                                     <button
                                         onClick={() => joinMutation.mutate()}
-                                        className="bg-accent hover:bg-yellow-400 text-black px-8 py-4 rounded font-mono font-bold text-xl transition-all shadow-[0_0_20px_rgba(243,234,95,0.4)]"
+                                        className="bg-primary hover:bg-green-300 text-black px-8 py-4 font-mono font-black text-lg transition-all shadow-[0_0_20px_rgba(0,255,65,0.3)] tracking-widest"
                                     >
                                         DOŁĄCZ DO KOLEJKI
                                     </button>
                                 ) : (
-                                    <p className="text-gray-500 font-mono">
+                                    <p className="text-primary/30 font-mono text-sm">
                                         Dołączanie zablokowane na czas przerwy technicznej.
                                     </p>
                                 )
@@ -383,62 +395,73 @@ export default function PatchMaster() {
 
         return (
             <div className="flex-1 flex flex-col items-center justify-center w-full max-w-7xl mx-auto z-10 p-2 md:p-8 overflow-x-hidden overflow-y-auto custom-scrollbar">
-                <h1 className={`text-4xl md:text-5xl font-mono font-bold mb-4 md:mb-8 text-center drop-shadow-md z-20 ${isSuccess ? 'text-green-500' : 'text-red-500'}`}>
+                <p className="text-primary/50 text-[10px] font-mono uppercase tracking-widest mb-2">&gt; PATCH_MASTER // WYNIK</p>
+                <h1 className={`text-3xl md:text-4xl font-mono font-bold mb-6 md:mb-8 text-center z-20 ${isSuccess ? 'text-primary text-glow' : 'text-red-400'}`}>
                     {isSuccess ? 'ZADANIE UKOŃCZONE' : 'CZAS MINĄŁ'}
                 </h1>
 
-                <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full z-20 relative mb-8">
+                <div className="crt-border bg-surface p-4 md:p-8 w-full z-20 mb-8">
+                    {/* Terminal titlebar */}
+                    <div className="flex items-center gap-2 pb-4 mb-6 border-b border-primary/20">
+                        <div className="w-2 h-2 bg-primary/40" />
+                        <div className="w-2 h-2 bg-primary/20" />
+                        <div className="w-2 h-2 bg-primary/20" />
+                        <span className="text-primary/40 text-[10px] ml-2">stats.sh</span>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-4 md:mb-8">
-                        <div className="text-center p-4 md:p-8 border border-gray-700 rounded-lg bg-black/50">
-                            <div className="text-gray-400 font-mono mb-2 text-sm md:text-xl">WYNIK KOŃCOWY</div>
-                            <div className="text-5xl md:text-7xl xl:text-8xl font-bold text-accent font-mono">{currentScore}</div>
+                        <div className="text-center p-4 md:p-8 border border-primary/20 bg-black/50">
+                            <p className="text-primary/50 text-[10px] font-mono uppercase tracking-widest mb-2">&gt; WYNIK_KOŃCOWY</p>
+                            <span className="font-mono font-black text-primary text-glow-lg tabular-nums" style={{ fontSize: 'clamp(2.5rem, 8vw, 5rem)' }}>{currentScore}</span>
                         </div>
-                        <div className="text-center p-4 md:p-8 border border-gray-700 rounded-lg bg-black/50">
-                            <div className="text-gray-400 font-mono mb-2 text-sm md:text-xl">CAŁKOWITY CZAS</div>
-                            <div className="text-5xl md:text-7xl xl:text-8xl font-bold text-white font-mono">{finalDuration ? (finalDuration / 1000).toFixed(2) : '---'}s</div>
+                        <div className="text-center p-4 md:p-8 border border-primary/20 bg-black/50">
+                            <p className="text-primary/50 text-[10px] font-mono uppercase tracking-widest mb-2">&gt; CAŁKOWITY_CZAS</p>
+                            <span className="font-mono font-black text-white tabular-nums" style={{ fontSize: 'clamp(2.5rem, 8vw, 5rem)' }}>{finalDuration ? (finalDuration / 1000).toFixed(2) : '---'}s</span>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-6 mb-4 md:mb-8">
-                        <div className="p-3 md:p-6 border border-green-900/50 bg-green-900/10 rounded-lg flex flex-col items-center text-center">
-                            <div className="text-xs md:text-base text-green-500/80 mb-2 font-mono">NAJSZYBSZE WPIĘCIE</div>
-                            <div className="text-2xl md:text-4xl font-bold text-green-400 font-mono mb-2">{fastestPlug ? (fastestPlug.deltaMs / 1000).toFixed(2) + 's' : '---'}</div>
-                            <div className="text-xs md:text-lg text-gray-500 font-mono">{fastestPlug ? `Port: ${fastestPlug.label}` : ''}</div>
+                        <div className="p-3 md:p-6 border border-primary/20 bg-primary/[0.03] flex flex-col items-center text-center">
+                            <p className="text-[10px] text-primary/50 mb-2 font-mono uppercase tracking-widest">&gt; NAJSZYBSZE</p>
+                            <span className="text-2xl md:text-3xl font-bold text-primary font-mono mb-2">{fastestPlug ? (fastestPlug.deltaMs / 1000).toFixed(2) + 's' : '---'}</span>
+                            <span className="text-xs text-primary/30 font-mono">{fastestPlug ? `Port: ${fastestPlug.label}` : ''}</span>
                         </div>
-                        <div className="p-3 md:p-6 border border-red-900/50 bg-red-900/10 rounded-lg flex flex-col items-center text-center">
-                            <div className="text-xs md:text-base text-red-500/80 mb-2 font-mono">NAJDŁUŻSZE ZASTANOWIENIE</div>
-                            <div className="text-2xl md:text-4xl font-bold text-red-400 font-mono mb-2">{slowestPlug ? (slowestPlug.deltaMs / 1000).toFixed(2) + 's' : '---'}</div>
-                            <div className="text-xs md:text-lg text-gray-500 font-mono">{slowestPlug ? `Port: ${slowestPlug.label}` : ''}</div>
+                        <div className="p-3 md:p-6 border border-red-500/20 bg-red-500/[0.03] flex flex-col items-center text-center">
+                            <p className="text-[10px] text-red-400/50 mb-2 font-mono uppercase tracking-widest">&gt; NAJDŁUŻSZE</p>
+                            <span className="text-2xl md:text-3xl font-bold text-red-400 font-mono mb-2">{slowestPlug ? (slowestPlug.deltaMs / 1000).toFixed(2) + 's' : '---'}</span>
+                            <span className="text-xs text-red-400/30 font-mono">{slowestPlug ? `Port: ${slowestPlug.label}` : ''}</span>
                         </div>
-                        <div className="p-3 md:p-6 border border-blue-900/50 bg-blue-900/10 rounded-lg flex flex-col items-center text-center">
-                            <div className="text-xs md:text-base text-blue-500/80 mb-2 font-mono">ŚREDNI CZAS AKCJI</div>
-                            <div className="text-2xl md:text-4xl font-bold text-blue-400 font-mono mb-2">{avgPlug ? (avgPlug / 1000).toFixed(2) + 's' : '---'}</div>
-                            <div className="text-xs md:text-lg text-gray-500 font-mono">na pojedynczy port</div>
+                        <div className="p-3 md:p-6 border border-primary/20 bg-primary/[0.03] flex flex-col items-center text-center">
+                            <p className="text-[10px] text-primary/50 mb-2 font-mono uppercase tracking-widest">&gt; ŚREDNI_CZAS</p>
+                            <span className="text-2xl md:text-3xl font-bold text-primary font-mono mb-2">{avgPlug ? (avgPlug / 1000).toFixed(2) + 's' : '---'}</span>
+                            <span className="text-xs text-primary/30 font-mono">na pojedynczy port</span>
                         </div>
                     </div>
                 </div>
 
                 {/* Box Opening Notification */}
                 {isSuccess && currentScore >= 5000 && (
-                    <div className="mb-8 p-6 md:p-10 border-4 border-green-500 bg-green-500/20 text-green-400 text-center rounded-2xl shadow-[0_0_50px_rgba(34,197,94,0.4)] animate-pulse flex flex-col items-center gap-6 z-20 w-full">
-                        <div className="text-4xl md:text-6xl font-black font-mono tracking-widest drop-shadow-[0_0_10px_rgba(34,197,94,0.8)]">DOSTĘP PRZYZNANY</div>
-                        <div className="text-2xl md:text-4xl font-bold font-mono text-white text-center">
+                    <div className="mb-8 border-2 border-primary bg-primary/[0.06] text-primary text-center p-6 md:p-10 shadow-[0_0_60px_rgba(0,255,65,0.25)] animate-pulse flex flex-col items-center gap-4 z-20 w-full">
+                        <p className="text-[10px] text-primary/60 uppercase tracking-widest">&gt; ACCESS_GRANTED</p>
+                        <div className="text-3xl md:text-5xl font-black font-mono tracking-widest text-glow-lg">DOSTĘP PRZYZNANY</div>
+                        <div className="text-xl md:text-3xl font-bold font-mono text-white text-center">
                             SKRYTKA ZOSTAŁA OTWARTA!<br />
-                            <span className="text-accent text-3xl md:text-5xl drop-shadow-md mt-4 block">ZGARNIJ SWOJĄ NAGRODĘ! 🎁</span>
+                            <span className="text-accent text-2xl md:text-4xl text-glow mt-2 block">ZGARNIJ SWOJĄ NAGRODĘ!</span>
                         </div>
                     </div>
                 )}
                 {isSuccess && currentScore < 5000 && (
-                    <div className="mb-8 p-4 md:p-6 border-2 border-red-500 bg-red-500/20 text-red-400 text-center rounded-xl z-20 w-full">
-                        <div className="text-xl md:text-2xl font-bold font-mono tracking-widest">BRAK DOSTĘPU</div>
-                        <div className="text-sm font-mono mt-2 text-white">WYMAGANE MINIMUM 5000 PUNKTÓW, ABY OTWORZYĆ SKRYTKĘ.</div>
+                    <div className="mb-8 border border-red-500/40 bg-red-500/[0.05] text-red-400 text-center p-4 md:p-6 z-20 w-full font-mono">
+                        <p className="text-[10px] text-red-400/50 uppercase tracking-widest mb-2">&gt; ACCESS_DENIED</p>
+                        <div className="text-lg md:text-xl font-bold tracking-widest">BRAK DOSTĘPU</div>
+                        <div className="text-sm mt-2 text-red-400/60">WYMAGANE MINIMUM 5000 PUNKTÓW, ABY OTWORZYĆ SKRYTKĘ.</div>
                     </div>
                 )}
 
-                <div className="flex flex-col items-center mt-2 md:mt-4 z-20 relative w-full">
+                <div className="flex flex-col items-center mt-2 z-20 w-full">
                     {isSuccess && currentScore >= 5000 && (
-                        <div className="my-4 md:my-6 flex justify-center w-full">
-                            <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-[4rem] md:h-[6rem] invert opacity-90 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" />
+                        <div className="my-4 flex justify-center w-full">
+                            <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-12 md:h-16 invert opacity-50" />
                         </div>
                     )}
                     <button
@@ -446,9 +469,9 @@ export default function PatchMaster() {
                             queryClient.invalidateQueries({ queryKey: ['pm_queue'] })
                             navigate('/dashboard')
                         }}
-                        className="bg-gray-800 hover:bg-gray-700 text-white px-6 md:px-8 py-3 md:py-4 rounded-lg font-bold font-mono text-lg md:text-xl transition-colors border border-gray-600"
+                        className="border border-primary/25 hover:border-primary/60 bg-primary/[0.04] hover:bg-primary/[0.08] text-primary/60 hover:text-primary px-8 py-4 font-bold font-mono text-lg transition-all"
                     >
-                        POWRÓT DO BAZY
+                        &gt; POWRÓT_DO_BAZY
                     </button>
                 </div>
             </div>
@@ -469,60 +492,64 @@ export default function PatchMaster() {
             "GÓRA 22 ↔ DÓŁ 10"
         ]
 
-        // Use shuffled order if ready, otherwise natural order
         const order = displayOrder.length === pairs.length
             ? displayOrder
             : pairs.map((_: any, i: number) => i)
 
         return (
             <div className="flex-1 flex flex-col w-full max-w-[90vw] xl:max-w-[80vw] mx-auto z-10 relative mt-4 md:mt-8">
-                <div className="w-full flex justify-between items-start mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative">
-                    <div className="flex flex-col gap-1 md:gap-2 shrink-0">
-                        <h1 className="text-base md:text-2xl font-mono text-accent flex items-center gap-1 md:gap-2">
-                            <Zap size={18} className="md:w-6 md:h-6 shrink-0" /> PATCH_MASTER
+                {/* HUD */}
+                <div className="w-full flex justify-between items-start mb-4 crt-border bg-surface p-3 md:p-5 gap-2 z-10 relative">
+                    <div className="flex flex-col gap-1 shrink-0">
+                        <p className="text-primary/50 text-[9px] font-mono uppercase tracking-widest">&gt; PATCH_MASTER</p>
+                        <h1 className="text-base md:text-xl font-mono text-primary flex items-center gap-1 md:gap-2 font-bold text-glow">
+                            <Zap size={16} className="shrink-0" /> PATCH_MASTER
                         </h1>
-                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-4 md:h-6 w-auto object-contain invert opacity-70" />
+                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-4 md:h-5 w-auto object-contain invert opacity-40" />
                     </div>
                     <div className="flex flex-col items-end shrink-0">
-                        <div className="text-sm md:text-2xl text-gray-500 font-mono mb-2">AKTUALNY WYNIK</div>
-                        <div className="text-6xl md:text-9xl xl:text-[160px] leading-none font-mono font-black text-white tracking-widest text-shadow-neon">
+                        <p className="text-[9px] md:text-[10px] text-primary/40 font-mono uppercase tracking-widest mb-1">AKTUALNY WYNIK</p>
+                        <span className="font-mono font-black text-primary text-glow-lg tabular-nums leading-none" style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}>
                             {currentScore.toString().padStart(5, '0')}
-                        </div>
+                        </span>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 xl:gap-12 mt-4 md:mt-8">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mt-4 md:mt-6">
                     {order.map((originalIdx: number, displayPos: number) => {
                         const pair = pairs[originalIdx]
                         if (!pair) return null
                         return (
-                        <div
-                            key={originalIdx}
-                            ref={(el) => { portRefs.current[displayPos] = el }}
-                            className={clsx(
-                                "relative bg-surface border-2 p-6 md:p-10 xl:p-12 rounded-2xl flex flex-col items-center justify-center transition-all duration-300",
-                                pair.connected ? "border-primary shadow-[0_0_40px_rgba(0,255,65,0.4)] scale-105" : "border-red-500/30 opacity-80"
-                            )}
-                        >
-                            <div className="text-sm md:text-xl xl:text-2xl font-mono text-gray-500 mb-4">{pair.label}</div>
-                            <div className={clsx(
-                                "w-6 h-6 md:w-10 md:h-10 xl:w-12 xl:h-12 rounded-full mb-4 md:mb-6",
-                                pair.connected ? "bg-primary animate-pulse shadow-[0_0_20px_rgba(0,255,65,1)]" : "bg-red-900"
-                            )}></div>
-                            <div className="font-black text-white font-mono text-lg md:text-2xl xl:text-3xl mb-2">
-                                {pair.connected ? "POŁĄCZONY" : "ROZŁĄCZONY"}
+                            <div
+                                key={originalIdx}
+                                ref={(el) => { portRefs.current[displayPos] = el }}
+                                className={clsx(
+                                    "crt-border bg-surface p-4 md:p-8 xl:p-10 flex flex-col items-center justify-center transition-all duration-300",
+                                    pair.connected
+                                        ? "border-primary shadow-[0_0_30px_rgba(0,255,65,0.25)]"
+                                        : "border-red-500/20 opacity-80"
+                                )}
+                            >
+                                <p className="text-[10px] font-mono text-primary/40 mb-3 uppercase tracking-widest">&gt; {pair.label}</p>
+                                <div className={clsx(
+                                    "w-4 h-4 md:w-6 md:h-6 mb-4",
+                                    pair.connected ? "bg-primary shadow-[0_0_15px_rgba(0,255,65,1)] animate-pulse" : "bg-red-900"
+                                )} />
+                                <div className={`font-black font-mono text-sm md:text-lg mb-3 ${pair.connected ? 'text-primary text-glow' : 'text-red-400/60'}`}>
+                                    {pair.connected ? "POŁĄCZONY" : "ROZŁĄCZONY"}
+                                </div>
+                                <div className="border border-accent/40 bg-black/60 px-3 py-2 md:px-4 md:py-3 font-mono font-black text-accent text-xs md:text-base text-center w-full shadow-[0_0_15px_rgba(204,255,0,0.1)]">
+                                    {portInstructions[originalIdx]}
+                                </div>
                             </div>
-                            <div className="text-base md:text-2xl xl:text-3xl font-mono text-yellow-400 bg-black/80 px-4 py-3 xl:px-6 xl:py-4 rounded-xl font-black mt-4 border-2 border-yellow-500/50 text-center shadow-[0_0_20px_rgba(234,179,8,0.3)] w-full break-normal">
-                                {portInstructions[originalIdx]}
-                            </div>
-                        </div>
                         )
                     })}
                 </div>
 
-                <div className="mt-12 md:mt-20 text-center text-gray-400 font-mono w-full">
-                    <p className="mb-2 md:mb-4 text-xl md:text-3xl xl:text-4xl text-white">MISJA: Połącz poprawnie wszystkie 8 kabli Patch Cord.</p>
-                    <p className="text-lg md:text-2xl xl:text-3xl text-gray-500">Wskazówki portów znajdują się na fizycznym sprzęcie oraz na ekranie powyżej.</p>
+                <div className="mt-10 md:mt-16 text-center font-mono w-full">
+                    <p className="text-primary/50 text-[10px] uppercase tracking-widest mb-2">&gt; MISJA</p>
+                    <p className="mb-2 md:mb-4 text-lg md:text-2xl xl:text-3xl text-white">Połącz poprawnie wszystkie 8 kabli Patch Cord.</p>
+                    <p className="text-sm md:text-lg xl:text-xl text-primary/30">Wskazówki portów znajdują się na fizycznym sprzęcie oraz na ekranie powyżej.</p>
                 </div>
             </div>
         )
@@ -540,13 +567,19 @@ export default function PatchMaster() {
     }
 
     return (
-        <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden md:touch-none overflow-y-auto custom-scrollbar">
+        <div className="min-h-[100dvh] p-4 md:p-8 flex flex-col items-center relative overflow-x-hidden overflow-y-auto custom-scrollbar">
+            {/* Grid bg */}
+            <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{
+                backgroundImage: 'linear-gradient(rgba(0,255,65,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,1) 1px, transparent 1px)',
+                backgroundSize: '40px 40px'
+            }} />
+
             {!isFinished && (
                 <button
                     onClick={handleExit}
-                    className="absolute top-4 left-4 z-50 bg-red-900/60 hover:bg-red-900 text-white font-mono px-4 py-2 rounded-lg border border-red-500/50 transition-all flex items-center gap-2 shadow-lg backdrop-blur-md"
+                    className="absolute top-4 left-4 z-50 border border-red-500/30 hover:border-red-500/60 bg-red-500/[0.04] hover:bg-red-500/[0.08] text-red-400/60 hover:text-red-400 font-mono px-4 py-2 transition-all flex items-center gap-2 text-sm"
                 >
-                    <X size={20} /> WYJDŹ
+                    <X size={16} /> WYJDŹ
                 </button>
             )}
 

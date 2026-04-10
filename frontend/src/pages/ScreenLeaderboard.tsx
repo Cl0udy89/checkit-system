@@ -1,70 +1,48 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchLeaderboard, api, fetchPatchPanelState } from '../lib/api'
 import { useState, useEffect, useRef, useMemo, memo } from 'react'
-import { Trophy, Zap } from 'lucide-react'
+import { Zap } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import sparkSomeLogo from '../assets/sparkSomeLogo_Black.png'
 
-// ─── Neon ambient background ──────────────────────────────────────────────────
-// Rendered at z-[0], content at z-[10] – bypasses the body/stacking-context
-// issue that hides `z-[-1]` global InteractiveBackground on TV display.
-// Uses only CSS `transform` animations (compositor layer, zero repaint cost).
-// No backdrop-blur, no canvas – safe for low-power TV hardware.
-const NeonBackground = memo(() => (
+// ─── Matrix background ─────────────────────────────────────────────────────────
+// TV-safe: no backdrop-blur, no canvas, only CSS (compositor layers via willChange)
+const MatrixBackground = memo(() => (
     <>
         <style>{`
-            @keyframes nb1{0%,100%{transform:translate(0px,0px) scale(1)}50%{transform:translate(70px,-45px) scale(1.08)}}
-            @keyframes nb2{0%,100%{transform:translate(0px,0px)}33%{transform:translate(-55px,40px)}66%{transform:translate(50px,-30px)}}
-            @keyframes nb3{0%,100%{transform:translate(0px,0px) scale(1)}50%{transform:translate(-35px,55px) scale(0.94)}}
-            @keyframes nb4{0%,100%{transform:translate(0px,0px)}50%{transform:translate(40px,35px)}}
+            @keyframes nb1{0%,100%{transform:translate(0px,0px) scale(1)}50%{transform:translate(60px,-40px) scale(1.06)}}
+            @keyframes nb2{0%,100%{transform:translate(0px,0px)}50%{transform:translate(-50px,50px)}}
         `}</style>
-        {/* Fixed full-viewport background layer – always behind content (z-[0] < z-[10]) */}
-        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#080c10]">
-            {/* Green blob – primary accent, top-left */}
+        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-background">
+            {/* Primary green glow — top-left */}
             <div style={{
-                position: 'absolute', top: '6%', left: '12%',
-                width: '42vw', height: '42vw', maxWidth: 620, maxHeight: 620,
-                borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(0,255,65,0.28) 0%, rgba(0,255,65,0.06) 55%, transparent 80%)',
+                position: 'absolute', top: '5%', left: '10%',
+                width: '45vw', height: '45vw', maxWidth: 640, maxHeight: 640,
+                background: 'radial-gradient(circle, rgba(0,255,65,0.10) 0%, rgba(0,255,65,0.03) 55%, transparent 80%)',
                 filter: 'blur(80px)',
-                animation: 'nb1 14s ease-in-out infinite',
+                animation: 'nb1 18s ease-in-out infinite',
                 willChange: 'transform',
             }} />
-            {/* Blue blob – bottom-right */}
+            {/* Secondary green glow — bottom-right */}
             <div style={{
-                position: 'absolute', bottom: '4%', right: '7%',
-                width: '52vw', height: '52vw', maxWidth: 720, maxHeight: 720,
-                borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(37,99,235,0.22) 0%, rgba(37,99,235,0.05) 55%, transparent 80%)',
-                filter: 'blur(100px)',
-                animation: 'nb2 20s ease-in-out infinite',
-                willChange: 'transform',
-            }} />
-            {/* Purple blob – center */}
-            <div style={{
-                position: 'absolute', top: '32%', left: '36%',
-                width: '38vw', height: '38vw', maxWidth: 560, maxHeight: 560,
-                borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(147,51,234,0.18) 0%, rgba(147,51,234,0.04) 55%, transparent 80%)',
+                position: 'absolute', bottom: '5%', right: '8%',
+                width: '40vw', height: '40vw', maxWidth: 580, maxHeight: 580,
+                background: 'radial-gradient(circle, rgba(0,255,65,0.07) 0%, transparent 75%)',
                 filter: 'blur(90px)',
-                animation: 'nb3 11s ease-in-out infinite',
+                animation: 'nb2 24s ease-in-out infinite',
                 willChange: 'transform',
             }} />
-            {/* Cyan accent – mid-left */}
+            {/* Matrix grid */}
             <div style={{
-                position: 'absolute', top: '50%', left: '2%',
-                width: '28vw', height: '28vw', maxWidth: 400, maxHeight: 400,
-                borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(6,182,212,0.14) 0%, transparent 75%)',
-                filter: 'blur(70px)',
-                animation: 'nb4 9s ease-in-out infinite',
-                willChange: 'transform',
-            }} />
-            {/* Subtle grid overlay for tech aesthetic */}
-            <div style={{
-                position: 'absolute', inset: 0, opacity: 0.025,
-                backgroundImage: 'linear-gradient(to right,#fff 1px,transparent 1px),linear-gradient(to bottom,#fff 1px,transparent 1px)',
+                position: 'absolute', inset: 0, opacity: 0.035,
+                backgroundImage: 'linear-gradient(rgba(0,255,65,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,1) 1px, transparent 1px)',
                 backgroundSize: '40px 40px',
+            }} />
+            {/* Scanlines */}
+            <div style={{
+                position: 'absolute', inset: 0, opacity: 0.04,
+                backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,0.4) 2px, rgba(0,255,65,0.4) 4px)',
+                pointerEvents: 'none',
             }} />
         </div>
     </>
@@ -73,45 +51,58 @@ const NeonBackground = memo(() => (
 // ─── Leaderboard section ───────────────────────────────────────────────────────
 // memo + defined outside parent → never remounts on pmQueue re-render
 const Section = memo(({ title, list }: { title: string; list: any[] }) => (
-    <div className="bg-surface/80 border border-gray-700 rounded-lg p-4 xl:p-6 shadow-lg h-full flex flex-col">
-        <h3 className="text-xl xl:text-2xl 2xl:text-3xl font-mono font-bold text-primary mb-4 border-b border-gray-800 pb-2 shrink-0">{title}</h3>
-        <div className="flex justify-between text-xs xl:text-sm text-gray-500 font-mono mb-2 px-2 shrink-0">
-            <span>POZYCJA / NICK</span>
-            <span>SCORE</span>
+    <div className="bg-surface border border-primary/20 p-3 xl:p-5 shadow-lg h-full flex flex-col">
+        {/* Terminal titlebar */}
+        <div className="flex items-center gap-2 pb-3 mb-3 border-b border-primary/15">
+            <div className="w-2 h-2 bg-primary/40 shrink-0" />
+            <div className="w-2 h-2 bg-primary/20 shrink-0" />
+            <div className="w-2 h-2 bg-primary/20 shrink-0" />
+            <span className="text-primary/30 text-[9px] ml-1 font-mono">{title.toLowerCase().replace(' ', '_')}.sh</span>
+        </div>
+        <p className="text-primary/40 text-[9px] font-mono uppercase tracking-widest mb-1">&gt; RANKING</p>
+        <h3 className="text-lg xl:text-xl 2xl:text-2xl font-mono font-bold text-primary mb-3 shrink-0" style={{ textShadow: '0 0 10px rgba(0,255,65,0.5)' }}>{title}</h3>
+        <div className="flex justify-between text-[10px] xl:text-xs text-primary/30 font-mono mb-1.5 px-1 shrink-0 uppercase tracking-widest">
+            <span>POS / NICK</span>
+            <span>PKT</span>
         </div>
         <div className="flex-1 overflow-hidden relative flex flex-col">
             <div className={`flex flex-col gap-0 w-full shrink-0 ${list?.length > 6 ? 'animate-scroll' : ''}`}>
                 {list?.map((entry, idx) => (
-                    <div key={`item-${idx}`} className="flex justify-between items-center font-mono text-base xl:text-xl 2xl:text-2xl border-b border-gray-800/50 pb-1 xl:pb-2 last:border-0 px-2 py-1 rounded shrink-0">
-                        <span className="text-gray-300 flex items-center gap-2 truncate flex-1 min-w-0 mr-4">
-                            <span className={`font-bold shrink-0 ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
-                            <span className="truncate">{entry.nick}</span>
+                    <div key={`item-${idx}`} className={`flex justify-between items-center font-mono text-sm xl:text-base 2xl:text-lg border-b border-primary/[0.07] pb-1 xl:pb-1.5 last:border-0 px-1 py-1 shrink-0 ${idx === 0 ? 'bg-primary/[0.04]' : ''}`}>
+                        <span className="flex items-center gap-2 truncate flex-1 min-w-0 mr-3">
+                            <span className={`font-bold shrink-0 text-sm xl:text-base ${idx === 0 ? 'text-primary' : idx < 3 ? 'text-primary/60' : 'text-primary/25'}`}
+                                style={idx === 0 ? { textShadow: '0 0 8px rgba(0,255,65,0.7)' } : undefined}>
+                                #{idx + 1}
+                            </span>
+                            <span className={`truncate ${idx === 0 ? 'text-white font-black' : 'text-primary/50'}`}>{entry.nick}</span>
                         </span>
-                        <span className="text-white font-bold text-lg xl:text-xl 2xl:text-2xl shrink-0">{entry.score} SCORE</span>
+                        <span className={`font-bold text-sm xl:text-base shrink-0 tabular-nums ${idx === 0 ? 'text-primary' : 'text-primary/50'}`}
+                            style={idx === 0 ? { textShadow: '0 0 8px rgba(0,255,65,0.6)' } : undefined}>
+                            {entry.score}
+                        </span>
                     </div>
                 ))}
                 {list?.length > 6 && list.map((entry, idx) => (
-                    <div key={`dup-${idx}`} className="flex justify-between items-center font-mono text-base xl:text-xl 2xl:text-2xl border-b border-gray-800/50 pb-1 xl:pb-2 last:border-0 px-2 py-1 rounded shrink-0">
-                        <span className="text-gray-300 flex items-center gap-2 truncate flex-1 min-w-0 mr-4">
-                            <span className={`font-bold shrink-0 ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
-                            <span className="truncate">{entry.nick}</span>
+                    <div key={`dup-${idx}`} className={`flex justify-between items-center font-mono text-sm xl:text-base 2xl:text-lg border-b border-primary/[0.07] pb-1 xl:pb-1.5 last:border-0 px-1 py-1 shrink-0`}>
+                        <span className="flex items-center gap-2 truncate flex-1 min-w-0 mr-3">
+                            <span className={`font-bold shrink-0 ${idx < 3 ? 'text-primary/60' : 'text-primary/25'}`}>#{idx + 1}</span>
+                            <span className="truncate text-primary/50">{entry.nick}</span>
                         </span>
-                        <span className="text-white font-bold text-lg xl:text-xl 2xl:text-2xl shrink-0">{entry.score} SCORE</span>
+                        <span className="font-bold text-sm xl:text-base shrink-0 tabular-nums text-primary/50">{entry.score}</span>
                     </div>
                 ))}
+                {(!list || list.length === 0) && <div className="text-primary/20 text-xs font-mono">BRAK_DANYCH</div>}
             </div>
-            {(!list || list.length === 0) && <div className="text-gray-600 text-sm">BRAK DANYCH</div>}
         </div>
     </div>
 ))
 
-// ─── Main component ───────────────────────────────────────────────────────────
+// ─── Main component ────────────────────────────────────────────────────────────
 
 export default function ScreenLeaderboard() {
     const { data, isLoading } = useQuery({
         queryKey: ['leaderboard'],
         queryFn: fetchLeaderboard,
-        // Leaderboard rarely changes during an event – 30 s is plenty
         refetchInterval: 30000,
         staleTime: 25000,
         refetchIntervalInBackground: true,
@@ -122,9 +113,6 @@ export default function ScreenLeaderboard() {
         queryFn: async () => (await api.get('/game/patch-master/queue')).data,
         refetchInterval: 1000,
         refetchIntervalInBackground: true,
-        // select() ensures React Query only re-renders this component when the
-        // fields we actually use change (structural deep-equality via replaceEqualDeep).
-        // Between polls during an idle/playing state the values are identical → 0 re-renders.
         select: (d: any) => ({
             status: d.status as string | undefined,
             current_player: d.current_player as any,
@@ -215,7 +203,6 @@ export default function ScreenLeaderboard() {
             return
         }
 
-        // Detect: game just ended (status jumped FROM 'playing', or landed on 'finished')
         if (prev === 'playing' || status === 'finished') {
             if (hideTimerRef.current) clearTimeout(hideTimerRef.current)
             const player = pmQueue?.current_player ?? currentPlayerRef.current
@@ -227,43 +214,66 @@ export default function ScreenLeaderboard() {
         }
     }, [pmQueue?.status])
 
-    // Grandmaster section: only recomputes when grandmaster data changes (every 30 s max).
-    // Plain div – no motion.div, no backdrop-blur.
+    // Grandmaster section — plain div, memo, no motion.div (performance)
     const grandmasterSection = useMemo(() => (
-        <div className="flex-none h-[45%] mb-6 relative z-10">
-            <div className="bg-surface/60 border-4 border-accent/50 rounded-2xl p-4 xl:p-8 shadow-[0_0_50px_rgba(243,234,95,0.1)] h-full flex flex-col relative overflow-hidden">
-                <div className="relative z-10 flex flex-col h-full">
-                    <h3 className="text-2xl xl:text-3xl 2xl:text-4xl font-mono font-extrabold text-accent mb-4 xl:mb-6 border-b-2 border-accent/30 pb-2 xl:pb-4 shrink-0">
-                        TOP SCORE: ALL GAMES
-                    </h3>
-                    <div className="flex-1 flex gap-4 xl:gap-8 justify-center overflow-hidden">
-                        {data?.grandmaster?.length > 0 && (
-                            <div className="flex-1 flex flex-col items-center justify-center p-4 border-2 border-yellow-400/50 shadow-[0_0_30px_rgba(255,215,0,0.2)] bg-yellow-400/10 rounded-xl h-full relative">
-                                <Trophy size={64} className="text-yellow-400 mb-2" />
-                                <div className="flex items-center justify-center gap-4 w-full mb-4">
-                                    <span className="text-yellow-400 font-black text-5xl 2xl:text-6xl shrink-0">#1</span>
-                                    <span className="text-white font-bold text-3xl xl:text-4xl 2xl:text-5xl truncate">{data.grandmaster[0].nick}</span>
-                                </div>
-                                <span className="text-yellow-400 font-black text-3xl xl:text-4xl 2xl:text-5xl">{data.grandmaster[0].score} SCORE</span>
+        <div className="flex-none h-[45%] mb-4 xl:mb-6 relative z-10">
+            <div className="bg-surface border border-accent/30 p-4 xl:p-6 shadow-[0_0_40px_rgba(204,255,0,0.06)] h-full flex flex-col relative overflow-hidden">
+                {/* Terminal titlebar */}
+                <div className="flex items-center gap-2 pb-3 mb-4 border-b border-accent/20 shrink-0">
+                    <div className="w-2 h-2 bg-accent/60" />
+                    <div className="w-2 h-2 bg-accent/30" />
+                    <div className="w-2 h-2 bg-accent/30" />
+                    <span className="text-accent/30 text-[9px] ml-1 font-mono">grandmaster.sh</span>
+                </div>
+                <p className="text-accent/40 text-[10px] font-mono uppercase tracking-widest mb-1 shrink-0">&gt; TOP_SCORE</p>
+                <h3 className="text-xl xl:text-2xl 2xl:text-3xl font-mono font-extrabold text-accent mb-4 xl:mb-5 shrink-0"
+                    style={{ textShadow: '0 0 15px rgba(204,255,0,0.5)' }}>
+                    ALL GAMES: GRANDMASTER
+                </h3>
+                <div className="flex-1 flex gap-4 xl:gap-6 justify-center overflow-hidden">
+                    {data?.grandmaster?.length > 0 && (
+                        <div className="flex-1 flex flex-col items-center justify-center p-4 border border-accent/40 bg-accent/[0.04] h-full relative">
+                            <div className="flex items-center justify-center gap-4 w-full mb-3">
+                                <span className="text-accent font-black shrink-0"
+                                    style={{ fontSize: 'clamp(2rem, 5vw, 4rem)', textShadow: '0 0 20px rgba(204,255,0,0.8)' }}>
+                                    #1
+                                </span>
+                                <span className="text-white font-bold truncate"
+                                    style={{ fontSize: 'clamp(1.5rem, 4vw, 3rem)' }}>
+                                    {data.grandmaster[0].nick}
+                                </span>
                             </div>
-                        )}
-                        <div className="flex-1 flex flex-col gap-4 justify-center">
-                            {data?.grandmaster?.slice(1, 3).map((entry: any, i: number) => {
-                                const idx = i + 1
-                                return (
-                                    <div
-                                        key={idx}
-                                        className="flex-1 flex justify-between items-center font-mono border border-accent/20 p-4 xl:p-6 rounded-xl bg-surface/40"
-                                    >
-                                        <span className="text-gray-100 flex items-center gap-4 flex-1 min-w-0 mr-4">
-                                            <span className={`font-black text-3xl xl:text-4xl 2xl:text-5xl shrink-0 ${idx === 1 ? 'text-gray-400' : 'text-amber-700'}`}>#{idx + 1}</span>
-                                            <span className="text-xl xl:text-2xl 2xl:text-3xl truncate">{entry.nick}</span>
-                                        </span>
-                                        <span className="text-accent font-black text-2xl xl:text-3xl 2xl:text-4xl">{entry.score} SCORE</span>
-                                    </div>
-                                )
-                            })}
+                            <span className="font-mono font-black text-primary tabular-nums"
+                                style={{ fontSize: 'clamp(1.8rem, 4vw, 3.5rem)', textShadow: '0 0 15px rgba(0,255,65,0.8)' }}>
+                                {data.grandmaster[0].score}
+                            </span>
                         </div>
+                    )}
+                    <div className="flex-1 flex flex-col gap-3 justify-center">
+                        {data?.grandmaster?.slice(1, 3).map((entry: any, i: number) => {
+                            const idx = i + 1
+                            return (
+                                <div
+                                    key={idx}
+                                    className="flex-1 flex justify-between items-center font-mono border border-primary/15 p-3 xl:p-4 bg-surface/40"
+                                >
+                                    <span className="flex items-center gap-3 flex-1 min-w-0 mr-3">
+                                        <span className={`font-black shrink-0 ${idx === 1 ? 'text-primary/50' : 'text-primary/30'}`}
+                                            style={{ fontSize: 'clamp(1.5rem, 3.5vw, 3rem)' }}>
+                                            #{idx + 1}
+                                        </span>
+                                        <span className="text-white truncate"
+                                            style={{ fontSize: 'clamp(1rem, 2.5vw, 2rem)' }}>
+                                            {entry.nick}
+                                        </span>
+                                    </span>
+                                    <span className="text-primary/70 font-black tabular-nums"
+                                        style={{ fontSize: 'clamp(1rem, 2.5vw, 2rem)' }}>
+                                        {entry.score}
+                                    </span>
+                                </div>
+                            )
+                        })}
                     </div>
                 </div>
             </div>
@@ -271,8 +281,8 @@ export default function ScreenLeaderboard() {
     ), [data?.grandmaster])
 
     if (isLoading) return (
-        <div className="fixed inset-0 flex items-center justify-center bg-[#080c10] font-mono text-2xl text-white">
-            SYNCHRONIZACJA WYNIKÓW...
+        <div className="fixed inset-0 flex items-center justify-center bg-background font-mono text-primary text-xl animate-pulse">
+            &gt; SYNCHRONIZACJA_WYNIKÓW..._
         </div>
     )
 
@@ -284,24 +294,29 @@ export default function ScreenLeaderboard() {
 
     return (
         <>
-            {/* NeonBackground at z-[0] – always below content at z-[10] */}
-            <NeonBackground />
+            {/* MatrixBackground at z-[0] – always below content at z-[10] */}
+            <MatrixBackground />
 
-            {/* Content layer at z-[10] – sits above NeonBackground */}
-            <div className="fixed inset-0 overflow-hidden p-4 xl:p-8 flex flex-col z-10">
+            {/* Content layer at z-[10] */}
+            <div className="fixed inset-0 overflow-hidden p-4 xl:p-6 flex flex-col z-10">
 
                 {/* Header */}
-                <div className="flex flex-col items-center w-full mb-6 xl:mb-10 shrink-0">
-                    <div className="flex items-center w-full relative justify-center mb-4">
-                        <div className="absolute left-0">
-                            <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-10 md:h-12 lg:h-16 xl:h-20 2xl:h-24 w-auto invert" />
+                <div className="flex flex-col items-center w-full mb-4 xl:mb-6 shrink-0">
+                    <div className="flex items-center w-full relative justify-center mb-3">
+                        <div className="absolute left-0 flex flex-col items-start gap-1">
+                            <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-8 md:h-10 lg:h-12 xl:h-16 w-auto invert opacity-50" />
                         </div>
-                        <h1 className="text-4xl md:text-5xl xl:text-6xl 2xl:text-7xl font-mono font-bold text-white tracking-tighter w-full text-center">
-                            RANKING OGÓLNY
-                        </h1>
+                        <div className="flex flex-col items-center text-center">
+                            <p className="text-primary/40 text-[10px] font-mono uppercase tracking-widest mb-1">&gt; SYSTEM_RANKING</p>
+                            <h1 className="font-mono font-bold text-white tracking-tighter animate-flicker"
+                                style={{ fontSize: 'clamp(1.8rem, 5vw, 4.5rem)', textShadow: '0 0 20px rgba(0,255,65,0.15)' }}>
+                                RANKING_OGÓLNY
+                            </h1>
+                        </div>
                     </div>
                     {data?.leaderboard_message && (
-                        <div className="text-2xl xl:text-4xl font-bold font-mono text-accent px-8 py-4 bg-accent/20 border-2 border-accent rounded-xl shadow-[0_0_30px_rgba(243,234,95,0.6)] text-center">
+                        <div className="text-base xl:text-2xl font-bold font-mono text-accent px-6 py-3 border border-accent/30 bg-accent/[0.05] text-center"
+                            style={{ textShadow: '0 0 15px rgba(204,255,0,0.5)' }}>
                             {data.leaderboard_message}
                         </div>
                     )}
@@ -310,7 +325,7 @@ export default function ScreenLeaderboard() {
                 {grandmasterSection}
 
                 {/* Section grid */}
-                <div className="flex-1 flex gap-4 xl:gap-8 min-h-0">
+                <div className="flex-1 flex gap-3 xl:gap-5 min-h-0">
                     <div className="flex-1 min-h-0"><Section title="BINARY BRAIN" list={data?.binary_brain || []} /></div>
                     <div className="flex-1 min-h-0"><Section title="PATCH MASTER" list={data?.patch_master || []} /></div>
                     <div className="flex-1 min-h-0"><Section title="IT MATCH" list={data?.it_match || []} /></div>
@@ -321,7 +336,7 @@ export default function ScreenLeaderboard() {
             {/* ── Live Patch Master Overlay ─────────────────────────────────────────
                 fixed inset-0 → always viewport-centred, unaffected by parent flex.
                 Framer Motion used ONLY here (infrequent: appears/disappears ~2×/game).
-                bg-black/60 wrapper dims the leaderboard cheaply without backdrop-blur.
+                bg-black/70 dims leaderboard cheaply without backdrop-blur.
                 Inner div: simple easeOut tween (cheaper than spring on low-end CPU). */}
             <AnimatePresence>
                 {overlayVisible && displayPlayer && (
@@ -331,45 +346,77 @@ export default function ScreenLeaderboard() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.25, ease: 'easeOut' }}
-                        className="fixed inset-0 flex items-center justify-center z-[100] bg-black/60"
+                        className="fixed inset-0 flex items-center justify-center z-[100] bg-black/75"
                     >
                         <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
+                            initial={{ scale: 0.92, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
+                            exit={{ scale: 0.92, opacity: 0 }}
                             transition={{ duration: 0.2, ease: 'easeOut' }}
-                            className={`bg-black/95 border-4 ${
+                            className={`bg-background border-2 p-8 xl:p-12 flex flex-col items-center gap-4 w-[88vw] max-w-5xl text-center ${
                                 isFinishedMode
                                     ? displayScore >= 5000
-                                        ? 'border-green-500 shadow-[0_0_100px_rgba(34,197,94,0.5)]'
-                                        : 'border-red-500 shadow-[0_0_100px_rgba(239,68,68,0.5)]'
-                                    : 'border-accent shadow-[0_0_100px_rgba(243,234,95,0.35)]'
-                            } p-8 xl:p-12 rounded-3xl flex flex-col items-center gap-4 w-[90vw] max-w-5xl text-center`}
+                                        ? 'border-primary shadow-[0_0_80px_rgba(0,255,65,0.4)]'
+                                        : 'border-red-500 shadow-[0_0_80px_rgba(239,68,68,0.4)]'
+                                    : 'border-accent shadow-[0_0_80px_rgba(204,255,0,0.25)]'
+                            }`}
                         >
+                            {/* Terminal titlebar */}
+                            <div className="flex items-center gap-2 w-full pb-4 border-b border-primary/20 mb-2">
+                                <div className="w-2.5 h-2.5 bg-primary/60" />
+                                <div className="w-2.5 h-2.5 bg-primary/30" />
+                                <div className="w-2.5 h-2.5 bg-primary/30" />
+                                <span className="text-primary/30 text-[10px] ml-2 font-mono">patch_master_live.sh</span>
+                            </div>
+
                             {isFinishedMode ? (
                                 <>
-                                    <div className="text-3xl xl:text-4xl font-bold text-gray-300 font-mono uppercase mb-4">GRA ZAKOŃCZONA</div>
-                                    <div className="text-6xl xl:text-7xl font-black text-white truncate font-mono mt-2 mb-2">{displayPlayer.nick}</div>
-                                    <div className={`text-[100px] xl:text-[140px] leading-none font-black tracking-widest font-mono ${displayScore >= 5000 ? 'text-green-500' : 'text-red-500'}`}>
+                                    <p className="text-primary/50 text-[10px] font-mono uppercase tracking-widest">&gt; GRA_ZAKOŃCZONA</p>
+                                    <div className="font-bold text-primary/60 font-mono uppercase"
+                                        style={{ fontSize: 'clamp(1.2rem, 3vw, 2.5rem)' }}>
+                                        GRA ZAKOŃCZONA
+                                    </div>
+                                    <div className="text-white font-black font-mono truncate w-full"
+                                        style={{ fontSize: 'clamp(2.5rem, 7vw, 5rem)' }}>
+                                        {displayPlayer.nick}
+                                    </div>
+                                    <div className={`font-black font-mono tracking-widest ${displayScore >= 5000 ? 'text-primary' : 'text-red-400'}`}
+                                        style={{
+                                            fontSize: 'clamp(3rem, 10vw, 8rem)',
+                                            textShadow: displayScore >= 5000 ? '0 0 30px rgba(0,255,65,0.8)' : '0 0 30px rgba(239,68,68,0.8)'
+                                        }}>
                                         {displayScore >= 5000 ? 'WYGRANA!' : 'PRZEGRANA'}
                                     </div>
-                                    <div className="text-4xl font-mono text-white mt-4">{displayScore.toString().padStart(5, '0')} PUNKTÓW</div>
+                                    <div className="font-mono text-white font-black tabular-nums"
+                                        style={{ fontSize: 'clamp(1.5rem, 4vw, 3rem)' }}>
+                                        {displayScore.toString().padStart(5, '0')} PKT
+                                    </div>
                                 </>
                             ) : (
                                 <>
-                                    <div className="flex items-center gap-4 text-3xl xl:text-4xl font-bold text-gray-300 font-mono uppercase">
-                                        <Zap size={40} className="text-accent animate-pulse" /> GRA W TOKU: PATCH MASTER
+                                    <div className="flex items-center gap-3 text-primary/60 font-mono uppercase font-bold"
+                                        style={{ fontSize: 'clamp(1rem, 2.5vw, 2rem)' }}>
+                                        <Zap size={28} className="text-accent animate-pulse shrink-0" />
+                                        &gt; GRA W TOKU: PATCH_MASTER
                                     </div>
-                                    <div className="text-6xl xl:text-7xl font-black text-white truncate font-mono mt-2 mb-2">{displayPlayer.nick}</div>
+                                    <div className="text-white font-black font-mono truncate w-full"
+                                        style={{ fontSize: 'clamp(2.5rem, 7vw, 5rem)' }}>
+                                        {displayPlayer.nick}
+                                    </div>
                                     <div
                                         ref={scoreDisplayRef}
-                                        className="text-[120px] leading-none font-black text-accent tracking-widest font-mono"
+                                        className="font-black font-mono tracking-widest tabular-nums"
+                                        style={{
+                                            fontSize: 'clamp(4rem, 12vw, 9rem)',
+                                            color: '#00ff41',
+                                            textShadow: '0 0 30px rgba(0,255,65,0.9)',
+                                        }}
                                     >
                                         {pmScoreRef.current.toString().padStart(5, '0')}
                                     </div>
 
                                     {/* Port mini-grid + cable flash animations */}
-                                    <div className="relative w-full mt-2">
+                                    <div className="relative w-full mt-1">
                                         <AnimatePresence>
                                             {cableFlashes.map(f => (
                                                 <motion.div
@@ -380,7 +427,8 @@ export default function ScreenLeaderboard() {
                                                     transition={{ duration: 1.2, ease: 'easeOut' }}
                                                     className="absolute inset-x-0 -top-6 flex justify-center pointer-events-none z-10"
                                                 >
-                                                    <span className="text-primary font-black text-2xl xl:text-3xl font-mono drop-shadow-[0_0_20px_rgba(0,255,65,1)] bg-black/60 px-4 py-1 rounded-full">
+                                                    <span className="text-primary font-black font-mono bg-black/70 px-4 py-1"
+                                                        style={{ fontSize: 'clamp(1rem, 2.5vw, 1.8rem)', textShadow: '0 0 20px rgba(0,255,65,1)' }}>
                                                         ✓ {f.label} POŁĄCZONY!
                                                     </span>
                                                 </motion.div>
@@ -391,32 +439,36 @@ export default function ScreenLeaderboard() {
                                             {(hwState?.pairs ?? []).map((pair: any, idx: number) => (
                                                 <div
                                                     key={idx}
-                                                    className={`rounded-xl border-2 p-2 xl:p-3 flex flex-col items-center gap-1.5 transition-all duration-300 ${
+                                                    className={`border p-2 xl:p-3 flex flex-col items-center gap-1 transition-all duration-300 ${
                                                         pair.connected
-                                                            ? 'border-primary bg-primary/15 shadow-[0_0_15px_rgba(0,255,65,0.5)] scale-105'
-                                                            : 'border-gray-700 bg-gray-900/50 opacity-60'
+                                                            ? 'border-primary bg-primary/10 shadow-[0_0_12px_rgba(0,255,65,0.4)]'
+                                                            : 'border-primary/15 bg-black/40 opacity-50'
                                                     }`}
                                                 >
-                                                    <div className={`w-3 h-3 xl:w-4 xl:h-4 rounded-full ${pair.connected ? 'bg-primary animate-pulse shadow-[0_0_8px_rgba(0,255,65,1)]' : 'bg-red-900'}`} />
-                                                    <div className={`text-[10px] xl:text-xs font-mono font-bold ${pair.connected ? 'text-primary' : 'text-gray-600'}`}>
+                                                    <div className={`w-3 h-3 xl:w-4 xl:h-4 ${pair.connected ? 'bg-primary animate-pulse shadow-[0_0_8px_rgba(0,255,65,1)]' : 'bg-red-900'}`} />
+                                                    <div className={`text-[9px] xl:text-[10px] font-mono font-bold ${pair.connected ? 'text-primary' : 'text-primary/20'}`}>
                                                         {pair.label}
                                                     </div>
-                                                    <div className={`text-[9px] xl:text-[10px] font-mono ${pair.connected ? 'text-primary' : 'text-gray-700'}`}>
-                                                        {pair.connected ? 'POŁĄCZONY' : 'ROZŁĄCZONY'}
+                                                    <div className={`text-[8px] xl:text-[9px] font-mono ${pair.connected ? 'text-primary/80' : 'text-primary/15'}`}>
+                                                        {pair.connected ? 'OK' : '---'}
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
 
                                         {hwState?.pairs && (
-                                            <div className="mt-3 text-xl xl:text-2xl font-mono font-bold text-center">
-                                                <span className="text-primary">{hwState.pairs.filter((p: any) => p.connected).length}</span>
-                                                <span className="text-gray-400"> / {hwState.pairs.length} PORTÓW POŁĄCZONYCH</span>
+                                            <div className="mt-3 font-mono font-bold text-center"
+                                                style={{ fontSize: 'clamp(1rem, 2.5vw, 1.6rem)' }}>
+                                                <span className="text-primary" style={{ textShadow: '0 0 10px rgba(0,255,65,0.7)' }}>
+                                                    {hwState.pairs.filter((p: any) => p.connected).length}
+                                                </span>
+                                                <span className="text-primary/40"> / {hwState.pairs.length} PORTÓW POŁĄCZONYCH</span>
                                             </div>
                                         )}
                                     </div>
 
-                                    <div className="text-xl xl:text-2xl font-bold text-red-500 font-mono mt-2 animate-pulse flex items-center gap-3 bg-red-900/40 px-6 py-3 rounded-xl border border-red-500/50">
+                                    <div className="font-bold text-red-400 font-mono animate-pulse flex items-center gap-3 border border-red-500/30 bg-red-500/[0.04] px-6 py-3"
+                                        style={{ fontSize: 'clamp(0.9rem, 2vw, 1.4rem)' }}>
                                         Musi mieć powyżej 5000 punktów, żeby odebrać nagrodę!
                                     </div>
                                 </>

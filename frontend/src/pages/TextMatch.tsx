@@ -18,7 +18,7 @@ const GAME_DURATION_S = 90
 const INITIAL_SCORE = 10000
 const WRONG_PENALTY = 500
 const DECAY_PER_S = INITIAL_SCORE / GAME_DURATION_S
-const PARTICLE_COLORS = ['#4ade80', '#86efac', '#facc15', '#a78bfa', '#60a5fa', '#f87171', '#fb923c', '#34d399', '#f472b6']
+const PARTICLE_COLORS = ['#00ff41', '#39ff14', '#ccff00', '#86efac', '#4ade80', '#a3e635', '#d9f99d', '#00ff41', '#39ff14']
 
 function makeBurst(x: number, y: number, n = 18): Particle[] {
     return Array.from({ length: n }, (_, i) => {
@@ -188,53 +188,61 @@ export default function TextMatch() {
 
     // ── early returns ─────────────────────────────────────────────────────────
     if (isLoading) return (
-        <div className="min-h-screen flex items-center justify-center font-mono text-white text-2xl animate-pulse">
-            ŁADOWANIE PYTAŃ...
+        <div className="min-h-screen flex items-center justify-center font-mono text-primary text-xl animate-pulse">
+            &gt; ŁADOWANIE_PYTAŃ..._
         </div>
     )
 
     if (errDetail === 'ZAWODY_ZAKONCZONE') return (
-        <div className="min-h-screen flex flex-col items-center justify-center gap-6 font-mono text-white">
-            <XCircle size={64} className="text-red-500" />
-            <h1 className="text-4xl font-bold text-red-500">ZAWODY ZAKOŃCZONE</h1>
-            <button onClick={() => navigate('/dashboard')} className="px-6 py-3 border border-gray-600 rounded-lg hover:border-white transition-colors">POWRÓT</button>
+        <div className="min-h-screen flex flex-col items-center justify-center gap-6 font-mono">
+            <div className="crt-border bg-surface p-8 max-w-md w-full text-center">
+                <XCircle size={48} className="text-red-400 mx-auto mb-4" />
+                <h1 className="text-2xl font-bold text-red-400 mb-4">ZAWODY ZAKOŃCZONE</h1>
+                <button onClick={() => navigate('/dashboard')} className="border border-primary/25 hover:border-primary/60 text-primary/60 hover:text-primary px-6 py-3 font-mono text-sm transition-all">&gt; POWRÓT</button>
+            </div>
         </div>
     )
 
     if (errDetail === 'PRZERWA_TECHNICZNA') return (
-        <div className="min-h-screen flex flex-col items-center justify-center gap-6 font-mono text-white">
-            <Clock size={64} className="text-yellow-400" />
-            <h1 className="text-4xl font-bold text-yellow-400">PRZERWA TECHNICZNA</h1>
-            <button onClick={() => navigate('/dashboard')} className="px-6 py-3 border border-gray-600 rounded-lg hover:border-white transition-colors">POWRÓT</button>
+        <div className="min-h-screen flex flex-col items-center justify-center gap-6 font-mono">
+            <div className="crt-border bg-surface p-8 max-w-md w-full text-center">
+                <Clock size={48} className="text-accent mx-auto mb-4" />
+                <h1 className="text-2xl font-bold text-accent mb-4">PRZERWA TECHNICZNA</h1>
+                <button onClick={() => navigate('/dashboard')} className="border border-primary/25 hover:border-primary/60 text-primary/60 hover:text-primary px-6 py-3 font-mono text-sm transition-all">&gt; POWRÓT</button>
+            </div>
         </div>
     )
 
     if (errDetail === 'ALREADY_PLAYED' || alreadyPlayed) return (
-        <div className="min-h-screen flex flex-col items-center justify-center gap-6 font-mono text-white">
-            <CheckCircle size={64} className="text-green-500" />
-            <h1 className="text-4xl font-bold text-green-500">JUŻ ZAGRANO!</h1>
-            <p className="text-gray-400 text-xl">Twój wynik: {gameStatus?.text_match?.score ?? '—'} PKT</p>
-            <button onClick={() => navigate('/dashboard')} className="px-6 py-3 border border-gray-600 rounded-lg hover:border-white transition-colors">POWRÓT</button>
+        <div className="min-h-screen flex flex-col items-center justify-center gap-6 font-mono">
+            <div className="crt-border bg-surface p-8 max-w-md w-full text-center">
+                <CheckCircle size={48} className="text-primary mx-auto mb-4" />
+                <p className="text-primary/50 text-[10px] uppercase tracking-widest mb-2">&gt; STATUS</p>
+                <h1 className="text-2xl font-bold text-primary text-glow mb-2">JUŻ ZAGRANO!</h1>
+                <p className="text-primary/40 mb-6 font-mono">Twój wynik: <span className="text-primary font-black">{gameStatus?.text_match?.score ?? '—'}</span> PKT</p>
+                <button onClick={() => navigate('/dashboard')} className="border border-primary/25 hover:border-primary/60 text-primary/60 hover:text-primary px-6 py-3 font-mono text-sm transition-all">&gt; POWRÓT</button>
+            </div>
         </div>
     )
 
     // ── finished ───────────────────────────────────────────────────────────────
     if (finished) return (
-        <div className="min-h-screen flex flex-col items-center justify-center gap-8 font-mono text-white p-8">
+        <div className="min-h-screen flex flex-col items-center justify-center gap-8 font-mono p-8">
             <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-                className="flex flex-col items-center gap-6 bg-surface/80 border-2 border-gray-700 rounded-3xl p-12 max-w-xl w-full text-center"
+                className="crt-border bg-surface p-10 md:p-12 max-w-xl w-full text-center flex flex-col items-center gap-6"
             >
-                <Trophy size={72} className={score >= 5000 ? 'text-yellow-400' : 'text-gray-500'} />
-                <h1 className="text-5xl font-bold">GRA SKOŃCZONA</h1>
-                <div className={`text-8xl font-black ${score >= 5000 ? 'text-green-400' : 'text-red-400'}`}>{score}</div>
-                <p className="text-gray-400 text-xl">PUNKTÓW</p>
-                <p className="text-gray-500 text-sm">{matched.size}/{rawPairs?.length ?? 0} par dopasowanych</p>
+                <Trophy size={56} className={score >= 5000 ? 'text-accent text-glow' : 'text-primary/30'} />
+                <p className="text-primary/50 text-[10px] uppercase tracking-widest">&gt; TEXT_MATCH // WYNIK</p>
+                <h1 className="text-3xl font-bold text-white">GRA SKOŃCZONA</h1>
+                <span className={`font-mono font-black tabular-nums text-glow-lg ${score >= 5000 ? 'text-primary' : 'text-red-400'}`} style={{ fontSize: 'clamp(3rem, 12vw, 6rem)' }}>{score}</span>
+                <p className="text-primary/40 text-lg">PUNKTÓW</p>
+                <p className="text-primary/30 text-sm">{matched.size}/{rawPairs?.length ?? 0} par dopasowanych</p>
                 <button onClick={() => navigate('/dashboard')}
-                    className="mt-4 px-8 py-3 bg-primary/20 border border-primary text-primary rounded-xl font-bold hover:bg-primary/40 transition-all">
-                    POWRÓT DO MENU
+                    className="mt-4 px-8 py-3 border border-primary/25 hover:border-primary/60 bg-primary/[0.04] hover:bg-primary/[0.08] text-primary/60 hover:text-primary font-bold transition-all font-mono text-sm">
+                    &gt; POWRÓT_DO_MENU
                 </button>
             </motion.div>
         </div>
@@ -242,26 +250,40 @@ export default function TextMatch() {
 
     // ── start screen ───────────────────────────────────────────────────────────
     if (!started) return (
-        <div className="min-h-screen flex flex-col items-center justify-center gap-8 font-mono text-white p-8">
-            <img src={sparkSomeLogo} alt="SparkSome" className="h-12 invert mb-4" />
-            <div className="flex flex-col items-center gap-4 bg-surface/80 border-2 border-secondary/50 rounded-3xl p-10 max-w-lg w-full text-center">
-                <Link2 size={56} className="text-secondary mb-2" />
-                <h1 className="text-4xl font-bold tracking-tight">TEXT_MATCH</h1>
-                <p className="text-gray-400 text-base leading-relaxed mt-2">
+        <div className="min-h-screen flex flex-col items-center justify-center gap-8 font-mono p-8">
+            {/* Grid bg */}
+            <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{
+                backgroundImage: 'linear-gradient(rgba(0,255,65,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,1) 1px, transparent 1px)',
+                backgroundSize: '40px 40px'
+            }} />
+            <img src={sparkSomeLogo} alt="SparkSome" className="h-12 invert opacity-50 mb-2 relative z-10" />
+            <div className="crt-border bg-surface p-8 md:p-10 max-w-lg w-full text-center relative z-10">
+                {/* Terminal titlebar */}
+                <div className="flex items-center gap-2 pb-4 mb-6 border-b border-primary/20">
+                    <div className="w-2 h-2 bg-primary/40" />
+                    <div className="w-2 h-2 bg-primary/20" />
+                    <div className="w-2 h-2 bg-primary/20" />
+                    <span className="text-primary/40 text-[10px] ml-2">text_match.sh</span>
+                </div>
+
+                <Link2 size={48} className="text-primary text-glow mx-auto mb-4" />
+                <p className="text-primary/50 text-[10px] uppercase tracking-widest mb-2">&gt; GAME</p>
+                <h1 className="text-3xl font-bold tracking-tight text-white mb-4">TEXT_MATCH</h1>
+                <p className="text-primary/40 text-sm leading-relaxed mt-2 mb-6">
                     Dopasuj pojęcia IT do ich definicji.<br />
                     Kliknij termin po lewej, potem definicję po prawej.<br />
-                    Punkty <span className="text-yellow-400 font-bold">uciekają z czasem</span> –{' '}
+                    Punkty <span className="text-accent font-bold">uciekają z czasem</span> —{' '}
                     za błąd dodatkowe <span className="text-red-400 font-bold">-500 pkt</span>!
                 </p>
-                <div className="flex items-center gap-3 mt-3 px-5 py-2.5 bg-accent/10 border border-accent/30 rounded-xl">
-                    <span className="text-accent font-black text-2xl">10 000</span>
-                    <span className="text-gray-400 text-sm">punktów startowych</span>
+                <div className="flex items-center gap-3 justify-center mb-4 border border-primary/20 bg-primary/[0.04] px-5 py-3">
+                    <span className="font-mono font-black text-primary text-glow-lg text-2xl">10 000</span>
+                    <span className="text-primary/40 text-sm">punktów startowych</span>
                 </div>
-                <div className="text-gray-600 text-sm mt-1">{rawPairs?.length ?? 0} par do dopasowania</div>
-                <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+                <div className="text-primary/30 text-xs mb-6 font-mono">{rawPairs?.length ?? 0} PAR DO DOPASOWANIA</div>
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                     onClick={handleStart}
-                    className="mt-6 w-full py-4 bg-secondary text-black font-black text-xl rounded-xl tracking-widest hover:brightness-110 transition-all">
-                    START
+                    className="w-full py-4 bg-primary hover:bg-green-300 text-black font-black text-lg tracking-widest uppercase transition-colors font-mono">
+                    &gt; START_GIER
                 </motion.button>
             </div>
         </div>
@@ -270,11 +292,10 @@ export default function TextMatch() {
     // ── game screen ────────────────────────────────────────────────────────────
     const total = rawPairs?.length ?? 0
     const pct = total > 0 ? matched.size / total : 0
-    // Keep grid rows fixed at total count — matched cards become invisible placeholders
     const rows = total || 1
 
     return (
-        <div className="fixed inset-0 flex flex-col p-2 md:p-3 font-mono text-white overflow-hidden bg-transparent">
+        <div className="fixed inset-0 flex flex-col p-2 md:p-3 font-mono text-white overflow-hidden">
 
             {/* ── particles overlay ── */}
             <div className="fixed inset-0 pointer-events-none z-[200]">
@@ -283,7 +304,7 @@ export default function TextMatch() {
                         <motion.div key={p.id}
                             style={{
                                 position: 'absolute', top: 0, left: 0, width: p.size, height: p.size,
-                                borderRadius: '50%', backgroundColor: p.color,
+                                backgroundColor: p.color,
                                 boxShadow: `0 0 ${p.size * 3}px ${p.color}`,
                                 transform: 'translate(-50%,-50%)'
                             }}
@@ -297,31 +318,34 @@ export default function TextMatch() {
             </div>
 
             {/* ── header ── */}
-            <div className="flex items-center justify-between shrink-0 mb-2 bg-black/50 backdrop-blur-sm rounded-xl px-3 py-2">
-                <img src={sparkSomeLogo} alt="SparkSome" className="h-8 md:h-10 invert" />
-                <span className="text-base md:text-xl font-bold tracking-widest font-mono text-primary">TEXT_MATCH</span>
+            <div className="flex items-center justify-between shrink-0 mb-2 crt-border bg-surface px-3 py-2">
+                <img src={sparkSomeLogo} alt="SparkSome" className="h-7 md:h-9 invert opacity-50" />
+                <div className="flex items-center gap-2">
+                    <Link2 size={14} className="text-primary" />
+                    <span className="text-sm md:text-base font-bold tracking-widest font-mono text-primary text-glow">TEXT_MATCH</span>
+                </div>
                 <div className="flex flex-col items-end leading-none">
                     <motion.span
                         key={score}
-                        initial={{ scale: 1.2, color: '#facc15' }}
-                        animate={{ scale: 1, color: '#facc15' }}
+                        initial={{ scale: 1.15 }}
+                        animate={{ scale: 1 }}
                         transition={{ duration: 0.15 }}
-                        className="text-2xl md:text-3xl font-black text-accent tabular-nums"
+                        className="font-mono font-black text-primary text-glow tabular-nums text-xl md:text-2xl"
                     >
                         {score.toString().padStart(5, '0')}
                     </motion.span>
-                    <span className="text-[9px] text-gray-500 uppercase tracking-widest">pkt</span>
+                    <span className="text-[9px] text-primary/40 uppercase tracking-widest">PKT</span>
                 </div>
             </div>
 
             {/* ── progress bar ── */}
             <div className="shrink-0 mb-1.5">
-                <div className="flex justify-between text-[10px] text-gray-500 mb-0.5">
+                <div className="flex justify-between text-[10px] text-primary/40 mb-0.5 font-mono">
                     <span>Pozostało: <b className="text-white">{total - matched.size}</b>/{total}</span>
-                    <span className="text-green-400 font-bold">{matched.size} ✓</span>
+                    <span className="text-primary font-bold">{matched.size} ✓</span>
                 </div>
-                <div className="h-1 bg-gray-800 rounded-full overflow-hidden">
-                    <motion.div className="h-full bg-green-400 rounded-full"
+                <div className="h-px bg-primary/10 overflow-hidden">
+                    <motion.div className="h-full bg-primary shadow-[0_0_8px_rgba(0,255,65,0.8)]"
                         animate={{ width: `${pct * 100}%` }}
                         transition={{ duration: 0.35 }} />
                 </div>
@@ -329,12 +353,12 @@ export default function TextMatch() {
 
             {/* ── column headers ── */}
             <div className="flex gap-2 shrink-0 mb-1">
-                <div className="flex-1 text-center text-[10px] font-bold text-gray-500 uppercase tracking-widest">Pojęcia</div>
+                <div className="flex-1 text-center text-[10px] font-bold text-primary/40 uppercase tracking-widest">&gt; POJĘCIA</div>
                 <div className="w-px" />
-                <div className="flex-1 text-center text-[10px] font-bold text-gray-500 uppercase tracking-widest">Definicje</div>
+                <div className="flex-1 text-center text-[10px] font-bold text-primary/40 uppercase tracking-widest">&gt; DEFINICJE</div>
             </div>
 
-            {/* ── card grid — FIXED rows, matched cards are transparent placeholders ── */}
+            {/* ── card grid ── */}
             <div className="flex gap-2 flex-1 min-h-0">
 
                 {/* LEFT – terms */}
@@ -351,13 +375,12 @@ export default function TextMatch() {
                         return (
                             <AnimatePresence key={`t${id}`} mode="wait">
                                 {isMatched ? (
-                                    // Invisible placeholder — keeps the grid row alive
                                     <motion.div
                                         key="matched"
                                         initial={{ opacity: 1, scale: 1, y: 0 }}
                                         animate={{ opacity: 0, scale: 0.7, y: -30 }}
                                         transition={{ duration: 0.45, ease: 'backIn' }}
-                                        className="rounded-xl border-2 border-transparent bg-transparent"
+                                        className="border border-transparent bg-transparent"
                                     />
                                 ) : (
                                     <motion.div
@@ -374,16 +397,16 @@ export default function TextMatch() {
                                         }}
                                         onClick={() => handleTermClick(id)}
                                         className={[
-                                            'flex items-center justify-center px-3 rounded-xl border-2 min-h-0',
-                                            'text-center text-sm md:text-base lg:text-lg font-bold select-none cursor-pointer',
+                                            'flex items-center justify-center px-3 border min-h-0',
+                                            'text-center text-sm md:text-base font-bold select-none cursor-pointer',
                                             'transition-colors leading-snug overflow-hidden',
-                                            sel ? 'bg-secondary/25 border-secondary text-white shadow-[0_0_18px_rgba(99,102,241,0.5)]'
+                                            sel ? 'bg-primary/15 border-primary text-white shadow-[0_0_20px_rgba(0,255,65,0.3)]'
                                                 : wrong
-                                                    ? 'bg-red-500/20 border-red-500 text-red-300'
-                                                    : 'bg-white/5 border-gray-600 hover:border-secondary/70 hover:bg-secondary/10 text-white',
+                                                    ? 'bg-red-500/10 border-red-500 text-red-300'
+                                                    : 'bg-primary/[0.03] border-primary/20 hover:border-primary/50 hover:bg-primary/[0.07] text-primary/70 hover:text-white',
                                         ].join(' ')}
                                     >
-                                        <span className="text-center">{pair.term}</span>
+                                        <span className="text-center font-mono">{pair.term}</span>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -392,7 +415,7 @@ export default function TextMatch() {
                 </div>
 
                 {/* Divider */}
-                <div className="w-px bg-gray-700 shrink-0 self-stretch" />
+                <div className="w-px bg-primary/15 shrink-0 self-stretch" />
 
                 {/* RIGHT – definitions */}
                 <div
@@ -413,7 +436,7 @@ export default function TextMatch() {
                                         initial={{ opacity: 1, scale: 1, y: 0 }}
                                         animate={{ opacity: 0, scale: 0.7, y: -30 }}
                                         transition={{ duration: 0.45, ease: 'backIn' }}
-                                        className="rounded-xl border-2 border-transparent bg-transparent"
+                                        className="border border-transparent bg-transparent"
                                     />
                                 ) : (
                                     <motion.div
@@ -430,16 +453,16 @@ export default function TextMatch() {
                                         }}
                                         onClick={() => handleDefClick(id)}
                                         className={[
-                                            'flex items-center justify-center px-3 rounded-xl border-2 min-h-0',
-                                            'text-center text-xs md:text-sm lg:text-base leading-snug select-none cursor-pointer',
+                                            'flex items-center justify-center px-3 border min-h-0',
+                                            'text-center text-xs md:text-sm leading-snug select-none cursor-pointer',
                                             'transition-colors overflow-hidden',
-                                            wrong ? 'bg-red-500/20 border-red-500 text-red-300'
+                                            wrong ? 'bg-red-500/10 border-red-500 text-red-300'
                                                 : hilight
-                                                    ? 'bg-white/5 border-gray-600 hover:border-primary hover:bg-primary/10 text-gray-100 ring-1 ring-primary/20'
-                                                    : 'bg-white/5 border-gray-600 hover:border-primary/60 hover:bg-primary/10 text-gray-300',
+                                                    ? 'bg-primary/[0.03] border-primary/20 hover:border-primary/50 hover:bg-primary/[0.07] text-primary/60 hover:text-white ring-1 ring-primary/15'
+                                                    : 'bg-primary/[0.03] border-primary/20 hover:border-primary/40 hover:bg-primary/[0.07] text-primary/50 hover:text-white',
                                         ].join(' ')}
                                     >
-                                        <span className="text-center">{pair.definition}</span>
+                                        <span className="text-center font-mono">{pair.definition}</span>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
