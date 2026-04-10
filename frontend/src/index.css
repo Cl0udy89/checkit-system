@@ -4,41 +4,119 @@
 
 @layer base {
   body {
-    @apply bg-background text-white font-sans overflow-x-hidden;
-    /* Prevent horizontal scroll, allow vertical on mobile */
+    @apply bg-background text-white font-mono overflow-x-hidden;
   }
+}
+
+/* ─── CRT / SCANLINES ───────────────────────────────────── */
+
+/* Persistent scanline overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.08) 3px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* Slow-moving bright scanline sweep */
+body::after {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: -120px;
+  height: 120px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(0, 255, 65, 0.015) 50%,
+    transparent
+  );
+  animation: scanline-sweep 12s linear infinite;
+  pointer-events: none;
+  z-index: 9997;
+}
+
+/* ─── UTILITY CLASSES ────────────────────────────────────── */
+
+.terminal-cursor::after {
+  content: '_';
+  animation: blink 1s step-end infinite;
+}
+
+.text-glow {
+  text-shadow: 0 0 8px currentColor;
+}
+
+.text-glow-lg {
+  text-shadow: 0 0 12px currentColor, 0 0 28px currentColor;
+}
+
+.crt-border {
+  border: 1px solid rgba(0, 255, 65, 0.45);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.25), inset 0 0 8px rgba(0, 255, 65, 0.04);
+}
+
+.crt-border:focus-within {
+  border-color: rgba(0, 255, 65, 0.85);
+  box-shadow: 0 0 14px rgba(0, 255, 65, 0.45), inset 0 0 8px rgba(0, 255, 65, 0.06);
+}
+
+.animate-flicker {
+  animation: flicker 8s infinite;
+}
+
+/* ─── CUSTOM SCROLLBAR ───────────────────────────────────── */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 65, 0.25);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 65, 0.5);
+}
+
+/* ─── KEYFRAMES ──────────────────────────────────────────── */
+
+@keyframes scroll {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
+@keyframes scanline-sweep {
+  0%   { top: -120px; }
+  100% { top: 100vh; }
+}
+
+@keyframes blink {
+  0%, 50%  { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes flicker {
+  0%, 88%, 90%, 92%, 100% { opacity: 1; }
+  89%  { opacity: 0.85; }
+  91%  { opacity: 0.92; }
 }
 
 @layer utilities {
   .animate-scroll {
     animation: scroll 30s linear infinite;
   }
-
-  @keyframes scroll {
-    0% {
-      transform: translateY(0);
-    }
-
-    100% {
-      transform: translateY(-50%);
-    }
-  }
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(0, 255, 65, 0.3);
-  border-radius: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 255, 65, 0.5);
 }
