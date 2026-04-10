@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Form, UploadFile, File
 from datetime import timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_session
@@ -7,6 +7,7 @@ from app.services.auth_service import auth_service
 from fastapi.security import OAuth2PasswordRequestForm
 from app.security import create_access_token, verify_password
 from app.simple_config import settings
+import base64
 
 router = APIRouter(tags=["Auth"])
 
@@ -14,15 +15,28 @@ from app.limiter import limiter
 
 @router.post("/register", response_model=UserRead)
 @limiter.limit("3/minute")
-async def register(request: Request, user: UserCreate, session: AsyncSession = Depends(get_session)):
+async def register(
+    request: Request,
+    nick: str = Form(...),
+    email: str = Form(...),
+    screenshot: UploadFile | None = File(default=None),
+    session: AsyncSession = Depends(get_session)
+):
     """
-    Registers a new user after validation.
+    Registers a new user. Accepts multipart form with optional screenshot.
     """
     try:
-        # Enforce 15 chars limit on backend!
-        user.nick = user.nick[:15]
-        
+        user = UserCreate(nick=nick[:15], email=email)
         new_user = await auth_service.register_user(user, session)
+
+        if screenshot and screenshot.filename:
+            raw = await screenshot.read(1024 * 1024 * 2)  # max 2MB
+            new_user.screenshot_b64 = base64.b64encode(raw).decode()
+            new_user.screenshot_name = screenshot.filename
+            session.add(new_user)
+            await session.commit()
+            await session.refresh(new_user)
+
         return new_user
     except HTTPException as e:
         raise e

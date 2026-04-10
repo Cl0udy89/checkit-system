@@ -10,6 +10,8 @@ class UserRead(BaseModel):
     nick: str
     email: str
     is_blocked: bool
+    screenshot_b64: Optional[str] = None
+    screenshot_name: Optional[str] = None
 
 class LeaderboardEntry(BaseModel):
     nick: str

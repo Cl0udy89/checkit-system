@@ -1,9 +1,74 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api, fetchAdminUsers, fetchAdminScores, deleteUser, fetchSystemConfig, setSystemConfig, fetchEmailTemplates, updateEmailTemplate, sendAllEmails, clearLogs, resetDatabase, fetchPMQueue, adminPMQueueNext, adminPMQueueSetStatus, adminPMQueueKick, fetchUserScores, deleteUserScore } from '../lib/api'
 import { useNavigate } from 'react-router-dom'
-import { Shield, Zap, RefreshCw, Lock, LogOut, Settings, Mail } from 'lucide-react'
+import { Shield, Zap, RefreshCw, Lock, LogOut, Settings, Mail, Image, X, ZoomIn } from 'lucide-react'
 import AdminLogin from './AdminLogin'
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+
+// ── Screenshot viewer with metadata ──────────────────────────
+function ScreenshotViewer({ b64, name, onClose }: { b64: string; name: string; onClose: () => void }) {
+    const [dims, setDims] = useState<{ w: number; h: number } | null>(null)
+    const src = `data:image/*;base64,${b64}`
+    const sizeKb = Math.round((b64.length * 3) / 4 / 1024)
+
+    useEffect(() => {
+        const img = new window.Image()
+        img.onload = () => setDims({ w: img.naturalWidth, h: img.naturalHeight })
+        img.src = src
+    }, [src])
+
+    return (
+        <div className="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4" onClick={onClose}>
+            <div className="bg-surface crt-border max-w-4xl w-full max-h-[90vh] flex flex-col md:flex-row overflow-hidden" onClick={e => e.stopPropagation()}>
+
+                {/* Title bar */}
+                <div className="flex items-center gap-2 px-4 py-2 border-b border-primary/20 bg-primary/[0.03] md:hidden">
+                    <span className="text-primary/40 text-[10px] font-mono flex-1">screenshot_viewer.sh</span>
+                    <button onClick={onClose} className="text-primary/40 hover:text-primary transition-colors"><X size={14} /></button>
+                </div>
+
+                {/* Image panel */}
+                <div className="flex-1 min-h-0 flex items-center justify-center bg-black/60 p-3 relative">
+                    <img src={src} alt={name} className="max-w-full max-h-[60vh] md:max-h-[85vh] object-contain" />
+                    <button onClick={onClose} className="absolute top-2 right-2 hidden md:flex bg-black/80 border border-primary/30 text-primary/60 hover:text-primary p-1 transition-colors">
+                        <X size={14} />
+                    </button>
+                </div>
+
+                {/* Metadata panel */}
+                <div className="w-full md:w-64 shrink-0 border-t md:border-t-0 md:border-l border-primary/20 p-4 space-y-4 overflow-y-auto custom-scrollbar">
+                    <p className="text-primary/50 text-[10px] font-mono uppercase tracking-widest border-b border-primary/10 pb-2">
+                        &gt; METADANE
+                    </p>
+
+                    {[
+                        { label: 'NAZWA PLIKU', value: name },
+                        { label: 'ROZMIAR', value: `${sizeKb} KB` },
+                        { label: 'WYMIARY', value: dims ? `${dims.w} × ${dims.h} px` : '...' },
+                        { label: 'FORMAT', value: name.split('.').pop()?.toUpperCase() ?? 'N/A' },
+                        { label: 'ASPECT RATIO', value: dims ? (dims.w / dims.h).toFixed(2) + ':1' : '...' },
+                        { label: 'MEGAPIKSELE', value: dims ? ((dims.w * dims.h) / 1_000_000).toFixed(2) + ' MP' : '...' },
+                        { label: 'ORIENTACJA', value: dims ? (dims.w > dims.h ? 'POZIOMA' : dims.w < dims.h ? 'PIONOWA' : 'KWADRAT') : '...' },
+                    ].map(({ label, value }) => (
+                        <div key={label}>
+                            <p className="text-primary/30 text-[9px] font-mono uppercase tracking-wider">{label}</p>
+                            <p className="text-primary text-xs font-mono mt-0.5 break-all">{value}</p>
+                        </div>
+                    ))}
+
+                    <div>
+                        <p className="text-primary/30 text-[9px] font-mono uppercase tracking-wider">BASE64 DŁUGOŚĆ</p>
+                        <p className="text-primary/60 text-[10px] font-mono mt-0.5">{b64.length.toLocaleString()} znaków</p>
+                    </div>
+                    <div>
+                        <p className="text-primary/30 text-[9px] font-mono uppercase tracking-wider">STATUS</p>
+                        <p className="text-secondary text-[10px] font-mono mt-0.5">VERIFIED_UPLOAD ✓</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
 
 // Direct axios calls for admin to save time updating api.ts
 const triggerSolenoid = async () => api.post('/admin/solenoid/trigger')
@@ -18,6 +83,7 @@ export default function Admin() {
     const [emailSuccess, setEmailSuccess] = useState('')
     const [expandedUser, setExpandedUser] = useState<number | null>(null)
     const [customColor, setCustomColor] = useState<string>('#00ff00')
+    const [viewingScreenshot, setViewingScreenshot] = useState<{ b64: string; name: string } | null>(null)
 
     if (!token) return <AdminLogin />
 
@@ -377,6 +443,14 @@ export default function Admin() {
                 </div>
             )}
 
+            {viewingScreenshot && (
+                <ScreenshotViewer
+                    b64={viewingScreenshot.b64}
+                    name={viewingScreenshot.name}
+                    onClose={() => setViewingScreenshot(null)}
+                />
+            )}
+
             {activeTab === 'users' && (
                 <div className="overflow-x-auto border border-green-800">
                     <table className="w-full text-left text-sm">
@@ -386,6 +460,7 @@ export default function Admin() {
                                 <th className="p-3">NICK</th>
                                 <th className="p-3">EMAIL</th>
                                 <th className="p-3">UTWORZONO</th>
+                                <th className="p-3">SCREEN</th>
                                 <th className="p-3">AKCJA</th>
                             </tr>
                         </thead>
@@ -400,6 +475,23 @@ export default function Admin() {
                                         <td className="p-3 font-bold text-white max-w-[150px] truncate">{u.nick}</td>
                                         <td className="p-3 text-gray-400 max-w-[200px] truncate">{u.email}</td>
                                         <td className="p-3">{new Date(u.created_at).toLocaleDateString()}</td>
+                                        <td className="p-3">
+                                            {u.screenshot_b64 ? (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setViewingScreenshot({ b64: u.screenshot_b64, name: u.screenshot_name || 'screenshot.png' })
+                                                    }}
+                                                    className="flex items-center gap-1 bg-green-900/30 hover:bg-green-900/60 text-green-400 hover:text-white px-2 py-1 text-xs border border-green-800 transition-colors"
+                                                    title="Podgląd screenshota"
+                                                >
+                                                    <ZoomIn size={12} />
+                                                    VIEW
+                                                </button>
+                                            ) : (
+                                                <span className="text-gray-700 text-xs font-mono">—</span>
+                                            )}
+                                        </td>
                                         <td className="p-3">
                                             <button
                                                 onClick={async (e) => {
