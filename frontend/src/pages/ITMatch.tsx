@@ -53,41 +53,55 @@ export default function ITMatch() {
         retry: false
     })
 
+    // ── SESSION PERSISTENCE ── DO NOT REMOVE (preserves in-progress game on accidental navigation)
+    // Restores question order, index and score from sessionStorage. Cleared on game finish.
     useEffect(() => {
-        if (data && user) {
-            // Try to resume saved state
-            const savedStr = localStorage.getItem(`it_match_state_${user.id}`)
-            if (savedStr) {
-                try {
-                    const saved = JSON.parse(savedStr)
-                    if (saved.questions && Array.isArray(saved.questions) && typeof saved.currentIndex === 'number' && saved.currentIndex < saved.questions.length) {
-                        setQuestions(saved.questions)
-                        setCurrentIndex(saved.currentIndex)
-                        setScore(saved.score || 0)
-                        setAnswers(saved.answers || {})
-                        setAnswerStats(saved.answerStats || [])
-                        setQuestionStartTime(Date.now())
+        if (!data || !user) return
+        const sessionKey = `itm_session_${user.id}`
+        const saved = sessionStorage.getItem(sessionKey)
+        if (saved) {
+            try {
+                const s = JSON.parse(saved)
+                if (Array.isArray(s.questionIds) && s.questionIds.length === data.length) {
+                    const qMap = new Map(data.map((q: Question) => [q.id, q]))
+                    const restored = s.questionIds.map((id: number) => qMap.get(id)).filter(Boolean) as Question[]
+                    if (restored.length === data.length) {
+                        setQuestions(restored)
+                        setCurrentIndex(s.currentIndex ?? 0)
+                        setScore(s.score ?? 0)
+                        setAnswers(s.answers ?? {})
+                        setAnswerStats(s.answerStats ?? [])
+                        setQuestionStartTime(s.questionStartTime ?? Date.now())
                         setCurrentPotentialScore(MAX_Q_POINTS)
                         return
                     }
-                } catch (e) {}
-            }
-            // Fresh start
-            localStorage.removeItem(`it_match_state_${user.id}`)
-            const loadedQuestions = [...data]
-            for (let i = loadedQuestions.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [loadedQuestions[i], loadedQuestions[j]] = [loadedQuestions[j], loadedQuestions[i]];
-            }
-            setQuestions(loadedQuestions)
-            setCurrentIndex(0)
-            setScore(0)
-            setAnswers({})
-            setAnswerStats([])
-            setQuestionStartTime(Date.now())
-            setCurrentPotentialScore(MAX_Q_POINTS)
+                }
+            } catch { /* corrupt – fall through to fresh start */ }
         }
+        // Fresh start
+        const loadedQuestions = [...data]
+        for (let i = loadedQuestions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [loadedQuestions[i], loadedQuestions[j]] = [loadedQuestions[j], loadedQuestions[i]]
+        }
+        setQuestions(loadedQuestions)
+        setCurrentIndex(0)
+        setScore(0)
+        setAnswers({})
+        setAnswerStats([])
+        setQuestionStartTime(Date.now())
+        setCurrentPotentialScore(MAX_Q_POINTS)
     }, [data, user])
+
+    // ── SESSION PERSISTENCE ── DO NOT REMOVE
+    // Saves current progress after each answered question.
+    useEffect(() => {
+        if (!user || !questions.length || gameOver) return
+        sessionStorage.setItem(`itm_session_${user.id}`, JSON.stringify({
+            questionIds: questions.map(q => q.id),
+            currentIndex, score, answers, answerStats, questionStartTime
+        }))
+    }, [currentIndex, score]) // eslint-disable-line react-hooks/exhaustive-deps
 
     // Timer Effect (Per Question)
     useEffect(() => {
@@ -140,18 +154,7 @@ export default function ITMatch() {
 
         setTimeout(() => {
             if (currentIndex < questions.length - 1) {
-                const nextIndex = currentIndex + 1
-                // Save progress so user can resume if they exit
-                if (user) {
-                    localStorage.setItem(`it_match_state_${user.id}`, JSON.stringify({
-                        questions,
-                        currentIndex: nextIndex,
-                        score: newScore,
-                        answers: newAnswers,
-                        answerStats: newAnswerStats
-                    }))
-                }
-                setCurrentIndex(nextIndex)
+                setCurrentIndex(prev => prev + 1)
                 setQuestionStartTime(Date.now())
                 setCurrentPotentialScore(MAX_Q_POINTS)
                 setGameState('playing')
@@ -162,10 +165,9 @@ export default function ITMatch() {
     }
 
     const finishGame = async (finalScore: number) => {
+        // ── SESSION PERSISTENCE ── DO NOT REMOVE — clear session on game completion
+        if (user) sessionStorage.removeItem(`itm_session_${user.id}`)
         setGameOver(true)
-        if (user) {
-            localStorage.removeItem(`it_match_state_${user.id}`)
-        }
         const endTime = Date.now()
         const duration = endTime - startTime
 
@@ -207,9 +209,9 @@ export default function ITMatch() {
 
         return (
             <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col items-center relative md:touch-none overflow-x-hidden overflow-y-auto custom-scrollbar pt-8 md:pt-12">
-                <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center drop-shadow-[0_0_15px_rgba(74,222,128,0.8)]">LICZENIE PUNKTÓW...</h1>
+                <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center drop-shadow-[0_0_15px_rgba(74,222,128,0.8)] bg-black/50 backdrop-blur-sm px-6 py-3 rounded-xl">LICZENIE PUNKTÓW...</h1>
 
-                <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8">
+                <div className="bg-surface/95 border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8 backdrop-blur-sm">
                     <div className="text-center mb-6 md:mb-8 border border-gray-700 rounded-lg bg-black/50 p-6 md:p-8 flex flex-col items-center">
                         <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">WYNIK KOŃCOWY</div>
                         <div className="text-5xl md:text-7xl font-bold text-accent font-mono">{score}</div>
@@ -252,12 +254,12 @@ export default function ITMatch() {
     return (
         <div className="h-[100dvh] bg-transparent flex flex-col items-center justify-between p-2 md:p-4 relative touch-none select-none overflow-hidden">
             {/* HUD */}
-            <div className="w-full max-w-lg md:max-w-xl lg:max-w-3xl flex justify-between items-start mb-2 md:mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative px-2">
+            <div className="w-full max-w-lg md:max-w-xl lg:max-w-3xl flex justify-between items-start mb-2 md:mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative px-3 bg-black/50 backdrop-blur-sm rounded-xl">
                 <div className="flex flex-col gap-1 md:gap-2 shrink-0">
-                    <h1 className="text-base md:text-2xl font-mono text-primary flex items-center gap-1 md:gap-2">
-                        <Search size={18} className="md:w-6 md:h-6 shrink-0" /> IT_MATCH
+                    <h1 className="text-xl md:text-3xl font-mono text-primary flex items-center gap-2 md:gap-3">
+                        <Search size={22} className="md:w-7 md:h-7 shrink-0" /> IT_MATCH
                     </h1>
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-4 md:h-6 w-auto object-contain invert opacity-70" />
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-6 md:h-8 w-auto object-contain invert opacity-70" />
                 </div>
                 <div className="flex gap-3 md:gap-8 text-right shrink-0">
                     <div className="flex flex-col items-end">
@@ -274,21 +276,23 @@ export default function ITMatch() {
             </div>
 
             <div className="flex-1 w-full max-w-md lg:max-w-2xl relative flex justify-center items-center my-2 min-h-0">
-                <AnimatePresence>
-                    {floatingPoints.map(fp => (
-                        <motion.div
-                            key={fp.id}
-                            initial={{ opacity: 0, y: 10, scale: 0.7 }}
-                            animate={{ opacity: 1, y: -80, scale: 1.3 }}
-                            exit={{ opacity: 0, y: -120, scale: 1.0 }}
-                            transition={{ duration: 0.8, ease: 'easeOut' }}
-                            className={`absolute z-[60] font-bold pointer-events-none text-4xl md:text-5xl whitespace-nowrap ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,0.8)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]'}`}
-                        >
-                            {fp.val > 0 ? `+${fp.val}` : fp.val}
-                            <div className="text-xl md:text-2xl text-center opacity-90 mt-2">{fp.label}</div>
-                        </motion.div>
-                    ))}
-                </AnimatePresence>
+                {/* Floating points — absolute so they don't shift card layout */}
+                <div className="absolute inset-0 flex justify-center items-center pointer-events-none z-[60]">
+                    <AnimatePresence>
+                        {floatingPoints.map(fp => (
+                            <motion.div
+                                key={fp.id}
+                                initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                                animate={{ opacity: 1, y: -80, scale: 1.5 }}
+                                exit={{ opacity: 0 }}
+                                className={`w-full font-bold text-4xl md:text-5xl text-center drop-shadow-2xl ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)]'}`}
+                            >
+                                {fp.val > 0 ? `+${fp.val}` : fp.val}
+                                <div className="text-xl md:text-2xl text-center opacity-90 mt-2">{fp.label}</div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </div>
                 <AnimatePresence>
                     {questions.length > 0 && currentIndex < questions.length && (
                         <Card

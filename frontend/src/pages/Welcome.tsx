@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { api } from '../lib/api'
 import { useGameStore } from '../hooks/useGameStore'
+import { containsProfanity } from '../lib/utils'
 import { User, Mail, ArrowRight, ShieldCheck } from 'lucide-react'
 import sparkSomeLogo from '../assets/sparkSomeLogo_Black.png'
 
-// Define the API call separately
 const registerUser = async (userData: { nick: string, email: string }) => {
     const { data } = await api.post('/auth/register', userData)
     return data
@@ -23,29 +23,25 @@ export default function Welcome() {
     const [agreeAge, setAgreeAge] = useState(false)
     const [agreeData, setAgreeData] = useState(false)
 
-    // Auto-login redirect
     useEffect(() => {
-        if (user) {
-            navigate('/dashboard')
-        }
+        if (user) navigate('/dashboard')
     }, [user, navigate])
 
     const mutation = useMutation({
         mutationFn: registerUser,
         onSuccess: (data) => {
-            login(data) // Save to Zustand store
+            login(data)
             navigate('/dashboard')
         },
         onError: (err: any) => {
-            console.error("Registration Error:", err)
-            if (err.message === "Network Error") {
-                setError("Błąd połączenia. Czy serwer działa?")
+            if (err.message === 'Network Error') {
+                setError('ERR: Brak połączenia z serwerem.')
             } else {
-                const errorDetail = err.response?.data?.detail;
-                if (Array.isArray(errorDetail)) {
-                    setError(errorDetail[0]?.msg || 'Nieprawidłowy format danych.');
+                const detail = err.response?.data?.detail
+                if (Array.isArray(detail)) {
+                    setError(detail[0]?.msg || 'ERR: Nieprawidłowy format danych.')
                 } else {
-                    setError(errorDetail || 'Rejestracja nieudana. Spróbuj innego nicku.');
+                    setError(detail || 'ERR: Nick zajęty lub błąd rejestracji.')
                 }
             }
         }
@@ -53,54 +49,86 @@ export default function Welcome() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        if (!nick || !email) {
-            setError('Wszystkie pola są wymagane.')
-            return
-        }
-        if (!agreeRules || !agreeAge || !agreeData) {
-            setError('Musisz zaakceptować wszystkie zgody, aby wziąć udział.')
-            return
-        }
-        // Basic profanity filter check could be here or backend
+        if (!nick || !email) { setError('ERR: Wszystkie pola są wymagane.'); return }
+        if (!agreeRules || !agreeAge || !agreeData) { setError('ERR: Wymagana akceptacja wszystkich zgód.'); return }
+        if (containsProfanity(nick)) { setError('ERR: Nick zawiera niedozwolone słowa.'); return }
         mutation.mutate({ nick, email })
     }
 
     return (
-        <div className="min-h-screen w-full bg-transparent flex flex-col items-center justify-center p-4 relative overflow-x-hidden overflow-y-auto custom-scrollbar">
-            {/* Background Elements */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
-            <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 relative overflow-x-hidden overflow-y-auto custom-scrollbar">
 
-            {/* Top-Left Logo */}
+            {/* Grid background */}
+            <div
+                className="absolute inset-0 pointer-events-none opacity-[0.04]"
+                style={{
+                    backgroundImage: 'linear-gradient(rgba(0,255,65,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,1) 1px, transparent 1px)',
+                    backgroundSize: '40px 40px'
+                }}
+            />
+
+            {/* Corner glow blobs */}
+            <div className="absolute top-0 left-0 w-96 h-96 bg-primary/[0.04] rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary/[0.06] rounded-full blur-[80px] pointer-events-none" />
+
+            {/* Top line accent */}
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+
+            {/* Logo */}
             <div className="absolute top-4 left-4 md:top-8 md:left-8 z-20">
-                <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-12 md:h-16 invert" />
+                <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-10 md:h-14 invert opacity-70" />
             </div>
 
-            <div className="z-10 w-full max-w-md">
-                <div className="text-center mb-8 mt-24 md:mt-4">
-                    <h1 className="text-xl md:text-3xl font-mono font-bold text-white mb-4 tracking-tighter uppercase leading-snug">
-                        Podejmij wyzwanie Sparks_Core<br /> i sprawdź swój tech-skill!
+            {/* System status top-right */}
+            <div className="absolute top-4 right-4 md:top-8 md:right-8 z-20 text-right hidden md:block">
+                <p className="text-primary/40 text-[10px] font-mono">SYS: ONLINE</p>
+                <p className="text-primary/30 text-[10px] font-mono">AUTH_MODULE v1.0.4</p>
+            </div>
+
+            <div className="z-10 w-full max-w-md mt-20 md:mt-0">
+
+                {/* Header */}
+                <div className="mb-8">
+                    <p className="text-primary/50 text-xs font-mono mb-2 tracking-widest">
+                        &gt; SYSTEM: SPARKS_CORE // INICJALIZACJA
+                    </p>
+                    <h1 className="text-2xl md:text-3xl font-mono font-bold text-white leading-tight tracking-tight mb-3 animate-flicker">
+                        PODEJMIJ WYZWANIE<br />
+                        <span className="text-primary text-glow">SPARKS_CORE</span>
                     </h1>
-                    <p className="text-primary font-mono text-lg tracking-widest uppercase font-bold">ZAAUTORYZUJ SIĘ, ABY ROZPOCZĄĆ MISJĘ.</p>
+                    <p className="text-primary/70 font-mono text-sm tracking-widest uppercase">
+                        ZAAUTORYZUJ SIĘ, ABY ROZPOCZĄĆ MISJĘ
+                        <span className="terminal-cursor text-primary ml-1" />
+                    </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="bg-surface border border-gray-800 p-8 rounded-xl shadow-2xl backdrop-blur-sm relative group">
-                    {/* Hover Glow Effect */}
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-xl opacity-20 group-hover:opacity-40 transition duration-1000 blur"></div>
+                {/* Form */}
+                <div className="crt-border bg-surface relative">
 
-                    <div className="relative bg-surface rounded-xl p-2 space-y-6">
+                    {/* Top bar */}
+                    <div className="flex items-center gap-2 px-4 py-2 border-b border-primary/20 bg-primary/[0.03]">
+                        <div className="w-2 h-2 rounded-full bg-primary/40" />
+                        <div className="w-2 h-2 rounded-full bg-primary/20" />
+                        <div className="w-2 h-2 rounded-full bg-primary/20" />
+                        <span className="text-primary/40 text-[10px] font-mono ml-2">AUTH_TERMINAL — reg_user.sh</span>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="p-6 space-y-5">
 
                         {error && (
-                            <div className="bg-red-900/20 border border-red-900 text-red-500 p-3 rounded font-mono text-sm flex items-center gap-2">
-                                <ShieldCheck size={16} />
-                                {error}
+                            <div className="border border-red-800/60 bg-red-900/10 text-red-400 p-3 font-mono text-xs flex items-start gap-2">
+                                <ShieldCheck size={14} className="mt-0.5 shrink-0" />
+                                <span>{error}</span>
                             </div>
                         )}
 
-                        <div className="space-y-2">
-                            <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">NICK</label>
-                            <div className="relative">
-                                <User className="absolute left-3 top-3 text-gray-600" size={20} />
+                        {/* Nick */}
+                        <div>
+                            <label className="text-primary/60 text-[10px] font-mono uppercase tracking-widest block mb-1.5">
+                                &gt; IDENTYFIKATOR (NICK)
+                            </label>
+                            <div className="relative crt-border bg-black/40">
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/30" size={16} />
                                 <input
                                     type="text"
                                     value={nick}
@@ -108,60 +136,86 @@ export default function Welcome() {
                                         const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '')
                                         if (val.length <= 20) setNick(val)
                                     }}
-                                    className="w-full bg-black/50 border border-gray-700 text-white pl-10 pr-4 py-3 rounded focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-mono"
-                                    placeholder="WPISZ NICK"
+                                    className="w-full bg-transparent text-primary pl-9 pr-4 py-3 font-mono text-sm focus:outline-none placeholder:text-primary/20"
+                                    placeholder="WPISZ_NICK"
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-gray-400 text-xs font-mono uppercase tracking-wider block">E-MAIL</label>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-3 text-gray-600" size={20} />
+                        {/* Email */}
+                        <div>
+                            <label className="text-primary/60 text-[10px] font-mono uppercase tracking-widest block mb-1.5">
+                                &gt; E-MAIL
+                            </label>
+                            <div className="relative crt-border bg-black/40">
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/30" size={16} />
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
-                                    className="w-full bg-black/50 border border-gray-700 text-white pl-10 pr-4 py-3 rounded focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-mono"
-                                    placeholder="WPISZ EMAIL"
+                                    className="w-full bg-transparent text-primary pl-9 pr-4 py-3 font-mono text-sm focus:outline-none placeholder:text-primary/20"
+                                    placeholder="WPISZ_EMAIL"
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-3 mt-4 text-xs text-gray-400 font-sans">
-                            <p className="text-[10px] leading-tight text-gray-500 mb-4">
-                                Administratorem Twoich danych osobowych jest SparkSome Venture Sp. z o.o. z siedzibą w Krakowie (ul. Szlak 77/222). Dane (np. nick i e-mail) przetwarzamy w celu organizacji i rozstrzygnięcia konkursu oraz wydania nagród (art. 6 ust. 1 lit. b RODO).
-                                Podanie danych jest dobrowolne, ale konieczne do udziału. Przysługuje Ci prawo dostępu do danych, ich poprawiania, usunięcia oraz złożenia skargi do Prezesa UODO. Szczegóły znajdziesz w <a href="https://sparksome.pl/assets/Polityka%20prywatno%C5%9Bci%20SparkSome.pdf" target="_blank" rel="noreferrer" className="text-primary hover:underline font-bold">Polityce prywatności</a>.
+                        {/* Consents */}
+                        <div className="space-y-3">
+                            <p className="text-primary/30 text-[9px] font-mono leading-relaxed">
+                                Administratorem danych jest SparkSome Venture Sp. z o.o. (ul. Szlak 77/222, Kraków).
+                                Dane przetwarzamy w celu organizacji konkursu (art. 6 ust. 1 lit. b RODO).{' '}
+                                <a href="https://sparksome.pl/assets/Polityka%20prywatno%C5%9Bci%20SparkSome.pdf"
+                                   target="_blank" rel="noreferrer"
+                                   className="text-primary/60 hover:text-primary transition-colors underline">
+                                    Polityka prywatności
+                                </a>
                             </p>
-                            <div className="bg-black/40 p-3 rounded-lg border border-gray-800 space-y-3">
-                                <label className="flex items-start gap-2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
-                                    <input type="checkbox" checked={agreeRules} onChange={e => setAgreeRules(e.target.checked)} className="mt-0.5 w-4 h-4 accent-primary shrink-0" />
-                                    <span className="text-xs">Zapoznałem/am się z <a href="https://sparklublin.it/regulamin" target="_blank" rel="noreferrer" className="text-primary hover:underline font-bold">Regulaminem</a> konkursów i aktywacji organizowanych przez SparkSome Venture Sp. z o.o. i akceptuję jego postanowienia.</span>
-                                </label>
-                                <label className="flex items-start gap-2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
-                                    <input type="checkbox" checked={agreeAge} onChange={e => setAgreeAge(e.target.checked)} className="mt-0.5 w-4 h-4 accent-primary shrink-0" />
-                                    <span className="text-xs">Oświadczam, że mam ukończone 18 lat lub posiadam zgodę opiekuna prawnego na udział w konkursie/aktywacji.</span>
-                                </label>
-                                <label className="flex items-start gap-2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
-                                    <input type="checkbox" checked={agreeData} onChange={e => setAgreeData(e.target.checked)} className="mt-0.5 w-4 h-4 accent-primary shrink-0" />
-                                    <span className="text-xs">Przyjmuję do wiadomości, że moje dane osobowe (nick, adres e-mail) będą przetwarzane przez SparkSome Venture Sp. z o.o. w celu organizacji i przeprowadzenia konkursu, publikacji wyników oraz wydania nagród, zgodnie z Regulaminem i Polityką prywatności.</span>
-                                </label>
+                            <div className="border border-primary/10 bg-black/30 p-3 space-y-3">
+                                {[
+                                    { value: agreeRules, setter: setAgreeRules, text: 'Zapoznałem/am się z Regulaminem konkursów i aktywacji SparkSome Venture Sp. z o.o. i akceptuję jego postanowienia.' },
+                                    { value: agreeAge, setter: setAgreeAge, text: 'Oświadczam, że mam ukończone 18 lat lub posiadam zgodę opiekuna prawnego.' },
+                                    { value: agreeData, setter: setAgreeData, text: 'Przyjmuję do wiadomości przetwarzanie moich danych (nick, e-mail) w celu organizacji konkursu, publikacji wyników i wydania nagród.' },
+                                ].map((consent, i) => (
+                                    <label key={i} className="flex items-start gap-3 cursor-pointer group">
+                                        <div
+                                            onClick={() => consent.setter(!consent.value)}
+                                            className={`w-4 h-4 border mt-0.5 shrink-0 flex items-center justify-center transition-all cursor-pointer ${
+                                                consent.value
+                                                    ? 'border-primary bg-primary/20 text-primary'
+                                                    : 'border-primary/30 bg-transparent text-transparent'
+                                            }`}
+                                        >
+                                            {consent.value && <span className="text-[10px] font-mono font-bold leading-none">✓</span>}
+                                        </div>
+                                        <span className="text-primary/40 text-[10px] font-mono leading-relaxed group-hover:text-primary/60 transition-colors">
+                                            {consent.text}
+                                        </span>
+                                    </label>
+                                ))}
                             </div>
                         </div>
 
+                        {/* Submit */}
                         <button
                             type="submit"
                             disabled={mutation.isPending}
-                            className="w-full bg-primary hover:bg-green-400 text-black font-bold py-4 rounded transition-all flex justify-center items-center gap-2 group/btn"
+                            className="w-full bg-primary hover:bg-green-300 disabled:opacity-40 disabled:cursor-not-allowed text-black font-mono font-bold py-4 text-sm tracking-widest uppercase transition-colors flex items-center justify-center gap-3 group"
                         >
-                            {mutation.isPending ? 'ŁADOWANIE...' : 'AUTORYZUJ I WEJDŹ'}
-                            <ArrowRight size={20} className="group-hover/btn:translate-x-1 transition-transform" />
+                            {mutation.isPending ? (
+                                <span className="terminal-cursor">AUTORYZACJA</span>
+                            ) : (
+                                <>
+                                    AUTORYZUJ I WEJDŹ
+                                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                                </>
+                            )}
                         </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
 
-                <div className="mt-8 flex flex-col items-center gap-2 text-gray-600 text-xs font-mono uppercase">
-                    CHECKIT V1.0.4
+                <div className="mt-6 flex items-center justify-between text-primary/20 text-[10px] font-mono">
+                    <span>CHECKIT V1.0.4</span>
+                    <span>© SPARKSOME VENTURE</span>
                 </div>
             </div>
         </div>

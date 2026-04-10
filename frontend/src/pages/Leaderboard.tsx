@@ -31,20 +31,19 @@ export default function Leaderboard() {
     if (isLoading) return <div className="p-10 text-center animate-pulse font-mono text-2xl">SYNCHRONIZACJA WYNIKÓW...</div>
 
     const Section = ({ title, list }: { title: string, list: any[] }) => (
-        <div className="bg-surface border border-gray-700 rounded-lg p-6 shadow-lg h-full flex flex-col">
-            <h3 className="text-2xl font-mono font-bold text-primary mb-6 border-b border-gray-800 pb-2 shrink-0">{title}</h3>
-            <div className="grid grid-cols-[2.5rem_1fr_auto] text-xs text-gray-500 font-mono mb-2 px-2 shrink-0">
-                <span>POS</span>
-                <span>NICK</span>
-                <span>PUNKTY</span>
+        <div className="bg-black/40 backdrop-blur-md border border-gray-700/60 rounded-lg p-4 md:p-6 shadow-xl h-full flex flex-col">
+            <h3 className="text-xl md:text-2xl font-mono font-bold text-primary mb-4 md:mb-6 border-b border-gray-800 pb-2 shrink-0">{title}</h3>
+            <div className="flex justify-between text-xs text-gray-500 font-mono mb-2 px-2 shrink-0">
+                <span>POZYCJA / NICK</span>
+                <span>PKT</span>
             </div>
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar h-[300px]">
-                <div className="space-y-3">
+            <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar h-[300px]">
+                <div className="space-y-2">
                     {list?.map((entry, idx) => (
-                        <div key={idx} className="grid grid-cols-[2.5rem_1fr_auto] items-center font-mono text-base border-b border-gray-800/50 pb-2 last:border-0 hover:bg-white/5 px-2 py-1 rounded">
-                            <span className={`font-bold shrink-0 ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
-                            <span className="truncate pr-2 text-gray-300">{entry.nick}</span>
-                            <span className="text-white font-bold text-lg shrink-0">{entry.score}</span>
+                        <div key={idx} className="flex items-center font-mono text-sm md:text-base border-b border-gray-800/50 pb-1.5 last:border-0 hover:bg-white/5 px-2 py-1 rounded gap-2">
+                            <span className={`font-bold shrink-0 w-8 text-sm ${idx < 3 ? 'text-accent' : 'text-gray-500'}`}>#{idx + 1}</span>
+                            <span className="text-gray-300 truncate flex-1 min-w-0">{entry.nick}</span>
+                            <span className="text-white font-bold text-sm md:text-base shrink-0 tabular-nums">{entry.score}</span>
                         </div>
                     ))}
                     {(!list || list.length === 0) && <div className="text-gray-600 text-sm">BRAK DANYCH</div>}
@@ -57,17 +56,19 @@ export default function Leaderboard() {
         <div className="min-h-screen bg-transparent p-4 md:p-8 relative overflow-y-auto overflow-x-hidden flex flex-col custom-scrollbar">
             <button
                 onClick={() => navigate('/dashboard')}
-                className="mt-4 mb-6 flex items-center gap-2 text-gray-400 hover:text-white transition-colors relative z-30"
+                className="mt-8 md:mt-0 mb-6 md:mb-8 flex items-center gap-2 text-gray-400 hover:text-white transition-colors relative z-30"
             >
                 <ArrowLeft size={20} /> POWRÓT
             </button>
 
-            <div className="flex flex-col justify-center items-center mb-12 text-center mt-2 w-full">
-                <div className="flex items-center justify-center gap-4 md:gap-6 mb-4 md:mb-6">
-                    <h1 className="text-4xl md:text-6xl font-mono font-bold text-white tracking-tighter">
-                        RANKING OGÓLNY
-                    </h1>
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-10 md:h-14 invert opacity-90 shrink-0" />
+            <div className="flex flex-col justify-center items-center mb-12 text-center mt-4 w-full">
+                <h1 className="text-4xl md:text-6xl font-mono font-bold text-white tracking-tighter mb-3 md:mb-4">
+                    RANKING OGÓLNY
+                </h1>
+
+                {/* Logo below heading — smaller than heading text */}
+                <div className="flex justify-center w-full mb-4 md:mb-6">
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-8 sm:h-9 md:h-11 invert opacity-80" />
                 </div>
                 {data?.leaderboard_message && (
                     <div className="text-lg md:text-2xl font-bold font-mono text-accent px-6 py-3 bg-accent/20 border-2 border-accent rounded-xl backdrop-blur-md shadow-[0_0_20px_rgba(243,234,95,0.6)] text-center">
@@ -78,43 +79,73 @@ export default function Leaderboard() {
 
             {/* Grandmaster Section - Full Width on Top */}
             <div className="mb-12">
-                <div className="bg-surface border-4 border-accent rounded-xl p-6 md:p-8 shadow-[0_0_50px_rgba(243,234,95,0.2)] relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-32 bg-accent/10 rounded-full blur-[100px] transform translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+                <div className="bg-black/50 backdrop-blur-md border-4 border-accent rounded-xl p-8 shadow-[0_0_50px_rgba(243,234,95,0.3)] relative overflow-hidden transform hover:scale-[1.01] transition-transform">
+                    <div className="absolute top-0 right-0 p-32 bg-accent/10 rounded-full blur-[100px] transform translate-x-1/2 -translate-y-1/2"></div>
                     <div className="relative z-10">
-                        <h3 className="text-2xl md:text-3xl font-mono font-bold text-accent mb-6 border-b-2 border-accent/30 pb-4">
-                            TOP SCORE: ALL GAMES
+                        <h3 className="text-3xl font-mono font-bold text-accent mb-8 border-b-2 border-accent/30 pb-4 flex justify-between items-center">
+                            <span>TOP SCORE: ALL GAMES</span>
                         </h3>
-                        <div className="grid grid-cols-[2.5rem_1fr_auto] text-xs text-gray-500 font-mono mb-2 px-2">
-                            <span>POS</span>
-                            <span>NICK</span>
-                            <span>PUNKTY</span>
-                        </div>
-                        <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1 custom-scrollbar">
-                            {data?.grandmaster?.map((entry: any, idx: number) => (
-                                <div key={idx} className={`grid grid-cols-[2.5rem_1fr_auto] items-center font-mono border-b border-accent/20 pb-2 px-2 py-2 rounded hover:bg-accent/5 transition-colors ${idx === 0 ? 'bg-yellow-400/5 border-yellow-400/30' : ''}`}>
-                                    <span className={`font-black shrink-0 text-xl md:text-2xl ${
-                                        idx === 0 ? 'text-yellow-400' :
-                                        idx === 1 ? 'text-gray-400' :
-                                        idx === 2 ? 'text-amber-700' :
-                                        'text-accent'
-                                    }`}>#{idx + 1}</span>
-                                    <span className={`truncate pr-2 font-bold text-base md:text-xl ${idx === 0 ? 'text-white' : 'text-gray-100'}`}>{entry.nick}</span>
-                                    <span className={`font-black text-base md:text-2xl shrink-0 ${idx === 0 ? 'text-accent' : 'text-accent/80'}`}>{entry.score}</span>
+                        <div className="flex flex-col gap-8 max-w-5xl mx-auto">
+                            {/* 1st Place */}
+                            {data?.grandmaster?.length > 0 && (
+                                <div className="flex justify-center">
+                                    <div className="w-full max-w-2xl flex justify-between items-center font-mono border-2 border-yellow-400/50 shadow-[0_0_30px_rgba(255,215,0,0.3)] bg-yellow-400/10 pb-2 px-6 py-4 rounded transition-colors hover:bg-accent/10">
+                                        <div className="flex items-center gap-6 overflow-hidden">
+                                            <span className="font-black text-yellow-400 text-5xl shrink-0 w-20">#1</span>
+                                            <span className="font-bold text-3xl md:text-4xl text-white truncate">{data.grandmaster[0].nick}</span>
+                                        </div>
+                                        <span className="text-accent font-black text-3xl md:text-4xl shrink-0 ml-4">{data.grandmaster[0].score} SCORE</span>
+                                    </div>
                                 </div>
-                            ))}
-                            {(!data?.grandmaster || data.grandmaster.length === 0) && (
-                                <div className="text-gray-600 text-sm font-mono">BRAK DANYCH</div>
+                            )}
+
+                            {/* Remaining Places in 2 Columns */}
+                            {data?.grandmaster?.length > 1 && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                                    {/* Left Column */}
+                                    <div className="flex flex-col gap-4">
+                                        {data.grandmaster.slice(1, Math.ceil((data.grandmaster.length - 1) / 2) + 1).map((entry: any, i: number) => {
+                                            const idx = i + 1; // 1-indexed for the slice
+                                            return (
+                                                <div key={idx} className="flex justify-between items-center font-mono text-xl md:text-2xl border-b border-accent/20 pb-2 px-4 py-3 rounded transition-colors hover:bg-accent/10">
+                                                    <span className="text-gray-100 flex items-center gap-4">
+                                                        <span className={`font-black w-16 ${idx === 1 ? 'text-gray-400 text-3xl' : idx === 2 ? 'text-amber-700 text-3xl' : 'text-accent text-3xl'}`}>#{idx + 1}</span>
+                                                        {entry.nick}
+                                                    </span>
+                                                    <span className="text-accent font-black text-2xl md:text-3xl">{entry.score} SCORE</span>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+
+                                    {/* Right Column */}
+                                    <div className="flex flex-col gap-4">
+                                        {data.grandmaster.slice(Math.ceil((data.grandmaster.length - 1) / 2) + 1).map((entry: any, i: number) => {
+                                            const idx = i + Math.ceil((data.grandmaster.length - 1) / 2) + 1; // 1-indexed for the slice
+                                            return (
+                                                <div key={idx} className="flex justify-between items-center font-mono text-xl md:text-2xl border-b border-accent/20 pb-2 px-4 py-3 rounded transition-colors hover:bg-accent/10">
+                                                    <span className="text-gray-100 flex items-center gap-4">
+                                                        <span className={`font-black w-16 ${idx === 1 ? 'text-gray-400 text-3xl' : idx === 2 ? 'text-amber-700 text-3xl' : 'text-accent text-3xl'}`}>#{idx + 1}</span>
+                                                        {entry.nick}
+                                                    </span>
+                                                    <span className="text-accent font-black text-2xl md:text-3xl">{entry.score} SCORE</span>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
                             )}
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Game Sections - 3 Columns Below */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-10">
+            {/* Game Sections - 4 Columns Below */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 pb-10">
                 <Section title="BINARY BRAIN" list={data?.binary_brain} />
                 <Section title="PATCH MASTER" list={data?.patch_master} />
                 <Section title="IT MATCH" list={data?.it_match} />
+                <Section title="TEXT MATCH" list={data?.text_match} />
             </div>
         </div>
 

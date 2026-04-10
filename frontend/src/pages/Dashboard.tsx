@@ -1,6 +1,6 @@
 import { fetchGameStatus } from '../lib/api'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Zap, Cpu, Search, Trophy, CheckCircle, Link2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../hooks/useGameStore'
@@ -24,12 +24,10 @@ export default function Dashboard() {
         if (!user) navigate('/')
     }, [user, navigate])
 
-    const handleLogout = () => {
-        if (window.confirm("Czy na pewno chcesz się wylogować?")) {
-            logout()
-            navigate('/')
-        }
-    }
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
+
+    const handleLogout = () => setShowLogoutConfirm(true)
+    const confirmLogout = () => { logout(); navigate('/') }
 
     const gamesLeft = useMemo(() => {
         if (!gameStatus) return 4
@@ -156,15 +154,15 @@ export default function Dashboard() {
 
                     <div className="relative z-10 text-center md:text-left mb-6 md:mb-0">
                         <h2 className={`text-3xl font-mono font-bold ${gamesLeft === 0 ? 'text-accent' : 'text-white'} mb-2 tracking-tight`}>
-                            {gamesLeft === 0 ? "STATUS: GRANDMASTER ELIGIBLE" : `MISJA: UKONCZ ${gamesLeft} ${gamesLeft === 1 ? 'GRE' : 'GRY'}`}
+                            {gamesLeft === 0 ? "STATUS: GRANDMASTER ELIGIBLE" : `MISJA: UKOŃCZ ${gamesLeft} ${gamesLeft === 1 ? 'GRĘ' : 'GRY'}`}
                         </h2>
                         {gamesLeft === 0 ? (
-                            <button onClick={() => navigate('/leaderboard')} className="text-accent underline font-mono text-sm max-w-lg hover:text-white transition-colors text-left">
+                            <button onClick={() => navigate('/leaderboard')} className="text-accent underline font-mono text-sm max-w-lg hover:text-white transition-colors text-left text-balance">
                                 Wszystkie systemy odblokowane! Sprawdź swoją ostateczną pozycję w rankingu głównym.
                             </button>
                         ) : (
                             <p className="text-gray-400 font-mono text-sm max-w-lg">
-                                Zagraj w pozostałe gry, aby zdobyć maksymalną ilość punktów APP i odblokować status Grandmastera.
+                                Zagraj w gry, aby zdobyć maksymalną ilość punktów i odblokować status Grandmastera.
                             </p>
                         )}
                     </div>
@@ -252,6 +250,32 @@ export default function Dashboard() {
                     SYSTEM_ID: CHECKIT_NODE_01 // SECURE_CONNECTION // POWERED BY SPARKS.ENGINE
                 </div>
             </div>
+
+            {/* Logout confirm modal */}
+            {showLogoutConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+                    <div className="bg-surface border border-gray-700 rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl flex flex-col gap-6 font-mono">
+                        <div className="flex flex-col gap-2 text-center">
+                            <span className="text-white text-xl font-bold tracking-tight">Wylogować się?</span>
+                            <span className="text-gray-400 text-sm">Twoje postępy są zapisane — możesz wrócić w dowolnym momencie.</span>
+                        </div>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setShowLogoutConfirm(false)}
+                                className="flex-1 py-3 rounded-lg border border-gray-700 text-gray-300 hover:bg-gray-800 transition-all font-mono font-bold"
+                            >
+                                ANULUJ
+                            </button>
+                            <button
+                                onClick={confirmLogout}
+                                className="flex-1 py-3 rounded-lg bg-red-900/40 border border-red-700 text-red-400 hover:bg-red-900/70 hover:text-red-300 transition-all font-mono font-bold"
+                            >
+                                WYLOGUJ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div >
     )
 }

@@ -27,6 +27,7 @@ export default function BinaryBrain() {
     const [currentPotentialScore, setCurrentPotentialScore] = useState(1000)
     const [questionStartTime, setQuestionStartTime] = useState(Date.now())
     const [gameStartTime] = useState(Date.now())
+    const [hasLoaded, setHasLoaded] = useState(false)
 
     // UI State
     const [gameState, setGameState] = useState<'playing' | 'feedback' | 'finished'>('playing')
@@ -51,32 +52,43 @@ export default function BinaryBrain() {
 
     const currentQ = questions ? questions[currentQIndex] : null
 
-    // Resume saved state or start fresh from Q1
+    // ── SESSION PERSISTENCE ── DO NOT REMOVE (preserves in-progress game on accidental navigation)
+    // Restores question index, score, answers from sessionStorage. Cleared automatically on game finish.
     useEffect(() => {
-        if (questions && user) {
-            const savedStr = localStorage.getItem(`binary_brain_state_${user.id}`)
-            if (savedStr) {
+        if (questions && user && !hasLoaded) {
+            const sessionKey = `bb_session_${user.id}`
+            const saved = sessionStorage.getItem(sessionKey)
+            if (saved) {
                 try {
-                    const saved = JSON.parse(savedStr)
-                    if (typeof saved.currentQIndex === 'number' && saved.currentQIndex < questions.length) {
-                        setCurrentQIndex(saved.currentQIndex)
-                        setTotalScore(saved.totalScore || 0)
-                        setAnswers(saved.answers || {})
-                        setAnswerStats(saved.answerStats || [])
-                        setQuestionStartTime(Date.now())
+                    const s = JSON.parse(saved)
+                    if (typeof s.currentQIndex === 'number' && s.currentQIndex < questions.length) {
+                        setCurrentQIndex(s.currentQIndex)
+                        setTotalScore(s.totalScore ?? 0)
+                        setAnswers(s.answers ?? {})
+                        setAnswerStats(s.answerStats ?? [])
+                        setQuestionStartTime(s.questionStartTime ?? Date.now())
+                        setHasLoaded(true)
                         return
                     }
-                } catch (e) {}
+                } catch { /* corrupt – fall through to fresh start */ }
             }
-            localStorage.removeItem(`binary_brain_state_${user.id}`)
             setCurrentQIndex(0)
             setTotalScore(0)
             setAnswers({})
             setAnswerStats([])
             setQuestionStartTime(Date.now())
+            setHasLoaded(true)
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [questions])
+    }, [questions, user, hasLoaded])
+
+    // ── SESSION PERSISTENCE ── DO NOT REMOVE
+    // Saves current progress after each answered question.
+    useEffect(() => {
+        if (!user || !hasLoaded || gameState === 'finished') return
+        sessionStorage.setItem(`bb_session_${user.id}`, JSON.stringify({
+            currentQIndex, totalScore, answers, answerStats, questionStartTime
+        }))
+    }, [currentQIndex, totalScore]) // eslint-disable-line react-hooks/exhaustive-deps
 
     // Shuffle options immediately during render when question changes
     const shuffledOptions = useMemo(() => {
@@ -157,22 +169,12 @@ export default function BinaryBrain() {
         // Wait a bit then move on
         setTimeout(() => {
             if (currentQIndex < questions.length - 1) {
-                const nextQIndex = currentQIndex + 1
-                // Save progress so user can resume if they exit
-                if (user) {
-                    localStorage.setItem(`binary_brain_state_${user.id}`, JSON.stringify({
-                        currentQIndex: nextQIndex,
-                        totalScore: totalScore + pointsEarned,
-                        answers: newAnswers,
-                        answerStats: newAnswerStats
-                    }))
-                }
                 // IMPORTANT: Change state fully FIRST
                 setGameState('playing')
                 setLastAnswerCorrect(null)
                 setCurrentPotentialScore(MAX_Q_POINTS)
                 // THEN Change question
-                setCurrentQIndex(nextQIndex)
+                setCurrentQIndex(prev => prev + 1)
                 setQuestionStartTime(Date.now())
             } else {
                 finishGame(totalScore + pointsEarned, newAnswers, newAnswerStats) // Pass final updated score
@@ -181,12 +183,13 @@ export default function BinaryBrain() {
     }
 
     function finishGame(finalScore: number, finalAnswers?: Record<string, string>, finalStats?: any[]) {
+        // ── SESSION PERSISTENCE ── DO NOT REMOVE — clear session on game completion
+        if (user) sessionStorage.removeItem(`bb_session_${user.id}`)
         setGameState('finished')
         const boxOpened = false
         setFinalResult({ score: finalScore, boxOpened, stats: finalStats || answerStats })
 
         if (user) {
-            localStorage.removeItem(`binary_brain_state_${user.id}`)
             submitMutation.mutate({
                 user_id: user.id,
                 game_type: 'binary_brain',
@@ -252,9 +255,9 @@ export default function BinaryBrain() {
 
         return (
             <div className="min-h-[100dvh] bg-transparent p-4 md:p-8 flex flex-col justify-center items-center relative md:touch-none overflow-x-hidden overflow-y-auto custom-scrollbar">
-                <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center">WERYFIKACJA ZAKOŃCZONA</h1>
+                <h1 className="text-4xl md:text-5xl font-mono font-bold text-primary mb-6 md:mb-8 glow-text text-center bg-black/50 backdrop-blur-sm px-6 py-3 rounded-xl">WERYFIKACJA ZAKOŃCZONA</h1>
 
-                <div className="bg-surface border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8">
+                <div className="bg-surface/95 border-2 border-gray-700 rounded-2xl p-4 md:p-8 shadow-2xl w-full max-w-4xl z-20 relative mb-8 backdrop-blur-sm">
                     <div className="text-center mb-6 md:mb-8 border border-gray-700 rounded-lg bg-black/50 p-6 md:p-8 flex flex-col items-center">
                         <div className="text-gray-400 font-mono mb-2 text-sm md:text-base">WYNIK KOŃCOWY</div>
                         <div className="text-5xl md:text-7xl font-bold text-accent font-mono">{finalResult.score}</div>
@@ -297,21 +300,21 @@ export default function BinaryBrain() {
     return (
         <div className="min-h-[100dvh] bg-transparent flex flex-col p-2 md:p-6 relative md:touch-none overflow-x-hidden overflow-y-auto md:overflow-hidden custom-scrollbar">
             {/* HUD */}
-            <div className="w-full flex justify-between items-start mb-4 border-b border-gray-800 pb-2 md:pb-4 gap-2 z-10 relative max-w-4xl mx-auto">
-                <div className="flex flex-col gap-1 md:gap-2 shrink-0">
-                    <h1 className="text-base md:text-2xl font-mono text-primary flex items-center gap-1 md:gap-2">
-                        <Zap size={18} className="md:w-6 md:h-6 shrink-0" /> BINARY_BRAIN
+            <div className="w-full md:w-2/3 flex justify-between items-center mb-4 pb-2 md:pb-3 gap-4 z-10 relative mx-auto bg-black/60 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3 md:py-4 border border-gray-800/60">
+                <div className="flex flex-col gap-1 shrink-0">
+                    <h1 className="text-xl md:text-3xl font-mono text-primary flex items-center gap-2 md:gap-3 font-bold tracking-wider">
+                        <Zap size={22} className="md:w-7 md:h-7 shrink-0" /> BINARY_BRAIN
                     </h1>
-                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-4 md:h-6 w-auto object-contain invert opacity-70" />
+                    <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-7 md:h-9 w-auto object-contain invert opacity-70" />
                 </div>
-                <div className="flex gap-3 md:gap-8 text-right shrink-0">
-                    <div className="flex flex-col items-end">
-                        <div className="text-[9px] md:text-xs text-gray-500 font-mono">TOTAL SCORE</div>
-                        <div className="text-xl md:text-4xl font-mono font-bold text-accent">{totalScore}</div>
+                <div className="flex gap-4 md:gap-10">
+                    <div className="flex flex-col items-center">
+                        <div className="text-[9px] md:text-xs text-gray-500 font-mono tracking-widest">TOTAL SCORE</div>
+                        <div className="text-xl md:text-4xl font-mono font-bold text-accent tabular-nums">{totalScore}</div>
                     </div>
-                    <div className="flex flex-col items-end">
-                        <div className="text-[9px] md:text-xs text-gray-500 font-mono">POTENTIAL</div>
-                        <div className={`text-2xl md:text-5xl font-mono font-bold tracking-widest text-shadow-neon ${gameState === 'feedback' ? (lastAnswerCorrect ? 'text-green-500' : 'text-red-500') : 'text-white'}`}>
+                    <div className="flex flex-col items-center">
+                        <div className="text-[9px] md:text-xs text-gray-500 font-mono tracking-widest">POTENTIAL</div>
+                        <div className={`text-2xl md:text-5xl font-mono font-bold tracking-widest text-shadow-neon tabular-nums ${gameState === 'feedback' ? (lastAnswerCorrect ? 'text-green-500' : 'text-red-500') : 'text-white'}`}>
                             {currentPotentialScore.toString().padStart(4, '0')}
                         </div>
                     </div>
@@ -319,17 +322,19 @@ export default function BinaryBrain() {
             </div>
 
             {/* Question Card */}
-            <div className="flex-1 flex flex-col justify-center max-w-4xl mx-auto w-full relative mt-8 md:mt-10">
+            <div className="flex-1 flex flex-col justify-center">
+                {/* Card wrapper — floating points anchor here so inset-0 == card bounds */}
+                <div className="w-full md:w-2/3 mx-auto mt-6 md:mt-8 relative">
                 <div className="absolute inset-0 flex justify-center items-center pointer-events-none z-50">
                     <AnimatePresence>
                         {floatingPoints.map(fp => (
                             <motion.div
                                 key={fp.id}
-                                initial={{ opacity: 0, y: 10, scale: 0.7 }}
-                                animate={{ opacity: 1, y: -80, scale: 1.3 }}
-                                exit={{ opacity: 0, y: -120, scale: 1.0 }}
-                                transition={{ duration: 0.8, ease: 'easeOut' }}
-                                className={`absolute font-black text-4xl md:text-5xl whitespace-nowrap ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_20px_rgba(74,222,128,0.8)]' : 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]'}`}
+                                initial={{ opacity: 0, y: 0, scale: 0.4 }}
+                                animate={{ opacity: 1, y: -80, scale: 1.8 }}
+                                exit={{ opacity: 0, scale: 1.4 }}
+                                transition={{ duration: 0.35, ease: 'easeOut' }}
+                                className={`w-full font-black text-5xl md:text-6xl text-center ${fp.val > 0 ? 'text-green-400 drop-shadow-[0_0_30px_rgba(74,222,128,1)]' : 'text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,1)]'}`}
                             >
                                 {fp.val > 0 ? `+${fp.val}` : fp.val}
                                 <div className="text-2xl md:text-3xl text-center opacity-90 mt-1 font-bold tracking-widest">{fp.label}</div>
@@ -380,7 +385,7 @@ export default function BinaryBrain() {
                                     onClick={() => handleAnswer(opt)}
                                     // Remove the hover effect if we are in feedback mode so mobile doesn't stick
                                     disabled={gameState !== 'playing'}
-                                    className={`p-3 md:p-4 text-sm md:text-base border text-left transition-all font-mono group rounded relative overflow-hidden
+                                    className={`p-3 md:p-4 text-sm md:text-base border text-left transition-all font-mono group rounded relative min-h-[3.5rem] break-words
                                             ${gameState === 'feedback'
                                             ? (opt.isCorrect
                                                 ? 'border-green-500 bg-green-500/20 text-white'
@@ -406,6 +411,7 @@ export default function BinaryBrain() {
                         {lastAnswerCorrect ? "POPRAWNA ODPOWIEDŹ (+PUNKTY)" : "NIEPOPRAWNA (0 PUNKTÓW)"}
                     </motion.div>
                 )}
+                </div>{/* end card wrapper */}
             </div>
 
             {/* Progress Bar */}
