@@ -27,6 +27,9 @@ export default function PatchMaster() {
     // Refs for auto-scroll to first disconnected port
     const portRefs = useRef<(HTMLDivElement | null)[]>([])
 
+    // Randomized display order — shuffled once at game start so users can't memorize positions
+    const [displayOrder, setDisplayOrder] = useState<number[]>([])
+
     // --- QUEUE DATA ---
     const { data: qState } = useQuery({
         queryKey: ['pm_queue'],
@@ -203,10 +206,23 @@ export default function PatchMaster() {
         }
     }, [hardwareState?.pairs, gameStartedLocal, isFinished])
 
+    // Shuffle display order once when game starts and pairs are loaded
+    useEffect(() => {
+        if (gameStartedLocal && hardwareState?.pairs?.length && displayOrder.length === 0) {
+            const indices = Array.from({ length: hardwareState.pairs.length }, (_, i) => i)
+            for (let i = indices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [indices[i], indices[j]] = [indices[j], indices[i]]
+            }
+            setDisplayOrder(indices)
+        }
+    }, [gameStartedLocal, hardwareState?.pairs?.length, displayOrder.length])
+
     // Check Interrupt Condition
     useEffect(() => {
         if (qState?.status === 'resetting' && gameStartedLocal && !isFinished) {
             setIsFinished(true)
+            setDisplayOrder([])
             alert("GRA PRZERWANA PRZEZ ADMINISTRATORA. Punkty nie zostały naliczone.")
             navigate('/dashboard')
         }
@@ -441,6 +457,7 @@ export default function PatchMaster() {
 
     const renderGameUI = () => {
         const pairs = hardwareState?.pairs || []
+        // portInstructions[i] is tied to pairs[i] from hardware — same index = same physical pair
         const portInstructions = [
             "GÓRA 1 ↔ DÓŁ 24",
             "GÓRA 5 ↔ DÓŁ 18",
@@ -451,6 +468,11 @@ export default function PatchMaster() {
             "GÓRA 21 ↔ DÓŁ 23",
             "GÓRA 22 ↔ DÓŁ 10"
         ]
+
+        // Use shuffled order if ready, otherwise natural order
+        const order = displayOrder.length === pairs.length
+            ? displayOrder
+            : pairs.map((_: any, i: number) => i)
 
         return (
             <div className="flex-1 flex flex-col w-full max-w-[90vw] xl:max-w-[80vw] mx-auto z-10 relative mt-4 md:mt-8">
@@ -470,10 +492,13 @@ export default function PatchMaster() {
                 </div>
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 xl:gap-12 mt-4 md:mt-8">
-                    {pairs.map((pair: any, idx: number) => (
+                    {order.map((originalIdx: number, displayPos: number) => {
+                        const pair = pairs[originalIdx]
+                        if (!pair) return null
+                        return (
                         <div
-                            key={idx}
-                            ref={(el) => { portRefs.current[idx] = el }}
+                            key={originalIdx}
+                            ref={(el) => { portRefs.current[displayPos] = el }}
                             className={clsx(
                                 "relative bg-surface border-2 p-6 md:p-10 xl:p-12 rounded-2xl flex flex-col items-center justify-center transition-all duration-300",
                                 pair.connected ? "border-primary shadow-[0_0_40px_rgba(0,255,65,0.4)] scale-105" : "border-red-500/30 opacity-80"
@@ -488,10 +513,11 @@ export default function PatchMaster() {
                                 {pair.connected ? "POŁĄCZONY" : "ROZŁĄCZONY"}
                             </div>
                             <div className="text-base md:text-2xl xl:text-3xl font-mono text-yellow-400 bg-black/80 px-4 py-3 xl:px-6 xl:py-4 rounded-xl font-black mt-4 border-2 border-yellow-500/50 text-center shadow-[0_0_20px_rgba(234,179,8,0.3)] w-full break-normal">
-                                {portInstructions[idx]}
+                                {portInstructions[originalIdx]}
                             </div>
                         </div>
-                    ))}
+                        )
+                    })}
                 </div>
 
                 <div className="mt-12 md:mt-20 text-center text-gray-400 font-mono w-full">
