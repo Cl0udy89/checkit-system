@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api, fetchAdminUsers, fetchAdminScores, deleteUser, fetchSystemConfig, setSystemConfig, fetchEmailTemplates, updateEmailTemplate, sendAllEmails, clearLogs, resetDatabase, fetchPMQueue, adminPMQueueNext, adminPMQueueSetStatus, adminPMQueueKick, fetchUserScores, deleteUserScore } from '../lib/api'
 import { useNavigate } from 'react-router-dom'
-import { Shield, Zap, RefreshCw, Lock, LogOut, Settings, Mail, Image, X, ZoomIn } from 'lucide-react'
+import { Shield, Zap, RefreshCw, Lock, LogOut, Settings, Mail, X, ZoomIn } from 'lucide-react'
 import AdminLogin from './AdminLogin'
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 
 // ── Screenshot viewer with metadata ──────────────────────────
 function ScreenshotViewer({ b64, name, onClose }: { b64: string; name: string; onClose: () => void }) {
