@@ -43,7 +43,7 @@ export default function ITMatch() {
         onSuccess: () => { }
     })
 
-    const { data, isLoading, isError, error } = useQuery({
+    const { data, isLoading, isError } = useQuery({
         queryKey: ['it_match_questions'],
         queryFn: fetchITMatchQuestions,
         refetchOnWindowFocus: false,
