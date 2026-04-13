@@ -8,6 +8,7 @@ import { User, Mail, ArrowRight, ShieldCheck, Facebook, Upload, X, CheckCircle }
 import sparkSomeLogo from '../assets/sparkSomeLogo_Black.png'
 
 const FB_PAGE_URL = 'https://www.facebook.com/sparksomeventure'
+const LI_PAGE_URL = 'https://pl.linkedin.com/company/sparksome-venture'
 
 const registerUser = async (formData: FormData) => {
     const { data } = await api.post('/auth/register', formData, {
@@ -24,8 +25,8 @@ export default function Welcome() {
     const [email, setEmail] = useState('')
     const [error, setError] = useState('')
     const [agreeRules, setAgreeRules] = useState(false)
-    const [agreeAge, setAgreeAge] = useState(false)
     const [agreeData, setAgreeData] = useState(false)
+    const [agreeNewsletter, setAgreeNewsletter] = useState(false)
     const [fbLiked, setFbLiked] = useState(false)
     const [screenshot, setScreenshot] = useState<File | null>(null)
     const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null)
@@ -73,8 +74,8 @@ export default function Welcome() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         if (!nick || !email) { setError('ERR: Wszystkie pola są wymagane.'); return }
-        if (!agreeRules || !agreeAge || !agreeData) { setError('ERR: Wymagana akceptacja wszystkich zgód.'); return }
-        if (!fbLiked) { setError('ERR: Potwierdź polubienie strony Sparksome Venture na Facebooku.'); return }
+        if (!agreeRules || !agreeData) { setError('ERR: Wymagana akceptacja wszystkich zgód.'); return }
+        if (!fbLiked) { setError('ERR: Potwierdź obserwowanie Sparksome Venture w mediach społecznościowych.'); return }
         if (containsProfanity(nick)) { setError('ERR: Nick zawiera niedozwolone słowa.'); return }
 
         const fd = new FormData()
@@ -193,8 +194,7 @@ export default function Welcome() {
                             </p>
                             <div className="border border-primary/10 bg-black/30 p-3 space-y-3">
                                 {[
-                                    { value: agreeRules, setter: setAgreeRules, text: 'Zapoznałem/am się z Regulaminem konkursów i aktywacji SparkSome Venture Sp. z o.o. i akceptuję jego postanowienia.' },
-                                    { value: agreeAge, setter: setAgreeAge, text: 'Oświadczam, że mam ukończone 18 lat lub posiadam zgodę opiekuna prawnego.' },
+                                    { value: agreeRules, setter: setAgreeRules, text: 'Zapoznałem/am się z Regulaminem konkursów i aktywacji SparkSome Venture Sp. z o.o. i akceptuję jego postanowienia.', link: '/docs/regulamin.pdf' },
                                     { value: agreeData, setter: setAgreeData, text: 'Przyjmuję do wiadomości przetwarzanie moich danych (nick, e-mail) w celu organizacji konkursu, publikacji wyników i wydania nagród.' },
                                 ].map((consent, i) => (
                                     <label key={i} className="flex items-start gap-3 cursor-pointer group">
@@ -207,28 +207,57 @@ export default function Welcome() {
                                             {consent.value && <span className="text-[10px] text-primary font-mono font-bold leading-none">✓</span>}
                                         </div>
                                         <span className="text-primary/40 text-[10px] font-mono leading-relaxed group-hover:text-primary/60 transition-colors">
-                                            {consent.text}
+                                            {consent.link ? (
+                                                <a href={consent.link} target="_blank" rel="noreferrer" className="underline hover:text-primary transition-colors" onClick={e => e.stopPropagation()}>
+                                                    {consent.text}
+                                                </a>
+                                            ) : consent.text}
                                         </span>
                                     </label>
                                 ))}
+                                {/* Newsletter — dobrowolny */}
+                                <label className="flex items-start gap-3 cursor-pointer group">
+                                    <div
+                                        onClick={() => setAgreeNewsletter(!agreeNewsletter)}
+                                        className={`w-4 h-4 border mt-0.5 shrink-0 flex items-center justify-center transition-all cursor-pointer ${
+                                            agreeNewsletter ? 'border-primary bg-primary/20' : 'border-primary/30 bg-transparent'
+                                        }`}
+                                    >
+                                        {agreeNewsletter && <span className="text-[10px] text-primary font-mono font-bold leading-none">✓</span>}
+                                    </div>
+                                    <span className="text-primary/40 text-[10px] font-mono leading-relaxed group-hover:text-primary/60 transition-colors">
+                                        Chcę otrzymywać newsletter SparkSome Venture (informacje o nowych wyzwaniach IT i projektach edukacyjnych) na podany adres e-mail.
+                                    </span>
+                                </label>
                             </div>
                         </div>
 
-                        {/* Facebook section */}
+                        {/* Social media section */}
                         <div className="border border-primary/20 bg-black/30 p-4 space-y-3">
                             <p className="text-primary/50 text-[10px] font-mono uppercase tracking-widest">
-                                &gt; WYMAGANE: POLUB NAS NA FACEBOOKU
+                                &gt; WYMAGANE: OBSERWUJ NAS W SOCIAL MEDIA
                             </p>
 
-                            <a
-                                href={FB_PAGE_URL}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 w-full border border-primary/25 hover:border-primary/60 bg-primary/[0.04] hover:bg-primary/[0.08] text-primary/60 hover:text-primary py-2.5 px-3 font-mono text-xs transition-all cursor-pointer"
-                            >
-                                <Facebook size={14} />
-                                PRZEJDŹ DO STRONY NA FACEBOOK
-                            </a>
+                            <div className="grid grid-cols-2 gap-2">
+                                <a
+                                    href={FB_PAGE_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center justify-center gap-2 border border-primary/25 hover:border-primary/60 bg-primary/[0.04] hover:bg-primary/[0.08] text-primary/60 hover:text-primary py-2.5 px-3 font-mono text-[10px] transition-all cursor-pointer"
+                                >
+                                    <Facebook size={13} />
+                                    OBSERWUJ NA FACEBOOKU
+                                </a>
+                                <a
+                                    href={LI_PAGE_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center justify-center gap-2 border border-primary/25 hover:border-primary/60 bg-primary/[0.04] hover:bg-primary/[0.08] text-primary/60 hover:text-primary py-2.5 px-3 font-mono text-[10px] transition-all cursor-pointer"
+                                >
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                                    OBSERWUJ NA LINKEDINIE
+                                </a>
+                            </div>
 
                             <label className="flex items-start gap-3 cursor-pointer group">
                                 <div
@@ -240,7 +269,7 @@ export default function Welcome() {
                                     {fbLiked && <CheckCircle size={10} className="text-primary" />}
                                 </div>
                                 <span className="text-primary/40 text-[10px] font-mono leading-relaxed group-hover:text-primary/60 transition-colors">
-                                    Potwierdzam, że polubiłem/am stronę Sparksome Venture na Facebooku
+                                    Potwierdzam obserwowanie Sparksome Venture w mediach społecznościowych (Facebook lub LinkedIn)
                                 </span>
                             </label>
 
@@ -285,8 +314,7 @@ export default function Welcome() {
                     </form>
                 </div>
 
-                <div className="mt-6 flex items-center justify-between text-primary/20 text-[10px] font-mono">
-                    <span>CHECKIT V1.0.4</span>
+                <div className="mt-6 text-center text-primary/20 text-[10px] font-mono">
                     <span>© SPARKSOME VENTURE</span>
                 </div>
             </div>

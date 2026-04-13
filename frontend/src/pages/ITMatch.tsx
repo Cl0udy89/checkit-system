@@ -59,8 +59,9 @@ export default function ITMatch() {
         enabled: !gameOver && questions.length > 0
     })
 
-    const activeError = isError ? error : (isPollError ? pollError : null)
-    const hasError = isError || isPollError
+    // Poll only blocks on explicit 403 — ignore transient network errors
+    const pollBlocked = isPollError && (pollError as any)?.response?.status === 403
+    const pollIsBreak = (pollError as any)?.response?.data?.detail === "PRZERWA_TECHNICZNA"
 
     // ── SESSION PERSISTENCE ── DO NOT REMOVE (preserves in-progress game on accidental navigation)
     // Restores question order, index and score from sessionStorage. Cleared on game finish.
@@ -196,24 +197,18 @@ export default function ITMatch() {
         </div>
     )
 
-    if (hasError) {
-        // @ts-ignore
-        if (activeError?.response?.status === 403) {
-            // @ts-ignore
-            const isBreak = activeError?.response?.data?.detail === "PRZERWA_TECHNICZNA"
-            return (
-                <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center font-mono">
-                    <div className="crt-border bg-surface p-8 max-w-md w-full">
-                        <p className="text-primary/50 text-[10px] uppercase tracking-widest mb-2">&gt; SYSTEM_STATUS</p>
-                        <h1 className="text-2xl font-bold text-red-400 mb-4">{isBreak ? "PRZERWA TECHNICZNA" : "ZAWODY ZAKOŃCZONE"}</h1>
-                        <p className="text-primary/40 mb-8">{isBreak ? "System chwilowo niedostępny. Zostań na stanowisku!" : "System został zablokowany przez administratora."}</p>
-                        <button onClick={() => navigate('/dashboard')} className="border border-primary/25 hover:border-primary/60 text-primary/60 hover:text-primary px-6 py-3 font-mono text-sm transition-all">&gt; POWRÓT</button>
-                    </div>
-                </div>
-            )
-        }
-        return <div className="text-red-500 text-center mt-20 font-mono">CONNECTION_ERROR</div>
-    }
+    if (isError) return <div className="text-red-500 text-center mt-20 font-mono">CONNECTION_ERROR</div>
+
+    if (pollBlocked) return (
+        <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center font-mono">
+            <div className="crt-border bg-surface p-8 max-w-md w-full">
+                <p className="text-primary/50 text-[10px] uppercase tracking-widest mb-2">&gt; SYSTEM_STATUS</p>
+                <h1 className="text-2xl font-bold text-red-400 mb-4">{pollIsBreak ? "PRZERWA TECHNICZNA" : "ZAWODY ZAKOŃCZONE"}</h1>
+                <p className="text-primary/40 mb-8">{pollIsBreak ? "System chwilowo niedostępny. Zostań na stanowisku!" : "System został zablokowany przez administratora."}</p>
+                <button onClick={() => navigate('/dashboard')} className="border border-primary/25 hover:border-primary/60 text-primary/60 hover:text-primary px-6 py-3 font-mono text-sm transition-all">&gt; POWRÓT</button>
+            </div>
+        </div>
+    )
 
     if (gameOver) {
         const stats = answerStats || []

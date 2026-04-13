@@ -502,10 +502,10 @@ export default function PatchMaster() {
                 <div className="w-full flex justify-between items-start mb-4 crt-border bg-surface p-3 md:p-5 gap-2 z-10 relative">
                     <div className="flex flex-col gap-1 shrink-0">
                         <p className="text-primary/50 text-[9px] font-mono uppercase tracking-widest">&gt; PATCH_MASTER</p>
-                        <h1 className="text-base md:text-xl font-mono text-primary flex items-center gap-1 md:gap-2 font-bold text-glow">
-                            <Zap size={16} className="shrink-0" /> PATCH_MASTER
+                        <h1 className="text-xl md:text-3xl font-mono text-primary flex items-center gap-2 font-bold text-glow">
+                            <Zap size={22} className="shrink-0" /> PATCH_MASTER
                         </h1>
-                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-4 md:h-5 w-auto object-contain invert opacity-40" />
+                        <img src={sparkSomeLogo} alt="SparkSome Logo" className="h-6 md:h-9 w-auto object-contain invert opacity-40" />
                     </div>
                     <div className="flex flex-col items-end shrink-0">
                         <p className="text-[9px] md:text-[10px] text-primary/40 font-mono uppercase tracking-widest mb-1">AKTUALNY WYNIK</p>

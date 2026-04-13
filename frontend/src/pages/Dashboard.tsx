@@ -108,7 +108,7 @@ export default function Dashboard() {
                             animate={{ opacity: 1, y: 0 }}
                             className="text-xl md:text-2xl lg:text-3xl font-mono font-bold text-white tracking-widest leading-tight animate-flicker"
                         >
-                            CHECK_IT_LUBLIN_2026
+                            DNI_INFORMATYKI_LUBLIN_2026
                         </motion.h1>
                         <motion.p
                             initial={{ opacity: 0 }}
@@ -225,12 +225,12 @@ export default function Dashboard() {
             {/* Footer */}
             <div className="mt-8 text-center font-mono space-y-1 z-10">
                 <div>
-                    <a href="https://sparklublin.it/regulamin" target="_blank" rel="noreferrer" className="text-[10px] text-primary/30 hover:text-primary transition-colors">
+                    <a href="/docs/regulamin.pdf" target="_blank" rel="noreferrer" className="text-[10px] text-primary/30 hover:text-primary transition-colors">
                         Regulamin
                     </a>
                 </div>
                 <div className="text-[10px] text-primary/20">
-                    SYSTEM_ID: CHECKIT_NODE_01 // SECURE_CONNECTION // POWERED_BY_SPARKS.ENGINE
+                    SYSTEM_ID: DNIINFORMATYKI_NODE_01 // SECURE_CONNECTION // POWERED_BY_SPARKS.ENGINE
                 </div>
             </div>
 
