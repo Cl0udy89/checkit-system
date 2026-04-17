@@ -78,7 +78,7 @@ class ContentService:
             full_list = self.it_match_questions
             count = min(len(full_list), limit)
             if count == 0: return []
-            return random.sample(full_list, count)
+            return full_list[:count]  # stable CSV order — router handles user-seeded shuffle
         elif game_type == "text_match":
             if not self.text_match_questions:
                 logger.info("Reloading Text Match questions...")
@@ -87,7 +87,7 @@ class ContentService:
             full_list = self.text_match_questions
             count = min(len(full_list), limit)
             if count == 0: return []
-            return random.sample(full_list, count)
+            return full_list[:count]  # stable CSV order — router handles user-seeded shuffle
         return []
 
     def get_correct_answer(self, game_type: str, question_id: str) -> Optional[str]:

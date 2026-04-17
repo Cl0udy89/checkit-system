@@ -45,6 +45,8 @@ export default function TextMatch() {
         queryKey: ['textMatchQuestions'],
         queryFn: () => fetchTextMatchQuestions(8),
         retry: false,
+        refetchOnWindowFocus: false,
+        staleTime: Infinity,
     })
 
     const [started, setStarted] = useState(false)
