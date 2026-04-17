@@ -77,12 +77,27 @@ export default function ITMatch() {
                     const qMap = new Map(data.map((q: Question) => [q.id, q]))
                     const restored = s.questionIds.map((id: number) => qMap.get(id)).filter(Boolean) as Question[]
                     if (restored.length === data.length) {
+                        const restoredAnswers = s.answers ?? {}
+                        // Advance past any question already answered (handles mid-feedback navigation exploit)
+                        let restoredIndex = s.currentIndex ?? 0
+                        while (restoredIndex < restored.length - 1 &&
+                            restoredAnswers[restored[restoredIndex].id] !== undefined) {
+                            restoredIndex++
+                        }
+                        // If all questions answered but game wasn't finished, finish now
+                        if (restoredIndex >= restored.length ||
+                            (restoredIndex === restored.length - 1 &&
+                                restoredAnswers[restored[restoredIndex].id] !== undefined)) {
+                            setQuestions(restored)
+                            finishGame(s.score ?? 0)
+                            return
+                        }
                         setQuestions(restored)
-                        setCurrentIndex(s.currentIndex ?? 0)
+                        setCurrentIndex(restoredIndex)
                         setScore(s.score ?? 0)
-                        setAnswers(s.answers ?? {})
+                        setAnswers(restoredAnswers)
                         setAnswerStats(s.answerStats ?? [])
-                        setQuestionStartTime(Date.now()) // reset per-question timer on re-entry to prevent auto-timeout
+                        setQuestionStartTime(Date.now())
                         setCurrentPotentialScore(MAX_Q_POINTS)
                         return
                     }
