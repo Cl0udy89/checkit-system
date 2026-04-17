@@ -93,13 +93,18 @@ export default function ITMatch() {
             const j = Math.floor(Math.random() * (i + 1));
             [loadedQuestions[i], loadedQuestions[j]] = [loadedQuestions[j], loadedQuestions[i]]
         }
+        const freshStartTime = Date.now()
         setQuestions(loadedQuestions)
         setCurrentIndex(0)
         setScore(0)
         setAnswers({})
         setAnswerStats([])
-        setQuestionStartTime(Date.now())
+        setQuestionStartTime(freshStartTime)
         setCurrentPotentialScore(MAX_Q_POINTS)
+        sessionStorage.setItem(sessionKey, JSON.stringify({
+            questionIds: loadedQuestions.map((q: Question) => q.id),
+            currentIndex: 0, score: 0, answers: {}, answerStats: [], questionStartTime: freshStartTime
+        }))
     }, [data, user])
 
     // ── SESSION PERSISTENCE ── DO NOT REMOVE

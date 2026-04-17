@@ -39,6 +39,7 @@ export default function TextMatch() {
     const navigate = useNavigate()
     const user = useGameStore(s => s.user)
     useEffect(() => { if (!user) navigate('/') }, [user, navigate])
+    const sessionKey = user ? `tm_session_${user.id}` : null
 
     const { data: rawPairs, isLoading, error } = useQuery<Pair[]>({
         queryKey: ['textMatchQuestions'],
@@ -56,6 +57,7 @@ export default function TextMatch() {
     const [wrongPair, setWrongPair] = useState<{ term: number; def: number } | null>(null)
     const [particles, setParticles] = useState<Particle[]>([])
     const [submitted, setSubmitted] = useState(false)
+    const [wrongCount, setWrongCount] = useState(0)
 
     const startTimeRef = useRef<number>(0)
     const finishedRef = useRef(false)
@@ -79,11 +81,34 @@ export default function TextMatch() {
     }
 
     useEffect(() => {
-        if (!rawPairs?.length) return
+        if (!rawPairs?.length || !sessionKey) return
+        const saved = sessionKey ? sessionStorage.getItem(sessionKey) : null
+        if (saved) {
+            try {
+                const s = JSON.parse(saved)
+                const currentIds = rawPairs.map(p => p.id)
+                const idsMatch = Array.isArray(s.pairIds) &&
+                    s.pairIds.length === rawPairs.length &&
+                    s.pairIds.every((id: number) => currentIds.includes(id))
+                if (idsMatch && s.started && !s.finished) {
+                    setTermOrder(s.termOrder)
+                    setDefOrder(s.defOrder)
+                    setMatched(new Set(s.matchedIds ?? []))
+                    penaltyRef.current = s.totalPenalty ?? 0
+                    startTimeRef.current = s.startTimeMs
+                    const elapsed = (Date.now() - s.startTimeMs) / 1000
+                    const restored = Math.max(0, Math.floor(INITIAL_SCORE - elapsed * DECAY_PER_S - (s.totalPenalty ?? 0)))
+                    scoreRef.current = restored
+                    setScore(restored)
+                    setStarted(true)
+                    return
+                }
+            } catch { /* corrupt — fall through */ }
+        }
         const ids = rawPairs.map(p => p.id)
         setTermOrder(shuffle(ids))
         setDefOrder(shuffle(ids))
-    }, [rawPairs])
+    }, [rawPairs, sessionKey])
 
     // ── particles ─────────────────────────────────────────────────────────────
     const fireParticles = (id: number) => {
@@ -114,12 +139,28 @@ export default function TextMatch() {
     const endGame = useCallback((finalScore: number) => {
         if (finishedRef.current) return
         finishedRef.current = true
+        if (sessionKey) sessionStorage.removeItem(sessionKey)
         setFinished(true)
         if (!submitted) {
             setSubmitted(true)
             submitMutation.mutate({ finalScore })
         }
-    }, [submitted])
+    }, [submitted, sessionKey])
+
+    // ── session persistence save ──────────────────────────────────────────────
+    useEffect(() => {
+        if (!sessionKey || !started || finished || !termOrder.length || !rawPairs?.length) return
+        sessionStorage.setItem(sessionKey, JSON.stringify({
+            pairIds: rawPairs.map(p => p.id),
+            termOrder,
+            defOrder,
+            startTimeMs: startTimeRef.current,
+            matchedIds: [...matched],
+            totalPenalty: penaltyRef.current,
+            started: true,
+            finished: false,
+        }))
+    }, [matched, started, wrongCount]) // eslint-disable-line react-hooks/exhaustive-deps
 
     // ── live score decay ──────────────────────────────────────────────────────
     useEffect(() => {
@@ -164,17 +205,31 @@ export default function TextMatch() {
             // timer accounts for this penalty on its next tick
             penaltyRef.current += WRONG_PENALTY
             setScore(prev => Math.max(0, prev - WRONG_PENALTY))
+            setWrongCount(prev => prev + 1)
             setTimeout(() => { setWrongPair(null); setSelectedTerm(null) }, 650)
         }
     }
 
     const handleStart = () => {
-        startTimeRef.current = Date.now()
+        const now = Date.now()
+        startTimeRef.current = now
         finishedRef.current = false
         scoreRef.current = INITIAL_SCORE
         penaltyRef.current = 0 // ── PENALTY REF ── DO NOT REMOVE
         setScore(INITIAL_SCORE)
         setStarted(true)
+        if (sessionKey && rawPairs?.length) {
+            sessionStorage.setItem(sessionKey, JSON.stringify({
+                pairIds: rawPairs.map(p => p.id),
+                termOrder,
+                defOrder,
+                startTimeMs: now,
+                matchedIds: [],
+                totalPenalty: 0,
+                started: true,
+                finished: false,
+            }))
+        }
     }
 
     // Mid-game status polling (anti-cheat)
