@@ -81,7 +81,7 @@ export default function ITMatch() {
                         setScore(s.score ?? 0)
                         setAnswers(s.answers ?? {})
                         setAnswerStats(s.answerStats ?? [])
-                        setQuestionStartTime(s.questionStartTime ?? Date.now())
+                        setQuestionStartTime(Date.now()) // reset per-question timer on re-entry to prevent auto-timeout
                         setCurrentPotentialScore(MAX_Q_POINTS)
                         return
                     }

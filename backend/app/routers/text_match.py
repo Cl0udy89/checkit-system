@@ -56,4 +56,5 @@ async def get_text_match_questions(
         return []
 
     sample_size = min(count, len(mapped))
-    return random.sample(mapped, sample_size)
+    rng = random.Random(user.id)
+    return rng.sample(mapped, sample_size)

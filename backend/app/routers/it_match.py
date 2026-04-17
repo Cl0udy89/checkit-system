@@ -61,4 +61,5 @@ async def get_questions(count: int = 10, user=Depends(get_current_user), session
         return []
         
     sample_size = min(count, len(mapped))
-    return random.sample(mapped, sample_size)
+    rng = random.Random(user.id)
+    return rng.sample(mapped, sample_size)
