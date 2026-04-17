@@ -106,7 +106,7 @@ export default function AdminLogin() {
                 </div>
 
                 <p className="text-primary/20 text-[10px] font-mono text-center mt-4">
-                    CHECKIT ADMIN // SPARKSOME VENTURE
+                    SPARKSOMEVENTURE // ADMIN PANEL
                 </p>
             </div>
         </div>
