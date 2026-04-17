@@ -103,8 +103,8 @@ export default function ScreenLeaderboard() {
     const { data, isLoading } = useQuery({
         queryKey: ['leaderboard'],
         queryFn: fetchLeaderboard,
-        refetchInterval: 30000,
-        staleTime: 25000,
+        refetchInterval: 5000,
+        staleTime: 4000,
         refetchIntervalInBackground: true,
     })
 
