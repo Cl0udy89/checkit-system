@@ -23,8 +23,8 @@ async def get_text_match_questions(
     user=Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ):
-    """Returns a random set of term↔definition pairs for the TextMatch game."""
-    from app.models import SystemConfig
+    """Returns a deterministic set of pairs for this user. Records game start on first call."""
+    from app.models import SystemConfig, GameScore, GameSession
     from sqlmodel import select
 
     conf_res = await session.execute(
@@ -36,6 +36,21 @@ async def get_text_match_questions(
             raise HTTPException(status_code=403, detail="ZAWODY_ZAKONCZONE")
         elif conf.value == "technical_break":
             raise HTTPException(status_code=403, detail="PRZERWA_TECHNICZNA")
+
+    # Block if already scored
+    existing_score = (await session.execute(
+        select(GameScore).where(GameScore.user_id == user.id, GameScore.game_type == "text_match")
+    )).scalar_one_or_none()
+    if existing_score:
+        raise HTTPException(status_code=403, detail="ALREADY_PLAYED")
+
+    # Register game start (once — subsequent calls are no-ops)
+    existing_session = (await session.execute(
+        select(GameSession).where(GameSession.user_id == user.id, GameSession.game_type == "text_match")
+    )).scalar_one_or_none()
+    if not existing_session:
+        session.add(GameSession(user_id=user.id, game_type="text_match"))
+        await session.commit()
 
     pairs_data = content_service.get_questions("text_match", limit=100)
 

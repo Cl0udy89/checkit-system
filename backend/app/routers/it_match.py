@@ -1,8 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-import csv
 import random
-import os
 from typing import List
 
 router = APIRouter()
@@ -30,9 +28,9 @@ from fastapi import Depends
 @router.get("/questions", response_model=List[ITMatchQuestion])
 async def get_questions(count: int = 10, user=Depends(get_current_user), session: AsyncSession = Depends(get_session)):
     """
-    Returns a random set of questions from ContentService.
+    Returns a deterministic set of questions for this user. Records game start on first call.
     """
-    from app.models import SystemConfig
+    from app.models import SystemConfig, GameScore, GameSession
     from sqlmodel import select
     conf_res = await session.execute(select(SystemConfig).where(SystemConfig.key == "competition_active"))
     conf = conf_res.scalar_one_or_none()
@@ -41,6 +39,21 @@ async def get_questions(count: int = 10, user=Depends(get_current_user), session
             raise HTTPException(status_code=403, detail="ZAWODY_ZAKONCZONE")
         elif conf.value == "technical_break":
             raise HTTPException(status_code=403, detail="PRZERWA_TECHNICZNA")
+
+    # Block if already scored
+    existing_score = (await session.execute(
+        select(GameScore).where(GameScore.user_id == user.id, GameScore.game_type == "it_match")
+    )).scalar_one_or_none()
+    if existing_score:
+        raise HTTPException(status_code=403, detail="ALREADY_PLAYED")
+
+    # Register game start (once — subsequent calls are no-ops)
+    existing_session = (await session.execute(
+        select(GameSession).where(GameSession.user_id == user.id, GameSession.game_type == "it_match")
+    )).scalar_one_or_none()
+    if not existing_session:
+        session.add(GameSession(user_id=user.id, game_type="it_match"))
+        await session.commit()
 
     questions_data = content_service.get_questions("it_match", limit=50) # Get all avaliable
     

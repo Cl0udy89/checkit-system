@@ -43,7 +43,7 @@ export default function ITMatch() {
         onSuccess: () => { }
     })
 
-    const { data, isLoading, isError } = useQuery({
+    const { data, isLoading, isError, error } = useQuery({
         queryKey: ['it_match_questions'],
         queryFn: fetchITMatchQuestions,
         refetchOnWindowFocus: false,
@@ -199,6 +199,18 @@ export default function ITMatch() {
     if (isLoading) return (
         <div className="min-h-screen flex items-center justify-center font-mono text-primary text-xl animate-pulse">
             &gt; LOADING_ASSETS..._
+        </div>
+    )
+
+    const errDetail = (error as any)?.response?.data?.detail
+    if (errDetail === 'ALREADY_PLAYED') return (
+        <div className="min-h-screen flex flex-col items-center justify-center font-mono">
+            <div className="crt-border bg-surface p-8 max-w-md w-full text-center">
+                <p className="text-primary/50 text-[10px] uppercase tracking-widest mb-2">&gt; STATUS</p>
+                <h1 className="text-2xl font-bold text-primary text-glow mb-2">JUŻ ZAGRANO!</h1>
+                <p className="text-primary/40 mb-8">Twój wynik został już zapisany.</p>
+                <button onClick={() => navigate('/dashboard')} className="border border-primary/25 hover:border-primary/60 text-primary/60 hover:text-primary px-6 py-3 font-mono text-sm transition-all">&gt; POWRÓT</button>
+            </div>
         </div>
     )
 

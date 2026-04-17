@@ -33,6 +33,15 @@ class SystemConfig(SQLModel, table=True):
     key: str = Field(primary_key=True)
     value: str
 
+class GameSession(SQLModel, table=True):
+    """Records the moment a user first fetches questions for a game. Prevents restart exploits."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id")
+    game_type: str
+    started_at: datetime = Field(default_factory=datetime.utcnow)
+
+    __table_args__ = (UniqueConstraint("user_id", "game_type", name="unique_user_game_session"),)
+
 class EmailTemplate(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     slug: str = Field(unique=True, index=True) # e.g. "winner_grandmaster"
