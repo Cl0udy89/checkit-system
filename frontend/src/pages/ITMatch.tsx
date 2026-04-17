@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchITMatchQuestions, submitGameScore, BACKEND_URL } from '../lib/api'
@@ -31,6 +31,7 @@ export default function ITMatch() {
     const MAX_Q_POINTS = 1000
     const [questionStartTime, setQuestionStartTime] = useState(Date.now())
     const [currentPotentialScore, setCurrentPotentialScore] = useState(MAX_Q_POINTS)
+    const answeredRef = useRef(false) // sync guard — prevents double-answer from stale closure
 
     const showPoints = (val: number, label: string) => {
         const id = Date.now() + Math.random()
@@ -139,7 +140,8 @@ export default function ITMatch() {
     }, [questionStartTime, gameOver, questions, gameState, currentIndex, score, answers, user])
 
     const handleSwipe = (direction: 'left' | 'right' | 'timeout') => {
-        if (gameState !== 'playing') return
+        if (gameState !== 'playing' || answeredRef.current) return
+        answeredRef.current = true
 
         const currentQ = questions[currentIndex]
         const isSafe = currentQ.is_correct
@@ -167,6 +169,7 @@ export default function ITMatch() {
         setGameState('feedback')
 
         setTimeout(() => {
+            answeredRef.current = false
             if (currentIndex < questions.length - 1) {
                 setCurrentIndex(prev => prev + 1)
                 setQuestionStartTime(Date.now())
