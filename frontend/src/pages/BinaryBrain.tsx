@@ -47,6 +47,7 @@ export default function BinaryBrain() {
         queryKey: ['questions', 'binary_brain'],
         queryFn: () => fetchGameContent('binary_brain'),
         staleTime: Infinity,
+        refetchOnWindowFocus: false,
         retry: false
     })
 
@@ -62,12 +63,26 @@ export default function BinaryBrain() {
                 try {
                     const s = JSON.parse(saved)
                     if (typeof s.currentQIndex === 'number' && s.currentQIndex < questions.length) {
-                        setCurrentQIndex(s.currentQIndex)
-                        setTotalScore(s.totalScore ?? 0)
-                        setAnswers(s.answers ?? {})
-                        setAnswerStats(s.answerStats ?? [])
-                        setQuestionStartTime(s.questionStartTime ?? Date.now())
+                        const restoredAnswers = s.answers ?? {}
+                        let restoredIndex = s.currentQIndex
+                        // Skip questions already answered (prevents mid-feedback navigation exploit)
+                        while (restoredIndex < questions.length - 1 &&
+                            restoredAnswers[questions[restoredIndex].id] !== undefined) {
+                            restoredIndex++
+                        }
                         setHasLoaded(true)
+                        // If all answered but game wasn't finished, finish now
+                        if (restoredIndex >= questions.length ||
+                            (restoredIndex === questions.length - 1 &&
+                                restoredAnswers[questions[restoredIndex].id] !== undefined)) {
+                            finishGame(s.totalScore ?? 0, restoredAnswers, s.answerStats ?? [])
+                            return
+                        }
+                        setCurrentQIndex(restoredIndex)
+                        setTotalScore(s.totalScore ?? 0)
+                        setAnswers(restoredAnswers)
+                        setAnswerStats(s.answerStats ?? [])
+                        setQuestionStartTime(Date.now())
                         return
                     }
                 } catch { /* corrupt – fall through to fresh start */ }
@@ -88,7 +103,7 @@ export default function BinaryBrain() {
         sessionStorage.setItem(`bb_session_${user.id}`, JSON.stringify({
             currentQIndex, totalScore, answers, answerStats, questionStartTime
         }))
-    }, [currentQIndex, totalScore]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [currentQIndex, totalScore, answers]) // eslint-disable-line react-hooks/exhaustive-deps
 
     // Shuffle options immediately during render when question changes
     const shuffledOptions = useMemo(() => {

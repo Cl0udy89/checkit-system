@@ -131,7 +131,7 @@ export default function ITMatch() {
             questionIds: questions.map(q => q.id),
             currentIndex, score, answers, answerStats, questionStartTime
         }))
-    }, [currentIndex, score]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [currentIndex, score, answers]) // eslint-disable-line react-hooks/exhaustive-deps
 
     // Timer Effect (Per Question)
     useEffect(() => {

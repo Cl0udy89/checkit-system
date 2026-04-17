@@ -74,12 +74,20 @@ async def get_content(game_type: str, user=Depends(get_current_user), session: A
             raise HTTPException(status_code=403, detail="PRZERWA_TECHNICZNA")
         
     # Check if user already played
-    from app.models import GameScore
+    from app.models import GameScore, GameSession
     existing_stmt = select(GameScore).where(GameScore.user_id == user.id, GameScore.game_type == game_type)
     existing = (await session.execute(existing_stmt)).scalar_one_or_none()
     if existing:
         raise HTTPException(status_code=403, detail="ALREADY_PLAYED")
-        
+
+    # Register game start (once — subsequent calls are no-ops)
+    existing_session = (await session.execute(
+        select(GameSession).where(GameSession.user_id == user.id, GameSession.game_type == game_type)
+    )).scalar_one_or_none()
+    if not existing_session:
+        session.add(GameSession(user_id=user.id, game_type=game_type))
+        await session.commit()
+
     limit = 10 # Default max set to 10 as per requirement
     if game_type == "binary_brain":
         limit = 10
