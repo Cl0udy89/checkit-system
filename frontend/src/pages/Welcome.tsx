@@ -59,9 +59,25 @@ export default function Welcome() {
     const handleScreenshot = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (!file) return
-        setScreenshot(file)
         const reader = new FileReader()
-        reader.onload = () => setScreenshotPreview(reader.result as string)
+        reader.onload = (ev) => {
+            const img = new Image()
+            img.onload = () => {
+                const canvas = document.createElement('canvas')
+                const MAX = 1200
+                const scale = Math.min(1, MAX / Math.max(img.width, img.height))
+                canvas.width = img.width * scale
+                canvas.height = img.height * scale
+                canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height)
+                canvas.toBlob((blob) => {
+                    if (!blob) return
+                    const compressed = new File([blob], file.name, { type: 'image/jpeg' })
+                    setScreenshot(compressed)
+                    setScreenshotPreview(canvas.toDataURL('image/jpeg', 0.7))
+                }, 'image/jpeg', 0.7)
+            }
+            img.src = ev.target!.result as string
+        }
         reader.readAsDataURL(file)
     }
 
