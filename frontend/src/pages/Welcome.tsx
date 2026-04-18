@@ -11,9 +11,7 @@ const FB_PAGE_URL = 'https://www.facebook.com/sparksomeventure'
 const LI_PAGE_URL = 'https://pl.linkedin.com/company/sparksome-venture'
 
 const registerUser = async (formData: FormData) => {
-    const { data } = await api.post('/auth/register', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    })
+    const { data } = await api.post('/auth/register', formData)
     return data
 }
 
@@ -275,20 +273,20 @@ export default function Welcome() {
 
                             {/* Screenshot upload */}
                             <div>
-                                <p className="text-primary/30 text-[10px] font-mono mb-1.5">SCREENSHOT POTWIERDZAJĄCY (OPCJONALNIE)</p>
+                                <p className="text-primary/70 text-[10px] font-mono mb-1.5 tracking-widest">📸 SCREENSHOT POTWIERDZAJĄCY <span className="text-primary/40">(OPCJONALNIE)</span></p>
                                 {screenshotPreview ? (
                                     <div className="relative">
-                                        <img src={screenshotPreview} alt="Screenshot" className="w-full max-h-24 object-cover border border-primary/20 opacity-60" />
+                                        <img src={screenshotPreview} alt="Screenshot" className="w-full max-h-24 object-cover border border-primary/40 opacity-80" />
                                         <button type="button" onClick={removeScreenshot}
                                             className="absolute top-1 right-1 bg-black/80 border border-primary/30 text-primary/60 hover:text-primary p-0.5 transition-colors">
                                             <X size={10} />
                                         </button>
-                                        <p className="text-primary/30 font-mono text-[9px] mt-1 truncate">{screenshot?.name}</p>
+                                        <p className="text-primary/40 font-mono text-[9px] mt-1 truncate">{screenshot?.name}</p>
                                     </div>
                                 ) : (
                                     <button type="button" onClick={() => fileInputRef.current?.click()}
-                                        className="flex items-center gap-2 w-full border border-dashed border-primary/20 hover:border-primary/50 text-primary/30 hover:text-primary/60 py-2 px-3 font-mono text-[10px] transition-all justify-center">
-                                        <Upload size={12} />
+                                        className="flex items-center gap-2 w-full border-2 border-dashed border-primary/60 hover:border-primary bg-primary/5 hover:bg-primary/10 text-primary/70 hover:text-primary py-4 px-3 font-mono text-[11px] font-bold tracking-widest transition-all justify-center">
+                                        <Upload size={16} />
                                         WGRAJ SCREENSHOT
                                     </button>
                                 )}
