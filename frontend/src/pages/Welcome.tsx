@@ -11,7 +11,7 @@ const FB_PAGE_URL = 'https://www.facebook.com/sparksomeventure'
 const LI_PAGE_URL = 'https://pl.linkedin.com/company/sparksome-venture'
 
 const registerUser = async (formData: FormData) => {
-    const { data } = await api.post('/auth/register', formData)
+    const { data } = await api.post('/auth/register', formData, { timeout: 20000 })
     return data
 }
 
@@ -41,7 +41,9 @@ export default function Welcome() {
             navigate('/dashboard')
         },
         onError: (err: any) => {
-            if (err.message === 'Network Error') {
+            if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+                setError('ERR: Przekroczono czas połączenia. Spróbuj ponownie.')
+            } else if (err.message === 'Network Error') {
                 setError('ERR: Brak połączenia z serwerem.')
             } else {
                 const detail = err.response?.data?.detail
