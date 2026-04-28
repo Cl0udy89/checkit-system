@@ -459,6 +459,7 @@ export default function Admin() {
                                 <th className="p-3">ID</th>
                                 <th className="p-3">NICK</th>
                                 <th className="p-3">EMAIL</th>
+                                <th className="p-3">NEWSLETTER</th>
                                 <th className="p-3">UTWORZONO</th>
                                 <th className="p-3">SCREEN</th>
                                 <th className="p-3">AKCJA</th>
@@ -474,6 +475,13 @@ export default function Admin() {
                                         <td className="p-3">{u.id}</td>
                                         <td className="p-3 font-bold text-white max-w-[150px] truncate">{u.nick}</td>
                                         <td className="p-3 text-gray-400 max-w-[200px] truncate">{u.email}</td>
+                                        <td className="p-3 text-center">
+                                            {u.agree_newsletter ? (
+                                                <span className="text-green-400 font-bold">TAK</span>
+                                            ) : (
+                                                <span className="text-gray-600">NIE</span>
+                                            )}
+                                        </td>
                                         <td className="p-3">{new Date(u.created_at).toLocaleDateString()}</td>
                                         <td className="p-3">
                                             {u.screenshot_b64 ? (
