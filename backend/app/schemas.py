@@ -4,12 +4,14 @@ from typing import List, Optional
 class UserCreate(BaseModel):
     nick: str
     email: EmailStr
+    agree_newsletter: bool = False
 
 class UserRead(BaseModel):
     id: int
     nick: str
     email: str
     is_blocked: bool
+    agree_newsletter: bool
     screenshot_b64: Optional[str] = None
     screenshot_name: Optional[str] = None
 

@@ -10,7 +10,7 @@ services:
     volumes:
       - ./config.yaml:/app/config.yaml:ro
       - ./content:/app/content:ro
-      - checkit_db:/app/backend/db
+      - ./db_data:/app/backend/db
     networks:
       - checkit_net
 
@@ -32,5 +32,3 @@ services:
 networks:
   checkit_net:
 
-volumes:
-  checkit_db:

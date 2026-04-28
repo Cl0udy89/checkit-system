@@ -99,7 +99,7 @@ class AuthService:
              raise HTTPException(status_code=409, detail="Email już zarejestrowany z innym nickiem.")
 
         # 4. Create User
-        user = User(nick=user_in.nick, email=user_in.email)
+        user = User(nick=user_in.nick, email=user_in.email, agree_newsletter=user_in.agree_newsletter)
         session.add(user)
         await session.commit()
         await session.refresh(user)

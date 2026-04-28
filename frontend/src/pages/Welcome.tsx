@@ -97,6 +97,7 @@ export default function Welcome() {
         const fd = new FormData()
         fd.append('nick', nick)
         fd.append('email', email)
+        fd.append('agree_newsletter', String(agreeNewsletter))
         if (screenshot) fd.append('screenshot', screenshot)
         mutation.mutate(fd)
     }
@@ -214,12 +215,15 @@ export default function Welcome() {
                                     { value: agreeData, setter: setAgreeData, text: 'Przyjmuję do wiadomości przetwarzanie moich danych (nick, e-mail) w celu organizacji konkursu, publikacji wyników i wydania nagród.' },
                                 ].map((consent, i) => (
                                     <label key={i} className="flex items-start gap-3 cursor-pointer group">
-                                        <div
-                                            onClick={() => consent.setter(!consent.value)}
-                                            className={`w-4 h-4 border mt-0.5 shrink-0 flex items-center justify-center transition-all cursor-pointer ${
-                                                consent.value ? 'border-primary bg-primary/20' : 'border-primary/30 bg-transparent'
-                                            }`}
-                                        >
+                                        <input
+                                            type="checkbox"
+                                            checked={consent.value}
+                                            onChange={() => consent.setter(!consent.value)}
+                                            className="sr-only"
+                                        />
+                                        <div className={`w-4 h-4 border mt-0.5 shrink-0 flex items-center justify-center transition-colors cursor-pointer ${
+                                            consent.value ? 'border-primary bg-primary/20' : 'border-primary/30 bg-transparent'
+                                        }`}>
                                             {consent.value && <span className="text-[10px] text-primary font-mono font-bold leading-none">✓</span>}
                                         </div>
                                         <span className="text-primary/40 text-[10px] font-mono leading-relaxed group-hover:text-primary/60 transition-colors">
@@ -233,12 +237,15 @@ export default function Welcome() {
                                 ))}
                                 {/* Newsletter — dobrowolny */}
                                 <label className="flex items-start gap-3 cursor-pointer group">
-                                    <div
-                                        onClick={() => setAgreeNewsletter(!agreeNewsletter)}
-                                        className={`w-4 h-4 border mt-0.5 shrink-0 flex items-center justify-center transition-all cursor-pointer ${
-                                            agreeNewsletter ? 'border-primary bg-primary/20' : 'border-primary/30 bg-transparent'
-                                        }`}
-                                    >
+                                    <input
+                                        type="checkbox"
+                                        checked={agreeNewsletter}
+                                        onChange={() => setAgreeNewsletter(!agreeNewsletter)}
+                                        className="sr-only"
+                                    />
+                                    <div className={`w-4 h-4 border mt-0.5 shrink-0 flex items-center justify-center transition-colors cursor-pointer ${
+                                        agreeNewsletter ? 'border-primary bg-primary/20' : 'border-primary/30 bg-transparent'
+                                    }`}>
                                         {agreeNewsletter && <span className="text-[10px] text-primary font-mono font-bold leading-none">✓</span>}
                                     </div>
                                     <span className="text-primary/40 text-[10px] font-mono leading-relaxed group-hover:text-primary/60 transition-colors">

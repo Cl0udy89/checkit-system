@@ -19,6 +19,7 @@ async def register(
     request: Request,
     nick: str = Form(...),
     email: str = Form(...),
+    agree_newsletter: bool = Form(default=False),
     screenshot: UploadFile | None = File(default=None),
     session: AsyncSession = Depends(get_session)
 ):
@@ -26,7 +27,7 @@ async def register(
     Registers a new user. Accepts multipart form with optional screenshot.
     """
     try:
-        user = UserCreate(nick=nick[:15], email=email)
+        user = UserCreate(nick=nick[:15], email=email, agree_newsletter=agree_newsletter)
         new_user = await auth_service.register_user(user, session)
 
         if screenshot and screenshot.filename:

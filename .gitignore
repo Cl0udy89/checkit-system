@@ -69,8 +69,10 @@ backend/*.db
 backend/*.db-journal
 backend/*.sqlite
 backend/*.sqlite3
+db_data/
+db_backups/
 
-# (jeśli chcesz zostawić checkit.db w repo, zakomentuj 3 linie powyżej)
+# (jeśli chcesz zostawić checkit.db w repo, zakomentuj linie powyżej)
 
 # --- Claude Code internal files ---
 .claude/

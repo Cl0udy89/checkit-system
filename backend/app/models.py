@@ -8,6 +8,7 @@ class User(SQLModel, table=True):
     email: str
     created_at: datetime = Field(default_factory=datetime.utcnow)
     is_blocked: bool = Field(default=False)
+    agree_newsletter: bool = Field(default=False)
     screenshot_b64: Optional[str] = Field(default=None)
     screenshot_name: Optional[str] = Field(default=None)
 
